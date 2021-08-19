@@ -3,6 +3,11 @@ import { styled } from 'solid-styled-components';
 export const StyledContainer = styled('div')`
     padding-top: 6px;
 
+    ${p => p.horizontal ? `
+        display: flex;   
+        align-items: center;
+    ` : '' } 
+
     ${p => p.box ? `
         position: relative;
         min-width: 255px;
@@ -26,9 +31,20 @@ export const StyledChecking = styled('div')`
     align-items: center;
     justify-content: center;
     border-radius: 3px;
+
+    ${p => p.horizontal ? `
+        flex-direction: row;
+        align-items: center;
+    ` : '' } 
+
 `;
 
 export const StyledStatusText = styled('div')`
     text-align: center;
+    min-width: 100px;
+    ${p => p.horizontal ? `
+        margin-top: 10px;
+    ` : '' }
+
 `;
 

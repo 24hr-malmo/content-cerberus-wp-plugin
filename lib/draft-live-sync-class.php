@@ -370,8 +370,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $post_id = $post ? $post->ID : null;
 
+            $screen = get_current_screen();
+            $is_menu_admin = $screen->base === 'nav-menus';
+
             $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( 'ajax', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
-            $output .= '<div id="dls-metabox-root"></div>';
+            $output .= '<div id="dls-metabox-root"' . ($is_menu_admin ? 'data-type="nav-menu"' : '') . '></div>';
 
             if ($echo) {
                 echo $output;

@@ -77,28 +77,28 @@ const MetaBox = ({options}) => {
     };
 
     return (
-        <StyledContainer box={options.optionsMeta}>
+        <StyledContainer horizontal={options.metaMenu} box={options.optionsMeta}>
             <Show when={checking()}>
-                <StyledChecking>
-                    <Loading />
+                <StyledChecking horizontal={options.metaMenu}>
+                    <Loading size={ options.metaMenu ? 'small' : 'large' } />
                     <StyledStatusText>Checking content in draft and live</StyledStatusText>
                 </StyledChecking>
             </Show>
             <Show when={!checking()}>
-                <StyledStatusText>Publish content</StyledStatusText>
-                <Button loading={publishing()} onClick={ () => publish() } disabled={status.live?.synced}>
+                <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
+                <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ () => publish() } disabled={status.live?.synced}>
                     { status.live?.synced ? 'Published to live site' : 'Publish to live site' }
                 </Button>
-                <Button loading={unpublishing()} onClick={ () => unpublish() } disabled={!status.live?.synced}>
+                <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ () => unpublish() } disabled={!status.live?.synced}>
                     { status.live && status.live.synced ? 'Unpublish from live site' : 'Content not published' }
                 </Button>
                 <Show when={options.enableTestContent}>
-                    <Button loading={unpublishing()} onClick={ () => unpublish() } disabled={!status.test?.synced}>
+                    <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ () => unpublish() } disabled={!status.test?.synced}>
                         { status.test && status.test.synced ? 'Unpublish from test target' : 'Publish to test target' }
                     </Button>
                 </Show>
                 <Show when={options.enableDiffButton}>
-                    <Button>Show diff (raw)</Button>
+                    <Button leftMargin={options.metaMenu}>Show diff (raw)</Button>
                 </Show>
             </Show>
         </StyledContainer>

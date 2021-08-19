@@ -19,6 +19,7 @@ const renderMetaBox = () => {
     const root = document.getElementById('dls-metabox-root');
     if (root) {
         const data = getData('dls-data');
+        data.metaMenu = root.getAttribute('data-type') === 'nav-menu';
         render(() => (<MetaBox options={data}/>), root);
     }
 };
@@ -31,7 +32,6 @@ const renderAdmin = () => {
 const renderDomainSettings = () => {
     const root = document.getElementById('dls-domain-settings-root');
     const data = getData('dls-data');
-    console.log(data);
     render(() => (<DomainSettings options={data}/>), root);
 };
 
