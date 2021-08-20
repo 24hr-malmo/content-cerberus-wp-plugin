@@ -3,12 +3,9 @@ import { StyledInputBox, StyledInputLabel, StyledSelect } from './select.style.j
 
 const Select = ({options = [], placeholder = '', label = ' ', value, onChange = () => {}}) => {
 
-    const [selected, setSelected] = createSignal(false);
-
     const update = (e) => {
         console.log(e);
         onChange(e.target.value);
-        setSelected(true);
     };
 
     return (
@@ -17,7 +14,7 @@ const Select = ({options = [], placeholder = '', label = ' ', value, onChange = 
             <StyledSelect value={value()} placeholder={placeholder} onChange={update}>
                 <For each={options}>{
                     (option) => (
-                        <option value={option.value} selected={option.value === value() && !selected()}>{option.label}</option>
+                        <option value={option.value} selected={option.value === value()}>{option.label}</option>
                     )
                 }</For>
             </StyledSelect>
