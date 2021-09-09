@@ -60,7 +60,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             if (!isset($this->site_id) || $this->site_id === '' ) {
                 // Set a random string as the site id
-                $this->settings_page->set_site_id(generate_random_string());
+                $this->settings_page->set_site_id($this->generate_random_string());
                 $this->site_id = $this->settings_page->get_site_id();
                 // add_action( 'admin_notices', array(&$this, 'show_site_id_missing_warning'));
             }
