@@ -51,7 +51,7 @@ jQuery(document).ready(function ($) {
 
     console.log('Current hook', hookData && hookData.hook);
 
-    if (hookData.hook === 'post.php') {
+    if ( hookData.hook === 'post.php'|| hookData.hook === 'post-new.php') {
         renderMetaBox();
     } else if (hookData.hook === 'nav-menus.php') {
         renderMetaBox();

@@ -59,7 +59,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $this->site_id = $this->settings_page->get_site_id();
 
             if (!isset($this->site_id) || $this->site_id === '' ) {
-                add_action( 'admin_notices', array(&$this, 'show_site_id_missing_warning'));
+                // Set a random string as the site id
+                $this->settings_page->set_site_id(generate_random_string());
+                $this->site_id = $this->settings_page->get_site_id();
+                // add_action( 'admin_notices', array(&$this, 'show_site_id_missing_warning'));
             }
 
         }
@@ -112,7 +115,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_filter( 'admin_menu', array( &$this, 'add_admin_pages'), 10, 2 );
                 add_action( 'parse_request', array( &$this, 'parse_requests'));
                 add_filter( 'gettext', array( &$this, 'change_publish_button'), 10, 2 );
-                add_filter( 'get_sample_permalink_html', array( &$this, 'set_correct_permalink'));
+                add_filter( 'get_sample_permalink', array( &$this, 'set_correct_permalink'));
+                add_filter( 'page_link', array( &$this, 'set_correct_permalink'));
                 add_action( 'admin_enqueue_scripts', array(&$this, 'enqueue_admin_scripts' ));
                 add_action( 'admin_head-post.php', array( &$this, 'hide_publishing_actions'));
                 add_action( 'admin_head-post-new.php', array( &$this, 'hide_publishing_actions'));
@@ -147,6 +151,16 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             if (strpos($wp->request, 'wp_block/') === 0) {
                 $query-> set('post_type' ,'wp_block');
             }
+        }
+
+        function generate_random_string($length = 10) {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $charactersLength = strlen($characters);
+            $randomString = '';
+            for ($i = 0; $i < $length; $i++) {
+                $randomString .= $characters[rand(0, $charactersLength - 1)];
+            }
+            return $randomString;
         }
 
         function show_site_id_missing_warning() {
