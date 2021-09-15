@@ -2,7 +2,7 @@
 
 trait UpsertTrait {
 
-    public function upsert($target, $permalink = '') {
+    public function upsert($target, $permalink = '', $callbacks = array()) {
 
         error_log('Upsert - target: ' . $target . ' - permalink: ' . $permalink);
 
@@ -28,12 +28,17 @@ trait UpsertTrait {
                 'externalId' => $content->payload->guid,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
+                'order' => isset($content->payload->order) ? $content->payload->order : -1,
                 'content' => $content->payload,
                 'host' => 'wordpress',
             ),
         );
 
         error_log(print_r($variables, true));
+
+        if ($callbacks['content'] && is_callable($callbacks['content'])) {
+            $callbacks['content']($variables);
+        }
 
         $query = <<<'GRAPHQL'
             mutation upsertResource(

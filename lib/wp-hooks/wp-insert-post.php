@@ -33,7 +33,7 @@ trait WpInsertPostTrait {
             $permalink = '/wp_block' . $permalink;
         }
 
-        $this->upsert('draft', $permalink, $post);
+        $this->upsert('draft', $permalink);
 
     }
 

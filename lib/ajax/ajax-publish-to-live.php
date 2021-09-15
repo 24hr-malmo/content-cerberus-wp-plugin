@@ -10,11 +10,11 @@ trait AjaxPublishToLiveTrait {
             $id = $_POST['post_id'];
             $permalink = get_permalink($id);
 
-            $response = $this->upsert('live', $permalink);
+            $response = $this->copy('draft', 'live', $permalink);
 
         } else if (!empty($_POST['permalink'])){
             $permalink = $_POST['permalink'];
-            $response = $this->upsert('live', $permalink);
+            $response = $this->copy('draft', 'live', $permalink);
         }
 
         header( "Content-Type: application/json" );
