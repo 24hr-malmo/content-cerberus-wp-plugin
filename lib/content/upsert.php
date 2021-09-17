@@ -2,7 +2,7 @@
 
 trait UpsertTrait {
 
-    public function upsert($target, $permalink = '') {
+    public function upsert($target, $permalink = '', $callbacks = array()) {
 
         error_log('Upsert - target: ' . $target . ' - permalink: ' . $permalink);
 
@@ -34,6 +34,10 @@ trait UpsertTrait {
         );
 
         error_log(print_r($variables, true));
+
+        if ($callbacks['content'] && is_callable($callbacks['content'])) {
+            $callbacks['content']($variables);
+        }
 
         $query = <<<'GRAPHQL'
             mutation upsertResource(

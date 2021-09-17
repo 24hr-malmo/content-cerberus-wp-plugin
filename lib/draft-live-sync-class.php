@@ -133,6 +133,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_action( 'pre_get_posts', array (&$this, 'prepare_query_for_wp_blocks'), 20);
 
                 $this->add_actions_for_options_pages();
+                $this->replace_preview();
 
             }
 

@@ -1,12 +1,15 @@
 <?php
 
+
 /*
 Plugin Name: Cerberus Content Next
 Plugin URI: http://24hr.se
 Description: Saves content to a Draft Content Service and gives the possibility to push the content to live
-Version: 0.11.6
+Version: 0.11.7
 Author: Dr Tapia <camilo.tapia@24hr.se>
-*/
+ */
+
+include_once 'lib/php-jwt/src/JWT.php';
 
 // don't load directly
 if ( !defined( 'ABSPATH' ) ) {
