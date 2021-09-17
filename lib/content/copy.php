@@ -2,6 +2,25 @@
 
 trait CopyTrait {
 
+    private function publish_reusable_blocks($content, $from_target, $to_target) {
+
+        if (array_key_exists('blocks', $content)) {
+
+            foreach ($content['blocks'] as $block) {
+                
+                // echo $to_target . '-' . $from_target . ' -> ' . $block['blockName']; //  . ' - ' . $block['permalink'] . "\n";
+                if ($block['blockName'] == 'core/block') {
+                    $this->copy($from_target, $to_target, $block['__reference']);
+                }
+
+                $this->publish_reusable_blocks($block, $from_target, $to_target);
+
+            }
+
+        }
+
+    }
+
     public function copy($from_target, $to_target, $permalink = '') {
 
         // Fetch all data from the page
@@ -28,6 +47,13 @@ trait CopyTrait {
 
         error_log(print_r($variables, true));
 
+        if ($to_target == 'live') {
+            $live_content = $this->get_resource_from_content($permalink, $to_target);
+            $page_content = $live_content['data']['resource']['content'];
+            $this->publish_reusable_blocks($page_content, $from_target, $to_target);
+            // echo json_encode($page_content);
+        }
+
         $query = <<<'GRAPHQL'
             mutation copyResource(
                 $fromTarget: String!
@@ -51,5 +77,7 @@ trait CopyTrait {
         $result = graphql_query('http://content/graphql', $query, $variables);
 
         return $result;
+
     }
+
 }

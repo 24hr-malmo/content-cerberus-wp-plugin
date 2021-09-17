@@ -28,6 +28,7 @@ trait UpsertTrait {
                 'externalId' => $content->payload->guid,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
+                'order' => isset($content->payload->order) ? $content->payload->order : -1,
                 'content' => $content->payload,
                 'host' => 'wordpress',
             ),
