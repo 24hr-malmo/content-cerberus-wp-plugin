@@ -9,6 +9,7 @@ trait WpReplacePreview {
         add_action('template_redirect', function() {
 
             if ($_GET['preview'] == 'true' && $_GET['caller'] != 'content-service') {
+
                 global $post;
                 $key = "example_key";
                 $host = "http://draft.dupont.sony.local";
@@ -39,7 +40,7 @@ trait WpReplacePreview {
 
                 <style>
                     button.block-editor-post-preview__button-toggle {
-                        display: none;
+                        display: none2;
                     }
                 </style>
 
@@ -48,7 +49,6 @@ trait WpReplacePreview {
                     window.addEventListener('load', () => {
 
                         const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
-                        const previewLink = originalButton.href;
                         const previewTarget = originalButton.target;
          
                         if (originalButton) {
@@ -67,15 +67,19 @@ trait WpReplacePreview {
 
                                      event.preventDefault();
                                      event.stopPropagation();
-
+                             
                                      wp.data
-                                         .dispatch('core/editor')
-                                         .savePost({ isPreview: true })
-                                         .then(() => {
-                                             window.open( previewLink, previewTarget );
-                                         });
+                                        .dispatch('core/editor')
+                                        .autosave({ isPreview: true })
+                                        .then(() => {
+                                            const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                                            const previewLink = originalButton.href;
+                                            window.open( previewLink, previewTarget );
+                                        });
 
                                 } else {
+                                    const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                                    const previewLink = originalButton.href;
                                     window.open( previewLink, previewTarget );
                                 }
          
@@ -91,3 +95,4 @@ trait WpReplacePreview {
     }
 
 }
+
