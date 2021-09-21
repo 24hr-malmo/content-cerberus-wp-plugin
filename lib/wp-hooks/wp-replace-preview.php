@@ -56,44 +56,66 @@ trait WpReplacePreview {
 
                     window.addEventListener('load', () => {
 
-                        const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
-                        const previewTarget = originalButton.target;
-         
-                        if (originalButton) {
+                        let hasTakenOver = false;
 
-                            const linkToPreview = document.createElement('a');
+                        wp.data.subscribe(() => {
+                            // This is not the pretties way of checking if the preview functionality has been activated
+                            // but we havent found a good, documented, way to check if preview is enabled
+                            const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                            if (originalButton) {
+                                previewTakeover();
+                            }
+                        });
 
-                            linkToPreview.classList.add('components-button');
-                            linkToPreview.classList.add('is-secondary');
-                            linkToPreview.innerHTML = 'Preview';
+                        function previewTakeover() {
 
-                            document.querySelector('.edit-post-header__settings').prepend(linkToPreview);
+                            if (hasTakenOver) {
+                                return;
+                            }
 
-                            linkToPreview.addEventListener('click', function(event) {
+                            const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                            const previewTarget = originalButton.target;
 
-                                if (wp.data.select('core/editor').isEditedPostDirty()) {
+                            if (originalButton) {
+                                hasTakenOver = true;
 
-                                     event.preventDefault();
-                                     event.stopPropagation();
-                             
-                                     wp.data
-                                        .dispatch('core/editor')
-                                        .autosave({ isPreview: true })
-                                        .then(() => {
-                                            const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
-                                            const previewLink = originalButton.href;
-                                            window.open( previewLink, previewTarget );
-                                        });
+                                const linkToPreview = document.createElement('a');
 
-                                } else {
-                                    const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
-                                    const previewLink = originalButton.href;
-                                    window.open( previewLink, previewTarget );
-                                }
-         
-                            });
+                                linkToPreview.classList.add('components-button');
+                                linkToPreview.classList.add('is-secondary');
+                                linkToPreview.innerHTML = 'Preview';
+
+                                document.querySelector('.edit-post-header__settings').prepend(linkToPreview);
+
+                                linkToPreview.addEventListener('click', function(event) {
+
+                                    if (wp.data.select('core/editor').isEditedPostDirty()) {
+
+                                        event.preventDefault();
+                                        event.stopPropagation();
+
+                                        wp.data
+                                            .dispatch('core/editor')
+                                            .autosave({ isPreview: true })
+                                            .then(() => {
+                                                const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                                                const previewLink = originalButton.href;
+                                                window.open( previewLink, previewTarget );
+                                            });
+
+                                    } else {
+                                        const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                                        const previewLink = originalButton.href;
+                                        window.open( previewLink, previewTarget );
+                                    }
+
+                                });
+
+                            }
 
                         }
+
+                        previewTakeover();
 
                    });
                 </script>
