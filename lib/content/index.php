@@ -7,6 +7,7 @@ require $dir . '/copy.php';
 require $dir . '/check-sync.php';
 require $dir . '/get-content.php';
 require $dir . '/recreate-tree.php';
+require $dir . '/get-domain-settings.php';
 require $dir . '/get-resource-from-content.php';
 
 trait ContentTrait {
@@ -15,6 +16,7 @@ trait ContentTrait {
     use CopyTrait;
     use CheckSyncTrait;
     use GetContentTrait;
+    use GetDomainSettingsTrait;
     use RecreateTreeTrait;
     use GetResourceFromContentTrait;
 }
