@@ -16,10 +16,10 @@ trait WpReplacePreview {
                 $domain_settings = $this->get_domain_settings(true, 'draft');
                 $host = get_site_url();
                 if (count($domain_settings) > 0) {
-                        $domain_setting = $domain_settings[0];
-                        $host = $domain_setting['content']['domain'];
+                    $domain_setting = $domain_settings[0];
+                    $host = 'http://' . $domain_setting['content']['domain'];
                 } else {
-                        wp_die('Please set the correct domain in domain settings');
+                    wp_die('Please set the correct domain in domain settings');
                 }
 
                 // $preview = 'preview_id=256&preview_nonce=5eb5b919e2&preview=true';
