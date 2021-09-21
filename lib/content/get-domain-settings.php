@@ -27,17 +27,24 @@ GRAPHQL;
 
         try {
 
-            $result = graphql_query($this->content_host, $query, $variables);
+            $result = graphql_query($this->content_host, $query, $variables);   
             $list = $result['data']['resources'];
 
             if ($only_current_site_id) {
                 $site_id = $this->get_site_id();
-                $list = array_filter($list, function($value) use ($site_id, $target) {
+                $new_list = array();
+                foreach($list as $value) {
+                    $use = false;
                     if ($target != '') {
-                        return $value['content']['siteId'] == $site_id && $value['content']['target'] == $target;
+                        $use = $value['content']['siteId'] == $site_id && $value['content']['target'] == $target;
+                    } else  {
+                            $use = $value['content']['siteId'] == $site_id;
                     }
-                    return $value['content']['siteId'] == $site_id;
-                });
+                    if ($use) {
+                            $new_list[] = $value;
+                    }
+                }
+                return $new_list;
             }
 
             return $list;
