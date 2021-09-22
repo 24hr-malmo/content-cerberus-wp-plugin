@@ -36,6 +36,7 @@
                     'target' => $target,
                     'siteId' => $draft_live_sync->get_site_id(),
                     'domain' => $domain,
+                    'wp-domain' => get_site_url(),
                 ),
                 'host' => 'wordpress',
             ),
