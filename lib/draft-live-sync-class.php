@@ -264,9 +264,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         //     // $post = get_post($post_id);
         //     // Since WP adds "__trashed_[counter]" to the permalink if its trashed, we need to fix it, otherwise, we cant update the content service correclty
         //     if ($status == 'trash') {
-		// 		$re = '/__trashed-\d+/';
+        //      $re = '/__trashed-\d+/';
         //         $permalink = preg_replace($re, '', $permalink);
-   		// 		$re = '/__trashed/';
+        //      $re = '/__trashed/';
         //         $permalink = preg_replace($re, '', $permalink);
         //         
         //         /**
@@ -396,13 +396,18 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return;
             }
 
-   		    return $output;
+            return $output;
 
+        }
+
+        public function get_enabled_post_types() {
+            $post_types = apply_filters('cerberus_post_types', array());
+            return $post_types;
         }
 
         public function meta_box_publish_status() {
 
-			$post_types = $this->settings_page->get_enabled_post_types();
+            $post_types = $this->get_enabled_post_types();
 
             add_meta_box(
                 'publish-status-meta-box',
@@ -728,19 +733,19 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $option_permalinks = $this->get_other_resources();
 
-			foreach ( $option_permalinks as $option_permalink ) {
+            foreach ( $option_permalinks as $option_permalink ) {
                 $option = new stdclass();
                 $option->type = 'option';
                 $option->permalink = rtrim($option_permalink[1], '/');
                 array_push($list, $option);
-			}
+            }
 
             // Add special footer API call
-			$post_types = $this->settings_page->get_enabled_post_types();
+            $post_types = $this->get_enabled_post_types();
 
-			foreach ( $post_types as $post_type ) {
-				$list = array_merge($list, $this->add_to_complete_url_list($post_type));
-			}
+            foreach ( $post_types as $post_type ) {
+                $list = array_merge($list, $this->add_to_complete_url_list($post_type));
+            }
 
             $list = array_merge($list, $this->add_tags_to_complete_url_list());
 

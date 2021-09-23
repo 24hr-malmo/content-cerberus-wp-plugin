@@ -152,7 +152,6 @@
             register_setting( 'my_option_group', 'dls_overwrite_viewable_permalink_host', array( $this, 'sanitize' ) );
 
             add_settings_section( 'settings_site_id', 'Site ID', array( $this, 'print_site_id' ), 'my-setting-admin' );  
-            add_settings_field( 'dls-settings', 'Set the site id for this site', array( $this, 'site_id_callback'), 'my-setting-admin', 'settings_site_id' );      
 
             add_settings_section( 'setting_section_id', 'Post types settings', array( $this, 'print_post_types_info' ), 'my-setting-admin' );  
             add_settings_field( 'dls-settings', 'Select post types', array( $this, 'post_type_callback'), 'my-setting-admin', 'setting_section_id' );      
@@ -187,7 +186,8 @@
         }
 
         public function print_site_id() {
-            print 'Set the site_id for this site. DO NOT CHANGE THIS SETTING LIGHTLY!';
+            $value = get_option( 'dls_settings_site_id' );
+            print "<div style='padding-bottom: 16px; font-size: 16px'>The site_id for this site is: <strong>$value</string></div>";
         }
 
         public function print_post_types_info() {
@@ -273,11 +273,6 @@
         public function overwrite_viewable_permalink_host_callback() {
             $value = get_option( 'dls_overwrite_viewable_permalink_host' );
             printf("<div><input style=\"width: 400px\" type=\"text\" name=\"dls_overwrite_viewable_permalink_host\" value=\"$value\" /></div>");
-        }
-
-        public function site_id_callback() {
-            $value = get_option( 'dls_settings_site_id' );
-            printf("<div><input style=\"width: 400px\" type=\"text\" name=\"dls_settings_site_id\" value=\"$value\" /></div>");
         }
 
     }
