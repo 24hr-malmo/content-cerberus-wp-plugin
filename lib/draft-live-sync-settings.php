@@ -55,28 +55,6 @@
             return false;
         }
 
-        public function get_enabled_post_types() {
-
-            $enabled_list = array();
-            $options = get_option( 'dls_settings_enabled_post_types' );
-
-            $value = array();
-            if (isset($options['post_type']) && ! empty($options['post_type'])) {
-                $value = $options['post_type'];
-            }
-
-            $post_types = get_post_types(); 
-
-            foreach ( get_post_types( '', 'names' ) as $post_type ) {
-                if (in_array($post_type, $value) && !in_array($post_type, $this->ignore_post_types)) {
-                    array_push($enabled_list, $post_type);
-                }
-            }
-
-            return $enabled_list;
-
-        }
-
         public function add_plugin_page() {
             add_submenu_page('draft-live-sync', 'Settings', 'Settings', 'manage_options', 'draft-live-sync-settings', array( &$this, 'create_admin_page'));
         }
@@ -90,7 +68,7 @@
 
             <div>
                 <h2>Enviroment variables</h2>
-                <div>Internal Content Draft URL: <strong><?php echo $this->draft_live_sync->content_draft_url; ?></strong></div>
+                <div>Internal Content URL: <strong><?php echo $this->draft_live_sync->content_host; ?></strong></div>
             </div>
 
             <form method="post" action="options.php">
@@ -112,10 +90,6 @@
 
             if (!get_option('dls_settings_site_id')) {
                 add_option('dls_settings_site_id');
-            }
-
-            if (!get_option('dls_settings_enabled_post_types')) {
-                add_option('dls_settings_enabled_post_types');
             }
 
             if (!get_option('dls_settings_replace_host_list')) {
@@ -143,7 +117,6 @@
             }
       
             register_setting( 'my_option_group', 'dls_settings_site_id', array( $this, 'sanitize' ) );
-            register_setting( 'my_option_group', 'dls_settings_enabled_post_types', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_replace_host_list', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_auto_redirect_to_admin_page', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_enable_diff_viewer', array( $this, 'sanitize' ) );
@@ -153,8 +126,7 @@
 
             add_settings_section( 'settings_site_id', 'Site ID', array( $this, 'print_site_id' ), 'my-setting-admin' );  
 
-            add_settings_section( 'setting_section_id', 'Post types settings', array( $this, 'print_post_types_info' ), 'my-setting-admin' );  
-            add_settings_field( 'dls-settings', 'Select post types', array( $this, 'post_type_callback'), 'my-setting-admin', 'setting_section_id' );      
+            add_settings_section( 'setting_section_id', 'Enabled post types:', array( $this, 'print_post_types_info' ), 'my-setting-admin' );  
 
             add_settings_section( 'settings_replace_hosts', 'Hosts to replace', array( $this, 'print_replace_hosts_info' ), 'my-setting-admin' );  
             add_settings_field( 'dls-settings', 'List of hosts', array( $this, 'replace_hosts_callback'), 'my-setting-admin', 'settings_replace_hosts' );      
@@ -191,7 +163,16 @@
         }
 
         public function print_post_types_info() {
-            print 'Choose which post types should be handled:';
+            print "<div style='padding-bottom: 16px;'>";
+            $post_types = $this->draft_live_sync->get_enabled_post_types(); 
+            foreach ( $post_types as $post_type ) {
+                if (!in_array($post_type, $this->ignore_post_types)) {
+                    printf(
+                        "<div>$post_type</div>"
+                    );
+                }
+            }
+            print "</div>";
         }
 
         public function print_replace_hosts_info() {
@@ -212,27 +193,6 @@
 
         public function print_enable_test_content() {
             print 'If the test content target should be available to use.';            
-        }
-
-        public function post_type_callback() {
-
-            $options = get_option( 'dls_settings_enabled_post_types' );
-            $post_types = get_post_types(); 
-
-            $value = array();
-            if (isset($options['post_type']) && ! empty($options['post_type'])) {
-                $value = $options['post_type'];
-            }
-
-            foreach ( get_post_types( '', 'names' ) as $post_type ) {
-                if (!in_array($post_type, $this->ignore_post_types)) {
-                    $checked = (in_array($post_type, $value) ? 'checked' : '');
-                    printf(
-                        "<div><input type=\"checkbox\" name=\"dls_settings_enabled_post_types[post_type][]\" value=\"$post_type\" $checked /> $post_type</div>"
-                    );
-                }
-            }
-
         }
 
         public function replace_hosts_callback() {

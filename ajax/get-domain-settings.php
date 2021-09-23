@@ -13,33 +13,9 @@
 
         $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
 
-        $query = <<<'GRAPHQL'
-            query resources(
-                $siteId: String!
-                $target: String!
-            ) {
-                resources (
-                    siteId: $siteId
-                    target: $target
-                ) {
-                    key
-                    externalId
-                    content
-                }
-            }
-        GRAPHQL;
-
-        $variables = array(
-            'siteId' => 'domain-settings',
-            'target' => 'domain-settings',
-        );
-
         try {
 
-            $result = graphql_query($draft_live_sync->content_host, $query, $variables);
-
-            // TODO: FILTER SO ONLY THE CORRECT ENTRIES WITH THE SAME SITEIDS ARE RETURNED
-            // $draft_live_sync->get_site_id(),
+            $result = $draft_live_sync->get_domain_settings();
 
             echo json_encode($result);
 

@@ -39,7 +39,7 @@ trait UnpublishTrait {
             'siteId' => $this->site_id,
         );
 
-        $response = graphql_query('http://content/graphql', $query, $variables);
+        $response = graphql_query($this->content_host, $query, $variables);
 
         return $response;
     }

@@ -14,7 +14,7 @@ export const StyledType = styled('div')`
     line-height: 15px;
     margin: 0 5px 0 0;
     border-radius: 2px;
-    width: 40px;
+    width: 70px;
     text-align: center;
     cursor: pointer;
 `;

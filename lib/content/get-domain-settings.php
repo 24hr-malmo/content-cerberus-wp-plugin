@@ -38,10 +38,10 @@ GRAPHQL;
                     if ($target != '') {
                         $use = $value['content']['siteId'] == $site_id && $value['content']['target'] == $target;
                     } else  {
-                            $use = $value['content']['siteId'] == $site_id;
+                        $use = $value['content']['siteId'] == $site_id;
                     }
                     if ($use) {
-                            $new_list[] = $value;
+                        $new_list[] = $value;
                     }
                 }
                 return $new_list;

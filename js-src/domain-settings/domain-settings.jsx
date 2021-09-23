@@ -15,6 +15,7 @@ import {
     StyledRemoveButton,
     StyledTable,
     StyledTDActions,
+    StyledError,
 } from './domain-settings.styled.jsx';
 import { wpAjax } from '../utilities/wp-action.js';
 
@@ -42,15 +43,17 @@ const DomainSettings = ({options}) => {
     const [domain, setDomain] = createSignal('');
     const [target, setTarget] = createSignal('draft');
     const [showCreate, setShowCreate] = createSignal('init');
+    const [errorMessage, setErrorMessage] = createSignal('');
     const [saving, setSaving] = createSignal(false);
 
     const getDomainSettings = async () => {
         const result = await wpAjax(`${options.api}/get-domain-settings.php`);
-        setState('list', result.data.resources);
+        setState('list', result);
     };
 
     const upsert = async (id = makeId(20)) => {
         try {
+            setErrorMessage('');
             if (saving()) {
                 return;
             }
@@ -64,10 +67,15 @@ const DomainSettings = ({options}) => {
             setTarget('draft');
             setDomain('');
             setSaving(false);
-
             setShowCreate('close');
         } catch (err) {
-            console.log(err);
+            console.log('ee', err);
+            if (err.error === 'domain-already-exists') {
+                setErrorMessage('Domain already exists');
+            } else {
+                setErrorMessage('Something caused an error');
+            }
+            setSaving(false);
         }
     };
 
@@ -113,15 +121,16 @@ const DomainSettings = ({options}) => {
             </StyledAddBox>
             <StyledNewDomainContainer state={showCreate()}>
                 <StyledNewDomainInnerContainer>
-                <Heading3>Add new domain and target</Heading3>
-                <StyledNewDomainBox>
-                    <Input placeholder="domain" label="Domain:" value={domain} onChange={(value) => updateValue('domain', value)}/>
-                    <Select options={targetOptions} value={target} onChange={(value) => updateValue('target', value)} />
-                </StyledNewDomainBox>
-                <StyledNewDomainButtonBox>
-                    <Button onClick={() => setShowCreate('close')}>Cancel</Button>
-                    <Button loading={saving()} leftMargin={true} disabled={!domain() || !target()} onClick={() => upsert()}>Save</Button>
-                </StyledNewDomainButtonBox>
+                    <Heading3>Add new domain and target</Heading3>
+                    <StyledNewDomainBox>
+                        <Input placeholder="domain" label="Domain:" value={domain} onChange={(value) => updateValue('domain', value)}/>
+                        <Select options={targetOptions} value={target} onChange={(value) => updateValue('target', value)} />
+                    </StyledNewDomainBox>
+                    <Show when={errorMessage}><StyledError>{errorMessage}</StyledError></Show>
+                    <StyledNewDomainButtonBox>
+                        <Button onClick={() => setShowCreate('close')}>Cancel</Button>
+                        <Button loading={saving()} leftMargin={true} disabled={!domain() || !target()} onClick={() => upsert()}>Save</Button>
+                    </StyledNewDomainButtonBox>
                 </StyledNewDomainInnerContainer>
             </StyledNewDomainContainer>
             <StyledTable>

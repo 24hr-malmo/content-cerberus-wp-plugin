@@ -5,7 +5,7 @@
 Plugin Name: Cerberus Content Next
 Plugin URI: http://24hr.se
 Description: Saves content to a Draft Content Service and gives the possibility to push the content to live
-Version: 0.11.16
+Version: 0.11.17
 Author: Dr Tapia <camilo.tapia@24hr.se>
  */
 
@@ -33,7 +33,7 @@ if ( !defined( 'ABSPATH' ) ) {
         // Init or use instance of the manager.
         $dir = dirname( __FILE__ );
         $api_token = getenv('API_TOKEN');
-        $content_host = getenv('CONTENT_HOST');
+        $content_host = getenv('CONTENT_HOST') ? getenv('CONTENT_HOST') : 'http://content';
 
         if(class_exists( 'DraftLiveSync' )){
             global $draft_live_sync;

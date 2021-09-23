@@ -74,7 +74,7 @@ trait CopyTrait {
         }
         GRAPHQL;
 
-        $result = graphql_query('http://content/graphql', $query, $variables);
+        $result = graphql_query($this->content_host, $query, $variables);
 
         return $result;
 

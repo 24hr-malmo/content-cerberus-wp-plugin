@@ -24,6 +24,20 @@
         $target = $_POST['target'];
         $id = $_POST['id'];
 
+        $domain_settings = $draft_live_sync->get_domain_settings(false);
+
+        $ok = true;
+        foreach($domain_settings as $domain_setting) {
+            if ($domain_setting['content']['domain'] == $domain && $domain_setting['externalId'] != $id) {
+                http_response_code(400);
+                $result = array(
+                    "error" => "domain-already-exists"
+                );
+                echo json_encode($result);
+                exit();
+            }
+        }
+
         $variables = array(
             'target' => 'domain-settings',
             'userInfo' => strval($user->ID),
@@ -41,8 +55,6 @@
                 'host' => 'wordpress',
             ),
         );
-
-        error_log(print_r($variables, true));
 
         $query = <<<'GRAPHQL'
             mutation upsertResource(

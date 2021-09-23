@@ -43,6 +43,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             DraftLiveSync::$version = $version;
 
+            if (!isset($content_host) || $content_host == null) {
+                $content_host = getenv('CONTENT_HOST');
+            }
+
             $this->dir = $dir;
             $this->content_host = $content_host . '/graphql';
             $this->api_token = $api_token;

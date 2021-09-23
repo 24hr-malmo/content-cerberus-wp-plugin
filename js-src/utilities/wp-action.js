@@ -23,7 +23,7 @@ const wpAjax = async (url, data) => new Promise((resolve, reject) => {
             resolve(response);
         },
         error: (xhr, err) => {
-            reject(err);
+            reject(xhr.responseJSON);
         }
     });
 });

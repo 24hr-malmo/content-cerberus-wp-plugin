@@ -23,9 +23,6 @@
 
         try {
 
-
-            error_log('-------------------------- '.$release);
-
             if ($release === 'live') {
                 $result = $draft_live_sync->copy('draft', 'live', $permalink);
             } else {

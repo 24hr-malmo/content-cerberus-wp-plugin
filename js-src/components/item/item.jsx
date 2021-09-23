@@ -29,7 +29,7 @@ const Item = ({ showCheckButton, showSyncButton, showDraft, showLive, item, onCl
             <Show when={showSyncButton}><StyledButton onClick={onClick}>sync</StyledButton></Show>
             <Show when={showCheckButton}><StyledButton onClick={onClick}>check</StyledButton></Show>
             <StyledType onClick={() => onTypeClick(item.type)}>{item.type}</StyledType>
-            <StyledPermalink target="_new" href={ item.permalink }>{ item.permalink }</StyledPermalink>
+            <StyledPermalink target="_new" href={ item.permalink }>{ item.permalink || '/' }</StyledPermalink>
         </StyledItem>
     );
 

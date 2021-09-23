@@ -8,7 +8,6 @@ const Navigation = () => {
 
     return (
         <Container>
-            <StyledLink href="#start">Start</StyledLink>
             <StyledLink href="#sync-check">Sync Check</StyledLink>
             <StyledLink href="#sync-draft">Sync Draft</StyledLink>
             <StyledLink href="#sync-live">Sync Live</StyledLink>

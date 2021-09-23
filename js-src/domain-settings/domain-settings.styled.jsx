@@ -81,6 +81,10 @@ export const StyledNewDomainButtonBox = styled('div')`
     justify-content: flex-end;
 `;
 
+export const StyledError = styled('div')`
+    color red;
+`;
+
 export const StyledRemoveButton = styled('div')`
     background-color: #2271b1;
     font-size: 10px;
