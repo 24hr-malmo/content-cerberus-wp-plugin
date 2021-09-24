@@ -52,7 +52,12 @@ const MetaBox = ({options}) => {
 
     };
 
-    const publish = async () => {
+    const publish = async (e) => {
+
+        // If we dont stop the event, the options page in wp is saved by ACF
+        e.preventDefault();
+        e.stopPropagation();
+
         setPublishing(true);
         const result = await wpAjaxAction('publish_to_live', payload);
         if (result.data) {
@@ -62,9 +67,15 @@ const MetaBox = ({options}) => {
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
+
     };
 
-    const unpublish = async () => {
+    const unpublish = async (e) => {
+
+        // If we dont stop the event, the options page in wp is saved by ACF
+        e.preventDefault();
+        e.stopPropagation();
+
         setUnpublishing(true);
         const result = await wpAjaxAction('unpublish_from_live', payload);
         if (result.data) {
@@ -74,6 +85,7 @@ const MetaBox = ({options}) => {
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
         setUnpublishing(false);
+
     };
 
     return (
@@ -89,11 +101,11 @@ const MetaBox = ({options}) => {
                 <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ () => publish() } disabled={status.live?.synced}>
                     { status.live?.synced ? 'Published to live site' : 'Publish to live site' }
                 </Button>
-                <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ () => unpublish() } disabled={!status.live?.synced}>
+                <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={!status.live?.synced}>
                     { status.live && status.live.synced ? 'Unpublish from live site' : 'Content not published' }
                 </Button>
                 <Show when={options.enableTestContent}>
-                    <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ () => unpublish() } disabled={!status.test?.synced}>
+                    <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={!status.test?.synced}>
                         { status.test && status.test.synced ? 'Unpublish from test target' : 'Publish to test target' }
                     </Button>
                 </Show>

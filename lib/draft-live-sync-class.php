@@ -5,7 +5,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
     $dir = dirname( __FILE__ ) . '/';
     require_once($dir . '/graphql.php' );
     require_once($dir . '/draft-live-sync-settings.php');
-    require_once($dir . '/draft-live-sync-meta-box-callback.php');
+    //require_once($dir . '/draft-live-sync-meta-box-callback.php');
     require_once($dir . '/ajax/index.php');
     require_once($dir . '/content/index.php');
     require_once($dir . '/../misc/index.php');
@@ -31,6 +31,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         private $pre_term_url;
         private $settings_page;
         private $site_id;
+
+        private $options_endpoints = array();
 
         static function getInstance() {
             if (is_null(DraftLiveSync::$singleton)) {
@@ -136,7 +138,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
                 add_action( 'pre_get_posts', array (&$this, 'prepare_query_for_wp_blocks'), 20);
 
-                $this->add_actions_for_options_pages();
+                // $this->add_actions_for_options_pages();
                 $this->replace_preview();
 
             }
@@ -174,24 +176,30 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
         }
 
+                                                                                                                              
+        public function add_options_meta_box($options_screen, $permalink) {
 
-        function add_actions_for_options_pages () {
+            $this->options_endpoints[] = $permalink;                                                              
 
-            $resources = $this->get_other_resources();
-            $counter = 0;
+            add_action($options_screen, function() {                                                              
+                ob_start();
+            }, 1);
 
-            foreach( $resources as $resource) {
-                $callbackInstance = new DraftLiveSyncMetaBoxCallback($this, $resource, $counter);
-                $counter++;
-            }
+            add_action($options_screen, function() use ($permalink) {                                             
+                $content = ob_get_clean();                                                                                    
+                $meta_box_object = array( 'args' => array ( 'api_path' => $permalink));                                       
+                $custom_metabox = $this->publish_status_meta_box_callback(null, $meta_box_object, false, true);               
+                $content = str_replace('<div id="submitdiv" class="postbox " >', $custom_metabox . '<div id="submitdiv" class="postbox replace-done">', $content);
+                echo $content;
+            }, 20);
 
-        }
+        }   
 
         // This filter can be used to add endpoints to be synced that we cant get from wordpress in the normal way
-        function get_other_resources() {
-            $resources = apply_filters('dls_additional_endpoints', array());
-            return $resources;
-        }
+        //function get_other_resources() {
+        //    $resources = apply_filters('dls_additional_endpoints', array());
+        //    return $resources;
+        //}
 
         function get_site_id() {
             return $this->site_id;
@@ -385,7 +393,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $enable_test_content = get_option('dls_settings_enable_test_content');
             $show_test_content = $enable_test_content == 'true' && is_admin() ? 'true' : 'false';
 
-            error_log('-- meta box callback --- permalink = ' . $permalink . ' - post: ' . print_r($post, true));
+            // error_log('-- meta box callback --- permalink = ' . $permalink . ' - post: ' . print_r($post, true));
 
             $post_id = $post ? $post->ID : null;
 
@@ -424,7 +432,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        public function publish_status_meta_box_callback_pass_args_wrapper($arg){
+        // public function publish_status_meta_box_callback_pass_args_wrapper($arg){
 
             error_log('---publish_status_meta_box_callback_pass_args_wrapper arg ' . json_encode($arg));
 
@@ -445,7 +453,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             if ($post_id == -1) {
                 $menus = get_terms('nav_menu');
                 // $menus = get_nav_menu_locations();
-                error_log('--- all the juicy menus --- ' . print_r($menus, true));
+                // error_log('--- all the juicy menus --- ' . print_r($menus, true));
                 if (isset($menus[0])) {
                     $post_id = $menus[0]->term_id;
                 } else {
@@ -735,7 +743,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 array_push($list, $link_object);
             }
 
-            $option_permalinks = $this->get_other_resources();
+            $option_permalinks = $this->options_endpoints;
 
             foreach ( $option_permalinks as $option_permalink ) {
                 $option = new stdclass();
