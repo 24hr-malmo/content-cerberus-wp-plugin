@@ -177,7 +177,16 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         }
 
                                                                                                                               
-        public function add_options_meta_box($options_screen, $permalink) {
+        // Adds an ACF options screen/page so it can be handled by content cerberus
+        public function activate_option($options_screen, $permalink) {
+
+            // Hook to save the options in the correct language, but only when its the footer options page
+            add_action('acf/save_post', function () use ($options_screen, $permalink) {
+                $screen = get_current_screen();
+                if ($screen->id === $options_screen) {
+                    $this->upsert('draft', $permalink);
+                }
+            }, 100);
 
             $this->options_endpoints[] = $permalink;                                                              
 
@@ -432,9 +441,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        // public function publish_status_meta_box_callback_pass_args_wrapper($arg){
+        public function publish_status_meta_box_callback_pass_args_wrapper($arg){
 
-            error_log('---publish_status_meta_box_callback_pass_args_wrapper arg ' . json_encode($arg));
+            // error_log('---publish_status_meta_box_callback_pass_args_wrapper arg ' . json_encode($arg));
 
             $screen = get_current_screen();
             $is_menu_admin = $screen->base === 'nav-menus';
@@ -748,7 +757,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             foreach ( $option_permalinks as $option_permalink ) {
                 $option = new stdclass();
                 $option->type = 'option';
-                $option->permalink = rtrim($option_permalink[1], '/');
+                $option->permalink = rtrim($option_permalink, '/');
                 array_push($list, $option);
             }
 
