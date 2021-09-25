@@ -2,8 +2,6 @@
 
     include 'short-init.php';
 
-    require_once( '../lib/draft-live-sync-class.php' );
-
     if(class_exists( 'DraftLiveSync' )){
 
         // Init or use instance of the manager.

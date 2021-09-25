@@ -41,7 +41,7 @@ trait CheckSyncTrait {
             'targets' => array('draft', 'live'),
             'resource' => array(
                 'key' => $permalink,
-                'externalId' => $content->payload->guid,
+                'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
                 'order' => isset($content->payload->order) ? $content->payload->order : -1,

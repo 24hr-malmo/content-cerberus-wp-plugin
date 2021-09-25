@@ -23,4 +23,10 @@
 
     require( ABSPATH . WPINC . '/link-template.php');
 
+    require_once '../lib/graphql.php';
+    require_once '../main/draft-live-sync-settings.php';
+    require_once '../main/draft-live-sync/draft-live-sync-class.php';
+
+
+
 

@@ -5,8 +5,6 @@
     require( ABSPATH . WPINC . '/rewrite.php');
     require( ABSPATH . WPINC . '/class-wp-rewrite.php');
 
-    require_once( $dir . '../lib/draft-live-sync-class.php' );
-
     if(class_exists( 'DraftLiveSync' )){
 
         // Init or use instance of the manager.

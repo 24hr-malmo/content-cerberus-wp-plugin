@@ -2,14 +2,10 @@
 
 if ( ! class_exists( 'DraftLiveSync' ) ) {
 
-    $dir = dirname( __FILE__ ) . '/';
-    require_once($dir . '/graphql.php' );
-    require_once($dir . '/draft-live-sync-settings.php');
-    //require_once($dir . '/draft-live-sync-meta-box-callback.php');
-    require_once($dir . '/ajax/index.php');
-    require_once($dir . '/content/index.php');
-    require_once($dir . '/../misc/index.php');
-    require_once($dir . '/../wp-hooks/index.php');
+    require_once 'wp-ajax/index.php';
+    require_once 'content/index.php';
+    require_once 'misc/index.php';
+    require_once 'wp-hooks/index.php';
 
     class DraftLiveSync {
 
@@ -32,7 +28,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         private $settings_page;
         private $site_id;
 
-        private $options_endpoints = array();
+        private $additional_endpoints = array();
 
         static function getInstance() {
             if (is_null(DraftLiveSync::$singleton)) {
@@ -54,7 +50,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $this->api_token = $api_token;
             $this->short_init = $short_init;
             $this->plugin_dir = basename( $this->dir );
-            $this->js_script = plugins_url( '../js-dist/draft-live-sync-boot-' . DraftLiveSync::$version . '.js', __FILE__ );
+            $this->js_script = plugins_url( '../../js-dist/draft-live-sync-boot-' . DraftLiveSync::$version . '.js', __FILE__ );
 
             $this->init();
 
@@ -110,7 +106,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
                 add_action( 'pre_delete_term', array( &$this, 'pre_publish_term_to_draft'), 1, 3);
                 add_action( 'delete_term', array( &$this, 'post_publish_term_to_draft'), 1, 3);
-                add_action( 'wp_update_nav_menu', array( &$this, 'publish_menu_to_draft'), 10, 3);
                 add_action( 'wp_ajax_publish_to_live', array( &$this, 'ajax_publish_to_live') );
                 add_action( 'wp_ajax_save_to_draft', array( &$this, 'ajax_save_to_draft') );
                 add_action( 'wp_ajax_unpublish_from_live', array( &$this, 'ajax_unpublish_from_live') );
@@ -178,37 +173,47 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
                                                                                                                               
         // Adds an ACF options screen/page so it can be handled by content cerberus
-        public function activate_option($options_screen, $permalink) {
+        public function activate_acf_options($options_name, $permalink) {
+
+            // This will first check if the page is the top page ( index 2 when chekcking the list
+            // If its above index 2, we use another prefix for the slug.
+            // This is due to how ACF gives its names to the action hooks for options pages
+            $options_page = "toplevel_page_$options_name";
+
+            $pages = acf_options_page()->get_pages();
+            $position = array_search($options_name, array_column($pages, 'menu_slug'));
+            if ($position > 2) {
+                $page = acf_options_page()->get_page( $options_name );
+                $parent_slug = str_replace('_', '-', $page['parent_slug']);
+                $options_page = $parent_slug . '_page_' . $options_name;
+            }
 
             // Hook to save the options in the correct language, but only when its the footer options page
-            add_action('acf/save_post', function () use ($options_screen, $permalink) {
+            add_action('acf/save_post', function () use ($options_page, $permalink) {
                 $screen = get_current_screen();
-                if ($screen->id === $options_screen) {
+                if ($screen->id === $options_page) {
                     $this->upsert('draft', $permalink);
                 }
             }, 100);
 
-            $this->options_endpoints[] = $permalink;                                                              
+            // Add to the total list of endpoints for admin uses
+            $this->additional_endpoints[] = $permalink;
 
-            add_action($options_screen, function() {                                                              
+            // This is needed, dont rememebr why but it wont work without
+            add_action($options_page, function() {
                 ob_start();
             }, 1);
 
-            add_action($options_screen, function() use ($permalink) {                                             
-                $content = ob_get_clean();                                                                                    
-                $meta_box_object = array( 'args' => array ( 'api_path' => $permalink));                                       
-                $custom_metabox = $this->publish_status_meta_box_callback(null, $meta_box_object, false, true);               
+            // And here is where we actualy create the placeholder for the box
+            add_action($options_page, function() use ($permalink) {
+                $content = ob_get_clean();
+                $meta_box_object = array( 'args' => array ( 'api_path' => $permalink));
+                $custom_metabox = $this->publish_status_meta_box_callback(null, $meta_box_object, false, true);
                 $content = str_replace('<div id="submitdiv" class="postbox " >', $custom_metabox . '<div id="submitdiv" class="postbox replace-done">', $content);
                 echo $content;
             }, 20);
 
         }   
-
-        // This filter can be used to add endpoints to be synced that we cant get from wordpress in the normal way
-        //function get_other_resources() {
-        //    $resources = apply_filters('dls_additional_endpoints', array());
-        //    return $resources;
-        //}
 
         function get_site_id() {
             return $this->site_id;
@@ -409,7 +414,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $screen = get_current_screen();
             $is_menu_admin = $screen->base === 'nav-menus';
 
-            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( 'ajax', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
+            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
             $output .= '<div id="dls-metabox-root"' . ($is_menu_admin ? 'data-type="nav-menu"' : '') . '></div>';
 
             if ($echo) {
@@ -456,7 +461,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             // Get the menu id from the query string, since I couldnt find another way to get it
             $post_id = isset($_GET['menu']) ? intval($_GET['menu']) : -1;
 
-            error_log('--- status meta box yada yada post id ' . $post_id);
+            // error_log('--- status meta box yada yada post id ' . $post_id);
 
             // Dont bother to continue if we dont load a menu
             if ($post_id == -1) {
@@ -605,23 +610,20 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-
-
         public function send_json($data){
             header("content-type: application/json");
             echo json_encode($data);
         }
 
-
         function add_admin_pages() {
             add_menu_page('Cerberus (Context Next)', 'Cerberus', 'manage_options', 'draft-live-sync', function () {
-                print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( 'ajax', dirname(__FILE__) ) . '"  }</script>';
+                print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '"  }</script>';
                 print '<div class="wrap">';
                 print '<div id="dls-root"/>';
                 print '</div>';
             });
             add_menu_page('Domain Settings', 'Domain Settings', 'manage_options', 'cerberus-domain-settings', function () {
-                print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( 'ajax', dirname(__FILE__) ) . '"  }</script>';
+                print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '"  }</script>';
                 print '<div class="wrap">';
                 print '<div id="dls-domain-settings-root"/>';
                 print '</div>';
@@ -630,11 +632,17 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         // Constructs a list of urls
         function add_to_complete_url_list($type = 'post') {
+
             $list = array();
             $posts = get_posts(
                 array(
-                    'numberposts' => 10000,
-                    'post_type'   => $type
+
+                    'numberposts'       => 10000,
+                    'post_type'         => $type,
+
+                    // Make sure that we only return the current language
+                    'suppress_filters'  => 0,
+
                 )
             );
 
@@ -737,22 +745,21 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
+        public function add_additional_endpoint($endpoint) {
+            $this->additional_endpoints[] = $endpoint;
+        }
+
+        // This makes sure that the response is cleaned from any hosts that we dont want to use
+        public function clean_response($data) {
+            $cleaned = $this->filter_the_content_replace_hosts(json_encode($data));
+            return rest_ensure_response(json_decode($cleaned));
+        }
+
         function get_all_resources() {
 
             $list = array();
 
-            foreach( get_nav_menu_locations() as $location => $menu_id ) {
-                $link_object = new stdclass();
-                $link_object->type = 'menu';
-                if (defined('ICL_LANGUAGE_CODE') && ICL_LANGUAGE_CODE != 'en' && ICL_LANGUAGE_CODE != '') {
-                    $link_object->permalink = '/json/api/' . ICL_LANGUAGE_CODE . '/general/menu/' . $location;
-                } else {
-                    $link_object->permalink = '/json/api/general/menu/' . $location;
-                }
-                array_push($list, $link_object);
-            }
-
-            $option_permalinks = $this->options_endpoints;
+            $option_permalinks = $this->additional_endpoints;
 
             foreach ( $option_permalinks as $option_permalink ) {
                 $option = new stdclass();

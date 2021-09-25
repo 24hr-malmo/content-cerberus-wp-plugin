@@ -42,7 +42,7 @@ trait CopyTrait {
             'toTarget' => $to_target,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
-            'externalId' => $content->payload->guid,
+            'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
         );
 
         error_log(print_r($variables, true));

@@ -13,7 +13,7 @@ const App = () => {
 
     return (
         <StyledContainer>
-            <Heading1>Cerberus (Content Next) Dashboard</Heading1>
+            <Heading1>Content Dashboard</Heading1>
             <Navigation />
             <Show when={ state.path === 'sync-check' }><SyncCheck/></Show>
             <Show when={ state.path === 'sync-draft' }><SyncContent type="draft"/></Show>

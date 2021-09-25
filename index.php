@@ -5,11 +5,10 @@
 Plugin Name: Cerberus Content Next
 Plugin URI: http://24hr.se
 Description: Saves content to a Draft Content Service and gives the possibility to push the content to live
-Version: 0.11.20
+Version: 0.11.23
 Author: Dr Tapia <camilo.tapia@24hr.se>
  */
 
-include_once 'lib/lib/php-jwt/src/JWT.php';
 
 // don't load directly
 if ( !defined( 'ABSPATH' ) ) {
@@ -20,13 +19,16 @@ if ( !defined( 'ABSPATH' ) ) {
 } else {
 
     $dir = dirname( __FILE__ );
-    error_log('init draft live sync plugin dir ' . $dir);
 
     $plugin_info = get_file_data(__FILE__, array( 'Version' => 'Version') );
     define('DraftLiveSyncVERSION', $plugin_info['Version']);
 
-    require_once( $dir . '/lib/draft-live-sync-wp-cron-fix.php' );
-    require_once( $dir . '/lib/draft-live-sync-class.php' );
+    include_once 'lib/php-jwt/src/JWT.php';
+    require_once 'lib/graphql.php';
+    require_once 'main/draft-live-sync-wp-cron-fix.php';
+    require_once 'main/draft-live-sync-settings.php';
+    require_once 'main/draft-live-sync/draft-live-sync-class.php';
+    require_once 'main/wp-menus/init.php';
 
     function draft_live_sync_init_new() {
 

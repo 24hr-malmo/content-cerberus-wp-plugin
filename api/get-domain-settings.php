@@ -2,8 +2,6 @@
 
     include 'short-init.php';
 
-    require_once( '../lib/draft-live-sync-class.php' );
-
     if(class_exists( 'DraftLiveSync' )){
 
         // Init or use instance of the manager.
@@ -13,13 +11,9 @@
 
         $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
 
-        $permalink = $_POST['permalink'];
-        $only_draft_sync = isset($_POST['only_draft_sync']) ? $_POST['only_draft_sync'] == 'true' : false;
-
         try {
 
-            $result = $draft_live_sync->check_sync($permalink, $only_draft_sync);
-            $result->resource = $permalink;
+            $result = $draft_live_sync->get_domain_settings();
 
             echo json_encode($result);
 
