@@ -16,10 +16,14 @@ const getData = (id) => {
 
 
 const renderMetaBox = () => {
-    const root = document.getElementById('dls-metabox-root');
+    let root = document.getElementById('dls-metabox-root');
     if (root) {
         const data = getData('dls-data');
         data.metaMenu = root.getAttribute('data-type') === 'nav-menu';
+        if (data.metaMenu) {
+            root = document.createElement('div');
+            root && document.querySelector('#nav-menu-footer').prepend(root);
+        }
         render(() => (<MetaBox options={data}/>), root);
     }
 };

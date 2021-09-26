@@ -448,26 +448,19 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         public function publish_status_meta_box_callback_pass_args_wrapper($arg){
 
-            // error_log('---publish_status_meta_box_callback_pass_args_wrapper arg ' . json_encode($arg));
-
             $screen = get_current_screen();
-            $is_menu_admin = $screen->base === 'nav-menus';
 
             // Dont bother to continue if we dont load a menu
-            if (!$is_menu_admin) {
+            if ($screen->base !== 'nav-menus') {
                 return;
             }
 
             // Get the menu id from the query string, since I couldnt find another way to get it
             $post_id = isset($_GET['menu']) ? intval($_GET['menu']) : -1;
 
-            // error_log('--- status meta box yada yada post id ' . $post_id);
-
             // Dont bother to continue if we dont load a menu
             if ($post_id == -1) {
                 $menus = get_terms('nav_menu');
-                // $menus = get_nav_menu_locations();
-                // error_log('--- all the juicy menus --- ' . print_r($menus, true));
                 if (isset($menus[0])) {
                     $post_id = $menus[0]->term_id;
                 } else {
@@ -489,17 +482,16 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 }
             }
 
-            error_log('--- nav menu locations --- ' . json_encode(get_nav_menu_locations()));
-
             if ($menu_location == '') {
                 return;
             }
 
             // If the wordpress installation has WPML, handle that as well
-            if (defined('ICL_LANGUAGE_CODE') && ICL_LANGUAGE_CODE != 'en' && ICL_LANGUAGE_CODE != '') {
-                $menu_permalink = '/json/api/' . ICL_LANGUAGE_CODE . '/general/menu/' . $menu_location;
+            global $sitepress;
+            if (isset($sitepress)) {
+                $menu_permalink = '/wp-json/content/v1/menus/header_menu/' . $sitepress->get_current_language();
             } else {
-                $menu_permalink = '/json/api/general/menu/' . $menu_location;
+                $menu_permalink = '/wp-json/content/v1/menus/header_menu';
             }
 
             // We want to pass extra arguments jsut like add_meta_box() would do to the callback publish_status_meta_box_callback
@@ -507,44 +499,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 'args' => array(
                     'api_path' => $menu_permalink
                 )
-            ); ?>
+            ); 
 
-            <script>
-                jQuery(window).ready(function ($){
-                    var copyOfNavboxContent = $('#publish-status-meta-box-navbox-wrapper').detach();
-                    copyOfNavboxContent.appendTo('#nav-menu-header');
-                });
-            </script>
+            do_action('publish_status_meta_box_navbox', null, $custom_param); 
 
-            <style>
-
-                #publish-status-meta-box-navbox-wrapper {
-                   padding-bottom: 10px;
-                }
-
-                #publish-status-meta-box-navbox-wrapper #publish-to-live-action {
-                    border-top: 1px solid #ddd;
-                    padding-top: 10px;
-                    justify-content: center;
-                    align-items: center;
-                    width: 100%;
-                    display: flex;
-                }
-
-                #publish-status-meta-box-navbox-wrapper .dlsc--status {
-                    padding: 0;
-                }
-
-                #unpublish-from-live {
-                    margin-left: 10px;
-                    margin-top: 0px;
-                }
-
-            </style>
-            <div id="publish-status-meta-box-navbox-wrapper">
-                <?php do_action('publish_status_meta_box_navbox', null, $custom_param); ?>
-            </div>
-        <?php
         }
 
         public function meta_box_publish_status_nav_menus($object) {

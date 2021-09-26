@@ -1,11 +1,17 @@
 import { styled } from 'solid-styled-components';
 
 export const StyledContainer = styled('div')`
+
     padding-top: 6px;
 
     ${p => p.horizontal ? `
         display: flex;   
         align-items: center;
+        border-bottom: 1px dotted grey;
+        padding: 0 10px 8px 10px;
+        margin-left: -10px;
+        margin-right: -10px;
+        justify-content: flex-end;
     ` : '' } 
 
     ${p => p.box ? `
@@ -33,8 +39,13 @@ export const StyledChecking = styled('div')`
     border-radius: 3px;
 
     ${p => p.horizontal ? `
+        padding: 0px;
+        border: 0px;
+        padding: 4px 10px 5px 10px;
+        background: transparent;
         flex-direction: row;
         align-items: center;
+        margin-top: 10px;
     ` : '' } 
 
 `;

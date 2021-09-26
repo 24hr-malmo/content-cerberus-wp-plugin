@@ -8,8 +8,6 @@ import { StyledContainer, StyledStatusText, StyledChecking } from './meta-box.st
 
 const MetaBox = ({options}) => {
 
-    console.log(options);
-
     const [ status, setStatus ] = createStore({ });
     const [ checking, setChecking ] = createSignal(true);
     const [ publishing, setPublishing ] = createSignal(false);
@@ -98,7 +96,7 @@ const MetaBox = ({options}) => {
             </Show>
             <Show when={!checking()}>
                 <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
-                <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ () => publish() } disabled={status.live?.synced}>
+                <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced}>
                     { status.live?.synced ? 'Published to live site' : 'Publish to live site' }
                 </Button>
                 <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={!status.live?.synced}>
