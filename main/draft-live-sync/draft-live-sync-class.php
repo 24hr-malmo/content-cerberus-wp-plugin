@@ -631,6 +631,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         function cleanup_permalink($permalink) {
 
+            if (!isset($permalink) || $permalink == '') {
+                return $permalink;
+            }
+
             // Make sure all permalinks are without the domain
             $permalink = str_replace( home_url(), "", $permalink);
 
@@ -639,6 +643,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             // Remove traling slash
             $permalink = rtrim($permalink, '/');
+
+            if ($permalink === '') {
+                $permalink = '/';
+            }
 
             return $permalink;
 
