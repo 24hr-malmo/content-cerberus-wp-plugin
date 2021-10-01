@@ -33,7 +33,7 @@
         }
 
         public function set_site_id($value) {
-            update_option( 'dls_settings_site_id', $value );
+            // update_option( 'dls_settings_site_id', $value );
         }
 
         public function get_replace_hosts() {
