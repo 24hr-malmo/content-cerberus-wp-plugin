@@ -33,7 +33,7 @@
         }
 
         public function set_site_id($value) {
-            // update_option( 'dls_settings_site_id', $value );
+            update_option( 'dls_settings_site_id', $value );
         }
 
         public function get_replace_hosts() {
@@ -116,7 +116,7 @@
                 add_option('dls_settings_enable_test_content');
             }
       
-            register_setting( 'my_option_group', 'dls_settings_site_id', array( $this, 'sanitize' ) );
+            // register_setting( 'my_option_group', 'dls_settings_site_id', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_replace_host_list', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_auto_redirect_to_admin_page', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_enable_diff_viewer', array( $this, 'sanitize' ) );
@@ -159,7 +159,7 @@
 
         public function print_site_id() {
             $value = get_option( 'dls_settings_site_id' );
-            print "<div style='padding-bottom: 16px; font-size: 16px'>The site_id for this site is: <strong>$value</string></div>";
+            print "<div style='padding-bottom: 16px; font-size: 16px'>The site_id for this site is: <strong>$value</strong></div>";
         }
 
         public function print_post_types_info() {
