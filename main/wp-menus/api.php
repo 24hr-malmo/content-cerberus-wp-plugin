@@ -28,7 +28,7 @@ add_action( 'rest_api_init', function() {
     register_rest_route( 'content/v1', '/menus/(?P<location>\w+)', array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => function($request) {
-            get_wp_menu_content($request['location']);
+            get_wp_menu_content($request['location'], '');
         },
     ));
 
