@@ -8,7 +8,7 @@ const init = () => {
         wp.data.subscribe(() => {
 
             const isSavingPost = wp.data.select('core/editor').isSavingPost();
-            const isSavingNonPostEntityChanges = wp.data.select('core/editor').isSavingNonPostEntityChanges();
+            const isSavingNonPostEntityChanges = wp.data.select('core/editor').isSavingNonPostEntityChanges && wp.data.select('core/editor').isSavingNonPostEntityChanges();
 
             if (lastIsSaving !== isSavingPost) {
 

@@ -11,7 +11,7 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
 
         }
 
-        public function get_menu($menu_location, $language) {
+        public function get_menu($menu_location, $language = '') {
 
             $response = new stdclass();
 
