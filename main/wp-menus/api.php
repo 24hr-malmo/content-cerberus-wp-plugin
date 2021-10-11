@@ -21,14 +21,14 @@ add_action( 'rest_api_init', function() {
     register_rest_route( 'content/v1', '/menus/(?P<location>\w+)/(?P<language>\w{2})', array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => function($request) {
-            get_wp_menu_content($request['location'], $request['language']);
+            return get_wp_menu_content($request['location'], $request['language']);
         },
     ));
 
     register_rest_route( 'content/v1', '/menus/(?P<location>\w+)', array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => function($request) {
-            get_wp_menu_content($request['location'], '');
+            return get_wp_menu_content($request['location'], '');
         },
     ));
 
