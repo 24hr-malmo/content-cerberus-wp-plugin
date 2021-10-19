@@ -15,6 +15,11 @@ trait CheckSyncTrait {
         // Fetch all data from the page
         $content = $this->get_content($permalink);
 
+        $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
+        if (!$externalId) {
+            return;
+        }
+
         $query = <<<'GRAPHQL'
             query resourceStatus(
                 $siteId: String!
@@ -41,7 +46,7 @@ trait CheckSyncTrait {
             'targets' => array('draft', 'live'),
             'resource' => array(
                 'key' => $permalink,
-                'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
+                'externalId' => $externalId,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
                 'order' => isset($content->payload->order) ? $content->payload->order : -1,
