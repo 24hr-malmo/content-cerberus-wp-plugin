@@ -12,6 +12,11 @@ trait UpsertTrait {
         $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
         $content = $this->get_content($permalink);
 
+        $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
+        if (!$externalId) {
+            return;
+        }
+
         $user = new stdclass();
 
         // In case we load this with short init?
@@ -25,7 +30,7 @@ trait UpsertTrait {
             'siteId' => $this->site_id,
             'resource' => array(
                 'key' => $permalink,
-                'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
+                'externalId' => $externalId,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
                 'order' => isset($content->payload->order) ? $content->payload->order : -1,
