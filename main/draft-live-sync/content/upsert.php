@@ -36,6 +36,7 @@ trait UpsertTrait {
                 'order' => isset($content->payload->order) ? $content->payload->order : -1,
                 'content' => $content->payload,
                 'host' => 'wordpress',
+                'tags' => isset($content->payload->tags) ? $content->payload->tags : [],
             ),
         );
 
