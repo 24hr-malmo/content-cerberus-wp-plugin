@@ -28,7 +28,7 @@ trait WpInsertPostTrait {
         $permalink = get_permalink($post_id);
 
 
-        $permalink = str_replace( home_url(), "", $permalink);
+        $permalink = str_replace( site_url(), "", $permalink);
 
         if ($post->post_type === 'wp_block') {
             $permalink = '/wp_block' . $permalink;
