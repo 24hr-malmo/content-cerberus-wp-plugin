@@ -606,10 +606,15 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             foreach ( $posts as $post ) {
 
-                $permalink = get_permalink($post->ID);
+                // If WPML
+                if (function_exists('icl_object_id')) {
+                    $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
+                } else {
+                    $permalink = get_permalink($post->ID);
+                }
 
                 // Make sure all permalinks are without the domain
-                $permalink = str_replace( home_url(), "", $permalink);
+                $permalink = str_replace( site_url(), "", $permalink);
 
                 // Replace all domains with the list used in thte settings
                 $permalink = $this->replace_hosts($permalink);
