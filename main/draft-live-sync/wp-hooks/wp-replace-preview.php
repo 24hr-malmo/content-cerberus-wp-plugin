@@ -11,7 +11,7 @@ trait WpReplacePreview {
             add_action( 'admin_notices', function() {
                 $class = 'notice notice-error';
                 $message = __( 'PREVIEW_JWT_SECRET env not set. To make the preview functionality work, this env variable needs to be provided.', 'content-cerberus');
-                printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
+                printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
             });
             array(&$this, 'show_site_id_missing_warning');
         }
