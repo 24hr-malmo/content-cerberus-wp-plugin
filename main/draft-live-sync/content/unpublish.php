@@ -2,7 +2,7 @@
 
 trait UnpublishTrait {
 
-    public function unpublish($target, $id = '') {
+    public function unpublish($target, $id = '', $key = '') {
 
         $user = new stdclass();
 
@@ -21,12 +21,14 @@ trait UnpublishTrait {
                 $siteId: String!
                 $userInfo: String!
                 $externalId: String
+                $key: String
             ) {
                 deleteResource (
                     target: $target
                     siteId: $siteId
                     userInfo: $userInfo
                     externalId: $externalId
+                    key: $key
                 ) {
                     success
                 }
@@ -35,7 +37,8 @@ trait UnpublishTrait {
 
         $variables = array(
             'target' => $target,
-            'externalId' => $post_type . '-' . $id,
+            'externalId' => empty($post_type) ? $id : $post_type . '-' . $id,
+            'key' => $key,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
         );
