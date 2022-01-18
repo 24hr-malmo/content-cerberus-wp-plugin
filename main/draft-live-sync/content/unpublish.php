@@ -2,7 +2,7 @@
 
 trait UnpublishTrait {
 
-    public function unpublish($target, $id = '', $key = '') {
+    public function unpublish($target, $id = '') {
 
         $user = new stdclass();
 
@@ -11,20 +11,22 @@ trait UnpublishTrait {
             $user = wp_get_current_user();
         }
 
+        $post = get_post($id);
+
+        $post_type = $post->post_type;
+
         $query = <<<'GRAPHQL'
             mutation deleteResource(
                 $target: String!
                 $siteId: String!
                 $userInfo: String!
                 $externalId: String
-                $key: String
             ) {
                 deleteResource (
                     target: $target
                     siteId: $siteId
                     userInfo: $userInfo
                     externalId: $externalId
-                    key: $key
                 ) {
                     success
                 }
@@ -33,8 +35,7 @@ trait UnpublishTrait {
 
         $variables = array(
             'target' => $target,
-            'externalId' => strval($id),
-            'key' => $key,
+            'externalId' => $post_type . '-' . $id,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
         );
