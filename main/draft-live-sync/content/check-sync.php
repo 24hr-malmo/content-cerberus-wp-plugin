@@ -48,7 +48,6 @@ trait CheckSyncTrait {
                 'key' => $permalink,
                 'externalId' => $externalId,
                 'type' => $content->payload->type,
-                'parentId' => strval($content->payload->parentId),
                 'order' => isset($content->payload->order) ? $content->payload->order : -1,
                 'content' => $content->payload,
                 'host' => 'wordpress',
