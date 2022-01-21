@@ -16,6 +16,8 @@
 
         try {
 
+            error_log('--- check-sync api --- $permalink: ' . $permalink);
+
             $result = $draft_live_sync->check_sync($permalink, $only_draft_sync);
             $result->resource = $permalink;
 

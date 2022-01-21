@@ -42,6 +42,8 @@ trait GetContentTrait {
         $data->payload = json_decode($payload_body);
         $data->payload_headers = $payload_headers;
 
+        error_log(' --- get-content --- $data->payload: ' . print_r($data->payload, true));
+
         curl_close ($ch);
 
 

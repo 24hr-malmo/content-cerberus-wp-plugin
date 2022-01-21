@@ -12,6 +12,11 @@ trait UpsertTrait {
         $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
         $content = $this->get_content($permalink);
 
+        if ($content->payload == '404' || empty($content->payload)) {
+            error_log('--- upsert --- Couldn\'t find content with $permalink: ' . $permalink);
+            return;
+        }
+
         $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
         if (!$externalId) {
             return;

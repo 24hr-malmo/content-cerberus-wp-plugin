@@ -4,6 +4,8 @@ trait CheckSyncTrait {
 
     public function check_sync($permalink) {
 
+        error_log('--- check_sync --- $permalink: ' . $permalink);
+
         $this->check_site_id();
 
         $data = new stdclass();
@@ -14,6 +16,11 @@ trait CheckSyncTrait {
 
         // Fetch all data from the page
         $content = $this->get_content($permalink);
+
+        if ($content->payload == '404' || empty($content->payload)) {
+            error_log('--- check-sync --- Couldn\'t find content with $permalink: ' . $permalink);
+            return;
+        }
 
         $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
         if (!$externalId) {
