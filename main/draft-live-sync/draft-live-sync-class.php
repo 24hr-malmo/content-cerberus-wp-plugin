@@ -116,7 +116,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_filter( 'admin_menu', array( &$this, 'add_admin_pages'), 10, 2 );
                 add_action( 'parse_request', array( &$this, 'parse_requests'));
                 add_filter( 'gettext', array( &$this, 'change_publish_button'), 10, 2 );
-                add_filter( 'get_sample_permalink', array( &$this, 'set_correct_permalink'));
+                // get_sample_permalink shouldn't trigger same filter as page_link since they send in different params
+                // add_filter( 'get_sample_permalink', array( &$this, 'get_correct_permalink'));
                 add_filter( 'page_link', array( &$this, 'set_correct_permalink'));
                 add_action( 'admin_enqueue_scripts', array(&$this, 'enqueue_admin_scripts' ));
                 add_action( 'admin_head-post.php', array( &$this, 'hide_publishing_actions'));
@@ -266,125 +267,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             wp_enqueue_style( 'dls-css', plugins_url( '../css/style.css', __FILE__ ) );
             wp_enqueue_script( 'dls-entry-script', $this->js_script);
         }
-
-        /**
-         * Should be replaced with more specific functions
-         */
-        // function push_to_queue($permalink, $release = 'draft', $async = false, $status = 'publish', $check_only_draft_live = false, $sync_check = true, $sync_tree_and_cache = true, $custom_payload = false, $custom_payload_headers = false, $dont_fire_actions = false) {
-
-        //     error_log('--- PUSH2QUEUE --' . $permalink . ' - release: ' . $release . ' - status: ' . $status);
-
-        //     $permalink = rtrim($permalink, '/');
-        //     $this->check_site_id();
-
-        //     $server_url = $this->content_draft_url . '/content-admin';
-
-        //     if ($release == 'unpublish') {
-        //         $server_url = $server_url . '/unpublish';
-        //     } else if ($release != 'live') {
-        //         $server_url = $server_url . '/queue';
-        //     } else {
-        //         $server_url = $server_url . '/publish';
-        //     }
-
-        //     // $post = get_post($post_id);
-        //     // Since WP adds "__trashed_[counter]" to the permalink if its trashed, we need to fix it, otherwise, we cant update the content service correclty
-        //     if ($status == 'trash') {
-        //      $re = '/__trashed-\d+/';
-        //         $permalink = preg_replace($re, '', $permalink);
-        //      $re = '/__trashed/';
-        //         $permalink = preg_replace($re, '', $permalink);
-        //
-        //         /**
-        //          * Check if the permalink is pointing to the startpage.
-        //          * If it is, we do NOT want to keep going to not risk
-        //          * unpublishing it.
-        //          */
-        //         $is_startpage = wp_make_link_relative($permalink) == '/';
-        //         if ($is_startpage) {
-        //             return;
-        //         }
-        //     }
-        //
-        //     $data = new stdclass();
-        //
-        //     $data->permalink = rtrim($this->replace_hosts($permalink), '/');
-        //     $data->sync_check = $sync_check;
-        //     $data->sync_tree_and_cache = $sync_tree_and_cache;
-
-        //     error_log('--------------------- ' . $permalink);
-
-        //     $data->async = $async;
-        //     $data->release = $release;
-
-        //     if ($check_only_draft_live) {
-        //         $data->check_only_draft_live = true;
-        //     }
-
-        //     $data->status = $status == 'trash' ? 'deleted' : $status;
-
-        //     // If we provide custom data, use it. This can be used to svae pages that actually dont exist
-        //     if ($custom_payload && $custom_payload_headers) {
-
-        //         $data->payload = $custom_payload;
-        //         $data->payloadHeaders = $custom_payload_headers;
-
-        //     } else {
-
-        //         // Fetch all data from the page
-        //         $content = $this->get_content($data->permalink);
-
-        //         $data->payload = $content->payload;
-        //         $data->payloadHeaders = $content->payload_headers;
-
-        //     }
-
-        //     $user = new stdclass();
-
-        //     // In case we load this with short init?
-        //     if ( function_exists( 'wp_get_current_user' ) ) {
-        //         $user = wp_get_current_user();
-        //     }
-
-        //     $variables = array(
-        //         'target' => $release,
-        //         'userInfo' => strval($user->ID),
-        //         'siteId' => $this->site_id,
-        //         'resource' => array(
-        //             'content' => $data->payload,
-        //             'key' => $data->permalink,
-        //             'externalId' => $data->id,
-        //             'type' => $data->type,
-        //             'parentId' => $data->parentId,
-        //             'content' => $content->payload,
-        //             'host' => 'wordpress',
-        //         ),
-        //     );
-
-        //     $query = <<<'GRAPHQL'
-        //         mutation upsertResource(
-        //             $target: String!
-        //             $userInfo: String!
-        //             $resource: ResourceInstance!
-        //             $siteId: String!
-        //         ) {
-        //             upsertResource (
-        //                 target: $target
-        //                 siteId: $siteId
-        //                 userInfo: $userInfo
-        //                 host: "wordpress"
-        //                 resource: $resource
-        //         ) {
-        //             success
-        //         }
-        //     }
-        //     GRAPHQL;
-
-        //     $result = graphql_query('http://content-next/graphql', $query, $variables);
-
-        //     return $result;
-
-        // }
 
         // Break if there is another site id
         public function check_site_id() {

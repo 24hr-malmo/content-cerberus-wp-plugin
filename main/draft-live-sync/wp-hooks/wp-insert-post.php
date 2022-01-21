@@ -25,7 +25,6 @@ trait WpInsertPostTrait {
             return;
         }
 
-
         $permalink = null;
         // If WPML, we use this to get permalink.
         if (function_exists('icl_object_id')) {

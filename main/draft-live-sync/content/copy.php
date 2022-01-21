@@ -7,7 +7,7 @@ trait CopyTrait {
         if (array_key_exists('blocks', $content)) {
 
             foreach ($content['blocks'] as $block) {
-                
+
                 // echo $to_target . '-' . $from_target . ' -> ' . $block['blockName']; //  . ' - ' . $block['permalink'] . "\n";
                 if ($block['blockName'] == 'core/block') {
                     $this->copy($from_target, $to_target, $block['__reference']);
