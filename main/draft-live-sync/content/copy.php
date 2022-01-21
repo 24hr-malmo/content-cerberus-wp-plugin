@@ -7,7 +7,7 @@ trait CopyTrait {
         if (array_key_exists('blocks', $content)) {
 
             foreach ($content['blocks'] as $block) {
-                
+
                 // echo $to_target . '-' . $from_target . ' -> ' . $block['blockName']; //  . ' - ' . $block['permalink'] . "\n";
                 if ($block['blockName'] == 'core/block') {
                     $this->copy($from_target, $to_target, $block['__reference']);
@@ -23,12 +23,19 @@ trait CopyTrait {
 
     public function copy($from_target, $to_target, $permalink = '') {
 
+        error_log('--- copy --- $from_target: ' . $from_target . ' $to_target: ' . $to_target . ' $permalink: ' . $permalink);
+
         // Fetch all data from the page
         $permalink = $this->replace_hosts($permalink);
         // remove trailing slash, but keep single slash which is the start page permalink
         $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
 
         $content = $this->get_content($permalink);
+
+        if ($content->payload == '404' || empty($content->payload)) {
+            error_log('--- copy --- Couldn\'t find content with $permalink: ' . $permalink);
+            return;
+        }
 
         $user = new stdclass();
 
@@ -45,7 +52,7 @@ trait CopyTrait {
             'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
         );
 
-        error_log(print_r($variables, true));
+        error_log('--- copy --- $variables to copyResource mutation ' . print_r($variables, true));
 
         if ($to_target == 'live') {
             $live_content = $this->get_resource_from_content($permalink, $to_target);

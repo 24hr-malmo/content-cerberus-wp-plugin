@@ -16,7 +16,7 @@ trait GetContentTrait {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             "proxy-service: api",
@@ -41,6 +41,8 @@ trait GetContentTrait {
 
         $data->payload = json_decode($payload_body);
         $data->payload_headers = $payload_headers;
+
+        error_log(' --- get-content --- $data->payload: ' . print_r($data->payload, true));
 
         curl_close ($ch);
 
