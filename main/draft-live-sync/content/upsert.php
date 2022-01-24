@@ -4,12 +4,13 @@ trait UpsertTrait {
 
     public function upsert($target, $permalink = '', $callbacks = array()) {
 
-        error_log('Upsert - target: ' . $target . ' - permalink: ' . $permalink);
-
         // Fetch all data from the page
         $permalink = $this->replace_hosts($permalink);
         // remove trailing slash, but keep single slash which is the start page permalink
         $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
+
+        error_log('Upsert - target: ' . $target . ' - permalink: ' . $permalink);
+
         $content = $this->get_content($permalink);
 
         if ($content->payload == '404' || empty($content->payload)) {

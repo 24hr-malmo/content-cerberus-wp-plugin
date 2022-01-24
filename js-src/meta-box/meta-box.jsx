@@ -7,6 +7,7 @@ import { wpAjax, wpAjaxAction } from '../utilities/wp-action.js';
 import { StyledContainer, StyledStatusText, StyledChecking } from './meta-box.style.jsx';
 
 const MetaBox = ({options}) => {
+    console.log('options:', options);
 
     const [ status, setStatus ] = createStore({ });
     const [ checking, setChecking ] = createSignal(true);
@@ -36,9 +37,10 @@ const MetaBox = ({options}) => {
 
         try {
             const result = await wpAjax(`${options.api}/check-sync.php`, payload);
+            console.log('result:', result);
             setStatus({
-                draft: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
-                live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
+                draft: result?.data?.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
+                live: result?.data?.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
                 state: 'loaded',
             });
         } catch (err) {
