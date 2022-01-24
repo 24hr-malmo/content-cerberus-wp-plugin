@@ -11,11 +11,9 @@ trait AjaxSaveToDraftTrait {
             $permalink = get_permalink($id);
             // error_log(' SAVING ID TO DRAFT ' . $id . ' -- permalink: ' . $permalink);
             // $response = $this->upsert('draft', $permalink);
-            error_log('~~~~ AjaxSaveToDraftTrait $permalink ~~~~ ' . $permalink);
 
         } else if (!empty($_POST['api_path'])){
             $permalink = $_POST['api_path'];
-            error_log('~~~~ AjaxSaveToDraftTrait api_path ~~~~ ' . $permalink);
             $response = $this->upsert('draft', $permalink);
         }
 
