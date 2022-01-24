@@ -6,17 +6,16 @@ trait AjaxPublishToLiveTrait {
 
         $reponse = array();
 
-        error_log('~~~~~~~~~~~~ $_POST[permalink] in AjaxPublishToLiveTrait ~~~~~~~~~~~ ' . $_POST['permalink']);
-        error_log('~~~~~~~~~~~~ $_POST[permalink] in AjaxPublishToLiveTrait ~~~~~~~~~~~ ' . $_POST['post_id']);
-
         if (!empty($_POST['post_id'])) {
+            error_log('~~~~ AjaxPublishToLiveTrait $_POST[post_id] ~~~~ ' . $_POST['post_id']);
             $id = $_POST['post_id'];
             $permalink = get_permalink($id);
-            error_log('~~~~~~~~~~~~ get_permalink[$id] in AjaxPublishToLiveTrait ~~~~~~~~~~~ ' . $permalink);
+            error_log('~~~~ AjaxPublishToLiveTrait $permalink ~~~~ ' . $permalink);
 
             $response = $this->copy('draft', 'live', $permalink);
 
         } else if (!empty($_POST['permalink'])){
+            error_log('~~~~ AjaxPublishToLiveTrait $_POST[permalink] ~~~~ ' . $_POST['permalink']);
             $permalink = $_POST['permalink'];
             $response = $this->copy('draft', 'live', $permalink);
         }
