@@ -44,8 +44,6 @@ trait WpReplacePreview {
 
                 $link = "$host$language/$slug";
 
-                error_log('~~~~~~~~~~~~~ template_redirect ~~~~~~~~~~~~~' . $link);
-
                 header('Location: ' . $link);
             }
 

@@ -37,10 +37,12 @@ const MetaBox = ({options}) => {
 
         try {
             const result = await wpAjax(`${options.api}/check-sync.php`, payload);
-            console.log('result:', result);
+            if (!result?.data?.resourceStatus) {
+                throw('Can\'t find any data in the check-sync.php');
+            }
             setStatus({
-                draft: result?.data?.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
-                live: result?.data?.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
+                draft: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
+                live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
                 state: 'loaded',
             });
         } catch (err) {
@@ -59,7 +61,6 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setPublishing(true);
-        console.log('~~~~~~~~~~~~~ publish_to_live payload: ~~~~~~~~~~~~~', payload);
         const result = await wpAjaxAction('publish_to_live', payload);
         if (result.data) {
             check(false);
@@ -78,7 +79,6 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setUnpublishing(true);
-        console.log('~~~~~~~~~~~~~ unpublish_from_live payload: ~~~~~~~~~~~~~', payload);
         const result = await wpAjaxAction('unpublish_from_live', payload);
         if (result.data) {
             check(false);
