@@ -11,18 +11,19 @@
 
         $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
 
-        $permalink = null;
         $only_draft_sync = isset($_POST['only_draft_sync']) ? $_POST['only_draft_sync'] == 'true' : false;
 
         try {
+            $permalink = null;
 
             if (function_exists('icl_object_id')) {
                 $permalink = apply_filters('wpml_permalink', $_POST['permalink'], ICL_LANGUAGE_CODE);
+                $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
             } else {
                 $permalink = $_POST['permalink'];
             }
 
-            error_log('--- check-sync api --- $permalink: ' . $permalink);
+            error_log('--- api/check-sync --- $permalink: ' . $permalink);
 
             $result = $draft_live_sync->check_sync($permalink, $only_draft_sync);
             $result->resource = $permalink;

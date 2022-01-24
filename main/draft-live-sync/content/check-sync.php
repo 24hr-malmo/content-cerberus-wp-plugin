@@ -4,8 +4,6 @@ trait CheckSyncTrait {
 
     public function check_sync($permalink) {
 
-        error_log('--- check_sync --- $permalink: ' . $permalink);
-
         $this->check_site_id();
 
         $data = new stdclass();
@@ -13,6 +11,8 @@ trait CheckSyncTrait {
         $permalink = $this->replace_hosts($permalink);
         // remove trailing slash, but keep single slash which is the start page permalink
         $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
+
+        error_log('--- check_sync --- $permalink: ' . $permalink);
 
         // Fetch all data from the page
         $content = $this->get_content($permalink);

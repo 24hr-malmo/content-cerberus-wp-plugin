@@ -280,16 +280,20 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $permalink = '';
             if (isset($meta_box_object) && !empty($meta_box_object['args'])) {
                 $permalink = $meta_box_object['args']['api_path'];
+            } else if (function_exists('icl_object_id')) {
+                $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
+                $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
             } else {
-                $permalink = $this->cleanup_permalink(get_permalink($post->ID));
+                $permalink = get_permalink($post->ID);
             }
+
+            $permalink = str_replace( site_url(), '', $permalink);
+
             $enable_diff_btn = get_option('dls_settings_enable_diff_viewer');
             $show_diff_button = $enable_diff_btn == 'true' && is_admin() ? 'true' : 'false';
 
             $enable_test_content = get_option('dls_settings_enable_test_content');
             $show_test_content = $enable_test_content == 'true' && is_admin() ? 'true' : 'false';
-
-            // error_log('-- meta box callback --- permalink = ' . $permalink . ' - post: ' . print_r($post, true));
 
             $post_id = $post ? $post->ID : null;
 
@@ -491,6 +495,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 // If WPML
                 if (function_exists('icl_object_id')) {
                     $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
+                    $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
                 } else {
                     $permalink = get_permalink($post->ID);
                 }

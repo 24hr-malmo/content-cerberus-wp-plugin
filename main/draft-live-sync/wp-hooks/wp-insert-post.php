@@ -29,6 +29,7 @@ trait WpInsertPostTrait {
         // If WPML, we use this to get permalink.
         if (function_exists('icl_object_id')) {
             $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
+            $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
         } else {
             $permalink = get_permalink($post->ID);
         }
