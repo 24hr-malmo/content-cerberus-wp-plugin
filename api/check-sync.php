@@ -11,10 +11,16 @@
 
         $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
 
-        $permalink = $_POST['permalink'];
+        $permalink = null;
         $only_draft_sync = isset($_POST['only_draft_sync']) ? $_POST['only_draft_sync'] == 'true' : false;
 
         try {
+
+            if (function_exists('icl_object_id')) {
+                $permalink = apply_filters('wpml_permalink', $_POST['permalink'], ICL_LANGUAGE_CODE);
+            } else {
+                $permalink = $_POST['permalink'];
+            }
 
             error_log('--- check-sync api --- $permalink: ' . $permalink);
 

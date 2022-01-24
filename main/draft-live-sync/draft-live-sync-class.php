@@ -117,7 +117,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_action( 'parse_request', array( &$this, 'parse_requests'));
                 add_filter( 'gettext', array( &$this, 'change_publish_button'), 10, 2 );
                 // get_sample_permalink shouldn't trigger same filter as page_link since they send in different params
-                // add_filter( 'get_sample_permalink', array( &$this, 'get_correct_permalink'));
+                add_filter( 'get_sample_permalink', array( &$this, 'set_correct_permalink'));
                 add_filter( 'page_link', array( &$this, 'set_correct_permalink'));
                 add_action( 'admin_enqueue_scripts', array(&$this, 'enqueue_admin_scripts' ));
                 add_action( 'admin_head-post.php', array( &$this, 'hide_publishing_actions'));
@@ -500,11 +500,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
                 // Replace all domains with the list used in thte settings
                 $permalink = $this->replace_hosts($permalink);
-
-                // $ wp blocks are prefixed with 'wp_block' so we can fetch them with a template
-                if ($type === 'wp_block') {
-                    $permalink = '/wp_block' . $permalink;
-                }
 
                 $link_object = new stdclass();
                 $link_object->permalink = rtrim($permalink, '/');

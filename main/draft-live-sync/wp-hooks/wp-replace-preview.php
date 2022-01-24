@@ -1,27 +1,15 @@
 <?php
 
-use Firebase\JWT\JWT;
-
 trait WpReplacePreview {
 
     public function replace_preview() {
-
-        $key = getenv('PREVIEW_JWT_SECRET');
-        if (!isset($key)) {
-            add_action( 'admin_notices', function() {
-                $class = 'notice notice-error';
-                $message = __( 'PREVIEW_JWT_SECRET env not set. To make the preview functionality work, this env variable needs to be provided.', 'content-cerberus');
-                printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
-            });
-            array(&$this, 'show_site_id_missing_warning');
-        }
 
         add_action('template_redirect', function() {
 
             if ($_GET['preview'] == 'true' && $_GET['caller'] != 'content-service') {
 
                 global $post;
-                $key = getenv('PREVIEW_JWT_SECRET');
+                global $sitepress;
 
                 $domain_settings = $this->get_domain_settings(true, 'draft');
                 $host = get_site_url();
@@ -32,7 +20,19 @@ trait WpReplacePreview {
                     wp_die('Please set the correct domain in domain settings');
                 }
 
-                $slug =  $post->post_name;
+                $slug = $post->post_name;
+
+                $language = '';
+                if (isset($sitepress)) {
+                    $language = '/' . $sitepress->get_current_language();
+                    $default_language = '/' . $sitepress->get_default_language();
+
+                    //Remove default language, otherwise we get /${lang}/wp_block/ even when we go to default language page (which we normally treat as the base site)
+                    if ($language == $default_language) {
+                        $language = '';
+                    }
+                }
+
                 $iat = time();
                 $exp = $iat + (60 * 60 * 1); //will expire after 1 hour
                 $payload = array(
@@ -42,9 +42,9 @@ trait WpReplacePreview {
                     'cookies' => http_build_query($_COOKIE, '', ';'),
                 );
 
-                $jwt = JWT::encode($payload, $key);
+                $link = "$host$language/$slug";
 
-                $link = "$host/$slug";
+                error_log('~~~~~~~~~~~~~ template_redirect ~~~~~~~~~~~~~' . $link);
 
                 header('Location: ' . $link);
             }

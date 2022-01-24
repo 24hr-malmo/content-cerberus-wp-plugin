@@ -57,6 +57,7 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setPublishing(true);
+        console.log('~~~~~~~~~~~~~ publish_to_live payload: ~~~~~~~~~~~~~', payload);
         const result = await wpAjaxAction('publish_to_live', payload);
         if (result.data) {
             check(false);
@@ -75,6 +76,7 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setUnpublishing(true);
+        console.log('~~~~~~~~~~~~~ unpublish_from_live payload: ~~~~~~~~~~~~~', payload);
         const result = await wpAjaxAction('unpublish_from_live', payload);
         if (result.data) {
             check(false);
