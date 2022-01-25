@@ -10,6 +10,7 @@ trait WpReplacePreview {
 
                 global $post;
                 global $sitepress;
+                global $wp_query;
 
                 $domain_settings = $this->get_domain_settings(true, 'draft');
                 $host = get_site_url();
@@ -30,6 +31,13 @@ trait WpReplacePreview {
                     //Remove default language, otherwise we get /${lang}/wp_block/ even when we go to default language page (which we normally treat as the base site)
                     if ($language == $default_language) {
                         $language = '';
+                    }
+                }
+
+                //If it's a start page we don't use the slug. Instead it will be at the / or ${lang}/
+                if (isset($wp_query)) {
+                    if ($wp_query->is_front_page()) {
+                        $slug = '';
                     }
                 }
 
