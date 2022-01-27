@@ -142,7 +142,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        // This will make sure we intercept all calls to /wp_blocks and expose the content of the wp_block as a normal post type. 
+        // This will make sure we intercept all calls to /wp_blocks and expose the content of the wp_block as a normal post type.
         // In order for this to work, you need to have a template called single-wp_block.php
         /**
          * for: reusable blocks
@@ -168,10 +168,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         function show_site_id_missing_warning() {
             $class = 'notice notice-error';
             $message = __( 'Please set the site_id in the Draft Sync Plugin settings!', 'dls');
-            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
+            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
         }
 
-                                                                                                                              
+
         // Adds an ACF options screen/page so it can be handled by content cerberus
         public function activate_acf_options($options_name, $permalink) {
 
@@ -213,7 +213,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 echo $content;
             }, 20);
 
-        }   
+        }
 
         function get_site_id() {
             return $this->site_id;
@@ -277,6 +277,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         public function publish_status_meta_box_callback($post, $meta_box_object, $echo = true, $options_meta = false) {
 
             $permalink = '';
+
             if (isset($meta_box_object) && !empty($meta_box_object['args'])) {
                 $permalink = $meta_box_object['args']['api_path'];
             } else if (function_exists('icl_object_id')) {
@@ -384,9 +385,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 'args' => array(
                     'api_path' => $menu_permalink
                 )
-            ); 
+            );
 
-            do_action('publish_status_meta_box_navbox', null, $custom_param); 
+            do_action('publish_status_meta_box_navbox', null, $custom_param);
 
         }
 
@@ -428,14 +429,14 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         function ajax_get_diff() {
             if (!isset($_POST['post_id'])) {
                 exit();
-            }   
+            }
 
             $post_id = $_POST['post_id'];
 
             $url = $this->content_draft_url . '/resources/diff/' . $post_id;
 
             $ch = curl_init();
-            
+
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
