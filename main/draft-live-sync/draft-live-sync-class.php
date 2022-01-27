@@ -626,11 +626,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 // Replace all domains with the list used in thte settings
                 $permalink = $this->replace_hosts($permalink);
 
-                // $ wp blocks are prefixed with 'wp_block' so we can fetch them with a template
-                if ($type === 'wp_block') {
-                    $permalink = '/wp_block' . $permalink;
-                }
-
                 $link_object = new stdclass();
                 $link_object->permalink = rtrim($permalink, '/');
                 $link_object->type = $type;
