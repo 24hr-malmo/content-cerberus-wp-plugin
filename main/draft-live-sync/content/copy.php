@@ -30,6 +30,11 @@ trait CopyTrait {
 
         $content = $this->get_content($permalink);
 
+        if ($content->payload == '404' || empty($content->payload)) {
+            error_log('--- copy --- Couldn\'t find content with $permalink: ' . $permalink);
+            return;
+        }
+
         $user = new stdclass();
 
         // In case we load this with short init?
