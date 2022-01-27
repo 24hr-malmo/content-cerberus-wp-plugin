@@ -539,23 +539,24 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        function add_tags_to_complete_url_list() {
-            $list = array();
-            $tags = get_tags();
-            foreach ( $tags as $index => $tag ) {
+        // We don't want to be able to sync tags for now, rather find another way to solve this if needed
+        // function add_tags_to_complete_url_list() {
+        //     $list = array();
+        //     $tags = get_tags();
+        //     foreach ( $tags as $index => $tag ) {
 
-                $permalink = get_tag_link( $tag->term_id );
-                $permalink = $this->cleanup_permalink($permalink);
+        //         $permalink = get_tag_link( $tag->term_id );
+        //         $permalink = $this->cleanup_permalink($permalink);
 
-                $link_object = new stdclass();
-                $link_object->permalink = $permalink;
-                $link_object->type = 'tag';
+        //         $link_object = new stdclass();
+        //         $link_object->permalink = $permalink;
+        //         $link_object->type = 'tag';
 
-                array_push($list, $link_object);
+        //         array_push($list, $link_object);
 
-            }
-            return $list;
-        }
+        //     }
+        //     return $list;
+        // }
 
         function filter_the_content_replace_hosts ( $input ) {
 
@@ -628,7 +629,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 $list = array_merge($list, $this->add_to_complete_url_list($post_type));
             }
 
-            $list = array_merge($list, $this->add_tags_to_complete_url_list());
+            // We don't want to be able to sync tags for now, rather find another way to solve this if needed
+            // $list = array_merge($list, $this->add_tags_to_complete_url_list());
 
             return $list;
 
