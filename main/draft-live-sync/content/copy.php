@@ -23,6 +23,8 @@ trait CopyTrait {
 
     public function copy($from_target, $to_target, $permalink = '') {
 
+        error_log('--- copy --- $from_target: ' . $from_target . ' $to_target: ' . $to_target . ' $permalink: ' . $permalink);
+
         // Fetch all data from the page
         $permalink = $this->replace_hosts($permalink);
         // remove trailing slash, but keep single slash which is the start page permalink
@@ -50,7 +52,7 @@ trait CopyTrait {
             'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
         );
 
-        error_log(print_r($variables, true));
+        error_log('--- copy --- $variables to copyResource mutation ' . print_r($variables, true));
 
         if ($to_target == 'live') {
             $live_content = $this->get_resource_from_content($permalink, $to_target);

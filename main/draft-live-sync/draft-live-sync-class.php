@@ -413,8 +413,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $enable_test_content = get_option('dls_settings_enable_test_content');
             $show_test_content = $enable_test_content == 'true' && is_admin() ? 'true' : 'false';
 
-            // error_log('-- meta box callback --- permalink = ' . $permalink . ' - post: ' . print_r($post, true));
-
             $post_id = $post ? $post->ID : null;
 
             $screen = get_current_screen();

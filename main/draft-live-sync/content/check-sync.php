@@ -12,6 +12,8 @@ trait CheckSyncTrait {
         // remove trailing slash, but keep single slash which is the start page permalink
         $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
 
+        error_log('--- check_sync --- $permalink: ' . $permalink);
+
         // Fetch all data from the page
         $content = $this->get_content($permalink);
 
