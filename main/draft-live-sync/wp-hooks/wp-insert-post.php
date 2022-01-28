@@ -4,7 +4,7 @@ trait WpInsertPostTrait {
 
     public function wp_insert_post( $post_id, $post = null ) {
 
-        error_log(' --- INSERT POST WP HOOK ---' . $post_id);
+        error_log(' --- wp-insert-post --- $post_id: ' . $post_id);
 
         if (is_integer($post_id)) {
             $post = get_post($post_id);
@@ -25,20 +25,16 @@ trait WpInsertPostTrait {
             return;
         }
 
-
         $permalink = null;
         // If WPML, we use this to get permalink.
         if (function_exists('icl_object_id')) {
             $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
+            $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
         } else {
             $permalink = get_permalink($post->ID);
         }
 
         $permalink = str_replace( site_url(), "", $permalink);
-
-        if ($post->post_type === 'wp_block') {
-            $permalink = '/wp_block' . $permalink;
-        }
 
         $this->upsert('draft', $permalink);
 
