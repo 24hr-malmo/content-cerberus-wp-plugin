@@ -280,11 +280,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             if (isset($meta_box_object) && !empty($meta_box_object['args'])) {
                 $permalink = $meta_box_object['args']['api_path'];
-            } else if (function_exists('icl_object_id')) {
-                $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
-                $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
             } else {
                 $permalink = get_permalink($post->ID);
+                $permalink = $this->cleanup_permalink($permalink);
             }
 
             $permalink = str_replace( site_url(), '', $permalink);
@@ -492,22 +490,14 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             foreach ( $posts as $post ) {
 
-                // If WPML
-                if (function_exists('icl_object_id')) {
-                    $permalink = apply_filters('wpml_permalink', get_permalink($post->ID), ICL_LANGUAGE_CODE);
-                    $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
-                } else {
-                    $permalink = get_permalink($post->ID);
-                }
+                $permalink = '';
 
-                // Make sure all permalinks are without the domain
-                $permalink = str_replace( site_url(), "", $permalink);
+                $permalink = get_permalink($post->ID);
 
-                // Replace all domains with the list used in thte settings
-                $permalink = $this->replace_hosts($permalink);
+                $permalink = $this->cleanup_permalink($permalink);
 
                 $link_object = new stdclass();
-                $link_object->permalink = rtrim($permalink, '/');
+                $link_object->permalink = $permalink;
                 $link_object->type = $type;
 
                 array_push($list, $link_object);
@@ -522,21 +512,30 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return $permalink;
             }
 
+            $permalink = $this->handle_wpml($permalink);
+
             // Make sure all permalinks are without the domain
-            $permalink = str_replace( home_url(), "", $permalink);
+            $permalink = str_replace(site_url(), '', $permalink);
 
             // Replace all domains with the list used in thte settings
             $permalink = $this->replace_hosts($permalink);
 
-            // Remove traling slash
-            $permalink = rtrim($permalink, '/');
-
-            if ($permalink === '') {
-                $permalink = '/';
-            }
+            // Remove traling slash but not when the permalink equals '/' (start page)
+            $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
 
             return $permalink;
 
+        }
+
+        function handle_wpml($permalink) {
+            // If WPML is activated
+            if (function_exists('icl_object_id')) {
+                $permalink = apply_filters('wpml_permalink', $permalink, ICL_LANGUAGE_CODE);
+                // wpml_permalink adds a / at the end of the permalink
+                $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
+            }
+
+            return $permalink;
         }
 
         // function add_tags_to_complete_url_list() {

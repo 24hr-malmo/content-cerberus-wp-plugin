@@ -16,12 +16,7 @@
         try {
             $permalink = '';
 
-            if (function_exists('icl_object_id')) {
-                $permalink = apply_filters('wpml_permalink', $_POST['permalink'], ICL_LANGUAGE_CODE);
-                $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
-            } else {
-                $permalink = $_POST['permalink'];
-            }
+            $permalink = $draft_live_sync->cleanup_permalink($_POST['permalink']);
 
             $result = $draft_live_sync->check_sync($permalink, $only_draft_sync);
             $result->resource = $permalink;
