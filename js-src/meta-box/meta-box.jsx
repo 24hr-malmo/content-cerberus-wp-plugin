@@ -36,6 +36,9 @@ const MetaBox = ({options}) => {
 
         try {
             const result = await wpAjax(`${options.api}/check-sync.php`, payload);
+            if (!result?.data?.resourceStatus) {
+                throw('--- meta-box --- Can\'t find any data with check-sync of payload: ', payload);
+            }
             setStatus({
                 draft: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
                 live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
@@ -43,6 +46,7 @@ const MetaBox = ({options}) => {
             });
         } catch (err) {
             console.log('ee', err);
+            setChecking(false);
             setStatus({ state: 'error' });
         }
 

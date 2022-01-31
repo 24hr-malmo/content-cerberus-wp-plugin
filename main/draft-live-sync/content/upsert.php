@@ -6,10 +6,8 @@ trait UpsertTrait {
 
         error_log('Upsert - target: ' . $target . ' - permalink: ' . $permalink);
 
-        // Fetch all data from the page
-        $permalink = $this->replace_hosts($permalink);
-        // remove trailing slash, but keep single slash which is the start page permalink
-        $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
+        $permalink = $this->cleanup_permalink($permalink);
+
         $content = $this->get_content($permalink);
 
         $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
