@@ -370,15 +370,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return;
             }
 
-            // If the wordpress installation has WPML, handle that as well
-            global $sitepress;
-            if (isset($sitepress)) {
-                $menu_permalink = '/wp-json/content/v1/menus/header_menu/' . $sitepress->get_current_language();
-            } else {
-                $menu_permalink = '/wp-json/content/v1/menus/header_menu';
-            }
+            $language_suffix = $draft_live_sync->get_wpml_suffix();
 
-            // We want to pass extra arguments jsut like add_meta_box() would do to the callback publish_status_meta_box_callback
+            $menu_permalink = '/wp-json/content/v1/menus/header_menu' . $language_suffix;
+
+            // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
             $custom_param = array(
                 'args' => array(
                     'api_path' => $menu_permalink
@@ -512,7 +508,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return $permalink;
             }
 
-            $permalink = $this->handle_wpml($permalink);
+            $permalink = $this->handle_wpml_permalink($permalink);
 
             // Make sure all permalinks are without the domain
             $permalink = str_replace(site_url(), '', $permalink);
@@ -527,7 +523,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        function handle_wpml($permalink) {
+        // WPML functions
+        function handle_wpml_permalink($permalink) {
             // If WPML is activated
             if (function_exists('icl_object_id')) {
                 $permalink = apply_filters('wpml_permalink', $permalink, ICL_LANGUAGE_CODE);
@@ -536,6 +533,18 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             }
 
             return $permalink;
+        }
+
+        function get_wpml_suffix() {
+
+            $language = '';
+
+            // If WPML is activated
+            if (isset($sitepress)) {
+                $language = '/' . $sitepress->get_current_language();
+            }
+
+            return $language;
         }
 
         // function add_tags_to_complete_url_list() {

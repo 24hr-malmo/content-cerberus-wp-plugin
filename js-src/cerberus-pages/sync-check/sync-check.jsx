@@ -34,6 +34,9 @@ const SyncCheck = () => {
             const result = await wpAjax(`${apiUrl}/check-sync.php`, {
                 permalink: item.permalink
             });
+            if (!result?.data?.resourceStatus) {
+                throw 'Couldn\'t fetch data from check-sync.php';
+            }
             setItems('list', item.index, 'status', {
                 draft: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
                 live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
