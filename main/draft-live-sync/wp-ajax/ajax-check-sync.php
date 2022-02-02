@@ -22,9 +22,9 @@ trait AjaxCheckSyncTrait {
 
             echo json_encode($response);
 
-        } catch (Exception $err) {
+        } catch (Exception $e) {
 
-            echo "{}";
+            echo json_encode($e);
         }
 
         //Don't forget to always exit in the ajax function.

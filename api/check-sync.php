@@ -19,12 +19,17 @@
             $permalink = $draft_live_sync->cleanup_permalink($_POST['permalink']);
 
             $result = $draft_live_sync->check_sync($permalink, $only_draft_sync);
-            $result->resource = $permalink;
+
+            if (!empty($result)) {
+                array_push($result, array('permalink', $permalink));
+            } else {
+                error_log('____ api/check-sync $result empty on $permalink ____' . $permalink);
+            }
 
             echo json_encode($result);
 
         } catch (Exception $e) {
-
+            echo json_encode($e);
         }
 
         //Don't forget to always exit in the ajax function.

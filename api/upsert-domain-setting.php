@@ -80,7 +80,7 @@
             echo json_encode($result);
 
         } catch (Exception $e) {
-
+            echo json_encode($e);
         }
 
         //Don't forget to always exit in the ajax function.

@@ -248,8 +248,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         // Show another permalink in the edit page view
         function set_correct_permalink($url) {
 
-            error_log(' --- set_correct_permalink --- ' . $url);
-
             $public_host = $this->settings_page->get_overwrite_viewable_permalink();
             $wordpress_url = get_site_url();
 
@@ -370,7 +368,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return;
             }
 
-            $language_suffix = $draft_live_sync->get_wpml_suffix();
+            $language_suffix = $this->get_wpml_suffix();
 
             $menu_permalink = '/wp-json/content/v1/menus/header_menu' . $language_suffix;
 
@@ -540,8 +538,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $language = '';
 
             // If WPML is activated
-            if (isset($sitepress)) {
-                $language = '/' . $sitepress->get_current_language();
+            if (function_exists('icl_object_id')) {
+                error_log('______ICL_LANGUAGE_CODE______' . ICL_LANGUAGE_CODE);
+                $language = '/' . ICL_LANGUAGE_CODE;
             }
 
             return $language;
