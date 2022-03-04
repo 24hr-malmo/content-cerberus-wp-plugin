@@ -8,9 +8,7 @@ trait GetResourceFromContentTrait {
 
         $data = new stdclass();
 
-        $permalink = $this->replace_hosts($permalink);
-        // remove trailing slash, but keep single slash which is the start page permalink
-        $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
+        $permalink = $this->cleanup_permalink($permalink);
 
         $query = <<<'GRAPHQL'
             query getResource(

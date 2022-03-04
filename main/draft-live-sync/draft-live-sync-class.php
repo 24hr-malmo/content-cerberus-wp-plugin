@@ -116,7 +116,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_filter( 'admin_menu', array( &$this, 'add_admin_pages'), 10, 2 );
                 add_action( 'parse_request', array( &$this, 'parse_requests'));
                 add_filter( 'gettext', array( &$this, 'change_publish_button'), 10, 2 );
-                add_filter( 'get_sample_permalink', array( &$this, 'set_correct_permalink'));
+                add_filter( 'get_sample_permalink', array( &$this, 'set_correct_permalink'));//Is this used at all? get_sample_permalink doesn't have same params as page_link, so should maybe be a different function
                 add_filter( 'page_link', array( &$this, 'set_correct_permalink'));
                 add_action( 'admin_enqueue_scripts', array(&$this, 'enqueue_admin_scripts' ));
                 add_action( 'admin_head-post.php', array( &$this, 'hide_publishing_actions'));
@@ -142,7 +142,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        // This will make sure we intercept all calls to /wp_blocks and expose the content of the wp_block as a normal post type. 
+        // This will make sure we intercept all calls to /wp_blocks and expose the content of the wp_block as a normal post type.
         // In order for this to work, you need to have a template called single-wp_block.php
         /**
          * for: reusable blocks
@@ -168,10 +168,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         function show_site_id_missing_warning() {
             $class = 'notice notice-error';
             $message = __( 'Please set the site_id in the Draft Sync Plugin settings!', 'dls');
-            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
+            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
         }
 
-                                                                                                                              
+
         // Adds an ACF options screen/page so it can be handled by content cerberus
         public function activate_acf_options($options_name, $permalink) {
 
@@ -213,7 +213,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 echo $content;
             }, 20);
 
-        }   
+        }
 
         function get_site_id() {
             return $this->site_id;
@@ -267,125 +267,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             wp_enqueue_script( 'dls-entry-script', $this->js_script);
         }
 
-        /**
-         * Should be replaced with more specific functions
-         */
-        // function push_to_queue($permalink, $release = 'draft', $async = false, $status = 'publish', $check_only_draft_live = false, $sync_check = true, $sync_tree_and_cache = true, $custom_payload = false, $custom_payload_headers = false, $dont_fire_actions = false) {
-
-        //     error_log('--- PUSH2QUEUE --' . $permalink . ' - release: ' . $release . ' - status: ' . $status);
-
-        //     $permalink = rtrim($permalink, '/');
-        //     $this->check_site_id();
-
-        //     $server_url = $this->content_draft_url . '/content-admin';
-
-        //     if ($release == 'unpublish') {
-        //         $server_url = $server_url . '/unpublish';
-        //     } else if ($release != 'live') {
-        //         $server_url = $server_url . '/queue';
-        //     } else {
-        //         $server_url = $server_url . '/publish';
-        //     }
-
-        //     // $post = get_post($post_id);
-        //     // Since WP adds "__trashed_[counter]" to the permalink if its trashed, we need to fix it, otherwise, we cant update the content service correclty
-        //     if ($status == 'trash') {
-        //      $re = '/__trashed-\d+/';
-        //         $permalink = preg_replace($re, '', $permalink);
-        //      $re = '/__trashed/';
-        //         $permalink = preg_replace($re, '', $permalink);
-        //         
-        //         /**
-        //          * Check if the permalink is pointing to the startpage.
-        //          * If it is, we do NOT want to keep going to not risk
-        //          * unpublishing it.
-        //          */
-        //         $is_startpage = wp_make_link_relative($permalink) == '/';
-        //         if ($is_startpage) {
-        //             return;
-        //         }
-        //     }
-        //     
-        //     $data = new stdclass();
-        //     
-        //     $data->permalink = rtrim($this->replace_hosts($permalink), '/');
-        //     $data->sync_check = $sync_check;
-        //     $data->sync_tree_and_cache = $sync_tree_and_cache;
-
-        //     error_log('--------------------- ' . $permalink);
-
-        //     $data->async = $async;
-        //     $data->release = $release;
-
-        //     if ($check_only_draft_live) {
-        //         $data->check_only_draft_live = true;
-        //     }
-
-        //     $data->status = $status == 'trash' ? 'deleted' : $status;
-
-        //     // If we provide custom data, use it. This can be used to svae pages that actually dont exist
-        //     if ($custom_payload && $custom_payload_headers) {
-
-        //         $data->payload = $custom_payload;
-        //         $data->payloadHeaders = $custom_payload_headers;
-
-        //     } else {
-
-        //         // Fetch all data from the page
-        //         $content = $this->get_content($data->permalink);
-
-        //         $data->payload = $content->payload;
-        //         $data->payloadHeaders = $content->payload_headers;
-
-        //     }
-
-        //     $user = new stdclass();
-
-        //     // In case we load this with short init?
-        //     if ( function_exists( 'wp_get_current_user' ) ) {
-        //         $user = wp_get_current_user();
-        //     }
-
-        //     $variables = array(
-        //         'target' => $release,
-        //         'userInfo' => strval($user->ID),
-        //         'siteId' => $this->site_id,
-        //         'resource' => array(
-        //             'content' => $data->payload,
-        //             'key' => $data->permalink,
-        //             'externalId' => $data->id,
-        //             'type' => $data->type,
-        //             'parentId' => $data->parentId,
-        //             'content' => $content->payload,
-        //             'host' => 'wordpress',
-        //         ),
-        //     );
-
-        //     $query = <<<'GRAPHQL'
-        //         mutation upsertResource(
-        //             $target: String!
-        //             $userInfo: String!
-        //             $resource: ResourceInstance!
-        //             $siteId: String!
-        //         ) {
-        //             upsertResource (
-        //                 target: $target
-        //                 siteId: $siteId
-        //                 userInfo: $userInfo
-        //                 host: "wordpress"
-        //                 resource: $resource
-        //         ) {
-        //             success
-        //         }
-        //     }
-        //     GRAPHQL;
-
-        //     $result = graphql_query('http://content-next/graphql', $query, $variables);
-
-        //     return $result;
-
-        // }
-
         // Break if there is another site id
         public function check_site_id() {
             if (!isset($this->site_id) || $this->site_id === '' ) {
@@ -396,18 +277,21 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         public function publish_status_meta_box_callback($post, $meta_box_object, $echo = true, $options_meta = false) {
 
             $permalink = '';
+
             if (isset($meta_box_object) && !empty($meta_box_object['args'])) {
                 $permalink = $meta_box_object['args']['api_path'];
             } else {
-                $permalink = $this->cleanup_permalink(get_permalink($post->ID));
+                $permalink = get_permalink($post->ID);
+                $permalink = $this->cleanup_permalink($permalink);
             }
+
+            $permalink = str_replace( site_url(), '', $permalink);
+
             $enable_diff_btn = get_option('dls_settings_enable_diff_viewer');
             $show_diff_button = $enable_diff_btn == 'true' && is_admin() ? 'true' : 'false';
 
             $enable_test_content = get_option('dls_settings_enable_test_content');
             $show_test_content = $enable_test_content == 'true' && is_admin() ? 'true' : 'false';
-
-            // error_log('-- meta box callback --- permalink = ' . $permalink . ' - post: ' . print_r($post, true));
 
             $post_id = $post ? $post->ID : null;
 
@@ -499,9 +383,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 'args' => array(
                     'api_path' => $menu_permalink
                 )
-            ); 
+            );
 
-            do_action('publish_status_meta_box_navbox', null, $custom_param); 
+            do_action('publish_status_meta_box_navbox', null, $custom_param);
 
         }
 
@@ -544,14 +428,14 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         function ajax_get_diff() {
             if (!isset($_POST['post_id'])) {
                 exit();
-            }   
+            }
 
             $post_id = $_POST['post_id'];
 
             $url = $this->content_draft_url . '/resources/diff/' . $post_id;
 
             $ch = curl_init();
-            
+
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -607,21 +491,14 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             foreach ( $posts as $post ) {
 
+                $permalink = '';
+
                 $permalink = get_permalink($post->ID);
 
-                // Make sure all permalinks are without the domain
-                $permalink = str_replace( home_url(), "", $permalink);
-
-                // Replace all domains with the list used in thte settings
-                $permalink = $this->replace_hosts($permalink);
-
-                // $ wp blocks are prefixed with 'wp_block' so we can fetch them with a template
-                if ($type === 'wp_block') {
-                    $permalink = '/wp_block' . $permalink;
-                }
+                $permalink = $this->cleanup_permalink($permalink);
 
                 $link_object = new stdclass();
-                $link_object->permalink = rtrim($permalink, '/');
+                $link_object->permalink = $permalink;
                 $link_object->type = $type;
 
                 array_push($list, $link_object);
@@ -636,40 +513,49 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return $permalink;
             }
 
+            $permalink = $this->handle_wpml($permalink);
+
             // Make sure all permalinks are without the domain
-            $permalink = str_replace( home_url(), "", $permalink);
+            $permalink = str_replace(site_url(), '', $permalink);
 
             // Replace all domains with the list used in thte settings
             $permalink = $this->replace_hosts($permalink);
 
-            // Remove traling slash
-            $permalink = rtrim($permalink, '/');
-
-            if ($permalink === '') {
-                $permalink = '/';
-            }
+            // Remove traling slash but not when the permalink equals '/' (start page)
+            $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
 
             return $permalink;
 
         }
 
-        function add_tags_to_complete_url_list() {
-            $list = array();
-            $tags = get_tags();
-            foreach ( $tags as $index => $tag ) {
-
-                $permalink = get_tag_link( $tag->term_id );
-                $permalink = $this->cleanup_permalink($permalink);
-
-                $link_object = new stdclass();
-                $link_object->permalink = $permalink;
-                $link_object->type = 'tag';
-
-                array_push($list, $link_object);
-
+        function handle_wpml($permalink) {
+            // If WPML is activated
+            if (function_exists('icl_object_id')) {
+                $permalink = apply_filters('wpml_permalink', $permalink, ICL_LANGUAGE_CODE);
+                // wpml_permalink adds a / at the end of the permalink
+                $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
             }
-            return $list;
+
+            return $permalink;
         }
+
+        // function add_tags_to_complete_url_list() {
+        //     $list = array();
+        //     $tags = get_tags();
+        //     foreach ( $tags as $index => $tag ) {
+
+        //         $permalink = get_tag_link( $tag->term_id );
+        //         $permalink = $this->cleanup_permalink($permalink);
+
+        //         $link_object = new stdclass();
+        //         $link_object->permalink = $permalink;
+        //         $link_object->type = 'tag';
+
+        //         array_push($list, $link_object);
+
+        //     }
+        //     return $list;
+        // }
 
         function filter_the_content_replace_hosts ( $input ) {
 
@@ -742,37 +628,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 $list = array_merge($list, $this->add_to_complete_url_list($post_type));
             }
 
-            $list = array_merge($list, $this->add_tags_to_complete_url_list());
+            // $list = array_merge($list, $this->add_tags_to_complete_url_list());
 
             return $list;
 
         }
-
-
-        // Publish all pages to live
-        // function init_push($destination = 'draft') {
-
-        //     global $draft_live_sync;
-
-        //     $list = $this->get_all_resources();
-
-        //     if ($destination == 'draft') {
-        //         echo '<h2>Reset content for the following permalinks:</h2>';
-        //     } else {
-        //         echo '<h2>Publish the content for the following permalinks to the live server:</h2>';
-        //     }
-
-        //     foreach ( $list as $link_object ) {
-        //         error_log('init_push ----- ' . $link_object->permalink);
-        //         // $draft_live_sync->push_to_queue($link_object->permalink, $destination); // , false);
-        //         $this->upsert($destination, $link_object->permalink);
-        //         echo ' > ' . $link_object->permalink . '<br/>';
-        //         flush();
-        //     }
-
-        //     ob_flush();
-
-        // }
 
         function parse_requests ($wp) {
 

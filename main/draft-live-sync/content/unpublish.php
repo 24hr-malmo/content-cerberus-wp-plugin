@@ -11,6 +11,10 @@ trait UnpublishTrait {
             $user = wp_get_current_user();
         }
 
+        $post = get_post($id);
+
+        $post_type = $post->post_type;
+
         $query = <<<'GRAPHQL'
             mutation deleteResource(
                 $target: String!
@@ -33,7 +37,7 @@ trait UnpublishTrait {
 
         $variables = array(
             'target' => $target,
-            'externalId' => strval($id),
+            'externalId' => empty($post_type) ? strval($id) : $post_type . '-' . $id,
             'key' => $key,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
