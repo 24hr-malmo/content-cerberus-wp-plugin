@@ -49,7 +49,7 @@ export const StyledParagraph = styled('div')`
 
 export const StyledAddBox = styled('div')`
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
 `;
 
 export const StyledNewDomainContainer = styled('div')`

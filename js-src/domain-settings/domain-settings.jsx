@@ -46,6 +46,7 @@ const DomainSettings = ({options}) => {
     const [showCreate, setShowCreate] = createSignal('init');
     const [errorMessage, setErrorMessage] = createSignal('');
     const [saving, setSaving] = createSignal(false);
+    const [synking, setSynking] = createSignal(false);
 
     const getDomainSettings = async () => {
         const result = await wpAjax(`${options.api}/get-domain-settings.php`);
@@ -112,6 +113,16 @@ const DomainSettings = ({options}) => {
 
     };
 
+    const syncWithUserService = async () => {
+        setSynking(true);
+        try {
+            await wpAjax(`${options.api}/trigger-sync-event.php`);
+        } catch (err) {
+            console.log(err);
+        }
+        setSynking(false);
+    };
+
     createEffect(() => {
         getDomainSettings();
     });
@@ -123,6 +134,7 @@ const DomainSettings = ({options}) => {
                 This is the list of domains and targets that will be used for this site. You can add as many as you need but the domains need to be pointed to the server to make it work.
             </Text>
             <StyledAddBox>
+                <Button loading={saving() || synking()} onClick={() => syncWithUserService()}>Sync with User Service</Button>
                 <Button onClick={() => setShowCreate('open')}>Add new domain and target</Button>
             </StyledAddBox>
             <StyledNewDomainContainer state={showCreate()}>
