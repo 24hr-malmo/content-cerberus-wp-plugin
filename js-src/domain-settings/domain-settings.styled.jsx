@@ -116,5 +116,3 @@ export const StyledTDActions = styled('td')`
     display: flex;
     justify-content: flex-end;
 `;
-
-
