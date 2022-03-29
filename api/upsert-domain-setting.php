@@ -38,7 +38,7 @@
         }
 
         global $blog_id;
-        $current_blog_details = get_blog_details( array( 'blog_id' => $blod_id) );
+        $current_blog_details = get_blog_details( array( 'blog_id' => $blog_id) );
 
         $variables = array(
             'target' => 'domain-settings',
