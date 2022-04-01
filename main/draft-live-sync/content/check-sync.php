@@ -8,12 +8,17 @@ trait CheckSyncTrait {
 
         $data = new stdclass();
 
-        $permalink = $this->replace_hosts($permalink);
-        // remove trailing slash, but keep single slash which is the start page permalink
-        $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
+        $permalink = $this->cleanup_permalink($permalink);
+
+        error_log('--- check_sync --- $permalink: ' . $permalink);
 
         // Fetch all data from the page
         $content = $this->get_content($permalink);
+
+        if ($content->payload == '404' || empty($content->payload)) {
+            error_log('--- check-sync --- Couldn\'t find content with $permalink: ' . $permalink);
+            return;
+        }
 
         $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
         if (!$externalId) {
@@ -52,6 +57,7 @@ trait CheckSyncTrait {
                 'order' => isset($content->payload->order) ? $content->payload->order : -1,
                 'content' => $content->payload,
                 'host' => 'wordpress',
+                'tags' => isset($content->payload->tags) ? $content->payload->tags : [],
             ),
         );
 

@@ -5,7 +5,7 @@ export const AppContext = createContext([{ path: 'start'}, {}]);
 
 export function AppProvider(props) {
 
-    const startPath = location.hash.replace(/#/, '') || 'sync-check';
+    const startPath = location.hash.replace(/#/, '') || 'start';
 
     const [state, setState] = createStore({
         path: startPath,

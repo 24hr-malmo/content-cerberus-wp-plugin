@@ -20,6 +20,7 @@
 
         $domain = $_POST['domain'];
         $target = $_POST['target'];
+        $cloudfront_distribution_id = $_POST['cloudfrontDistributionId'];
         $id = $_POST['id'];
 
         $domain_settings = $draft_live_sync->get_domain_settings(false);
@@ -36,6 +37,9 @@
             }
         }
 
+        global $blog_id;
+        $current_blog_details = get_blog_details( array( 'blog_id' => $blog_id) );
+
         $variables = array(
             'target' => 'domain-settings',
             'userInfo' => strval($user->ID),
@@ -47,7 +51,9 @@
                 'content' => array(
                     'target' => $target,
                     'siteId' => $draft_live_sync->get_site_id(),
+                    'siteName' => $current_blog_details->blogname,
                     'domain' => $domain,
+                    'cloudfrontDistributionId' => $cloudfront_distribution_id,
                     'wp-domain' => get_site_url(),
                 ),
                 'host' => 'wordpress',
