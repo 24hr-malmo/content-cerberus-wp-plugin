@@ -41,6 +41,7 @@ const DomainSettings = ({options}) => {
 
     const [state, setState] = createStore({list: []});
     const [domain, setDomain] = createSignal('');
+    const [cloudfrontDistributionId, setCloudfrontDistributionId] = createSignal('');
     const [target, setTarget] = createSignal('draft');
     const [showCreate, setShowCreate] = createSignal('init');
     const [errorMessage, setErrorMessage] = createSignal('');
@@ -62,10 +63,12 @@ const DomainSettings = ({options}) => {
                 domain: domain(),
                 target: target(),
                 id,
+                cloudfrontDistributionId: cloudfrontDistributionId(),
             });
             await getDomainSettings();
             setTarget('draft');
             setDomain('');
+            setCloudfrontDistributionId('');
             setSaving(false);
             setShowCreate('close');
         } catch (err) {
@@ -103,6 +106,9 @@ const DomainSettings = ({options}) => {
         if (name === 'target') {
             setTarget(value);
         }
+        if (name === 'cloudfrontDistributionId') {
+            setCloudfrontDistributionId(value);
+        }
 
     };
 
@@ -124,6 +130,7 @@ const DomainSettings = ({options}) => {
                     <Heading3>Add new domain and target</Heading3>
                     <StyledNewDomainBox>
                         <Input placeholder="domain" label="Domain:" value={domain} onChange={(value) => updateValue('domain', value)}/>
+                        <Input placeholder="distribution id" label="Cloudfront Distribution ID:" value={cloudfrontDistributionId} onChange={(value) => updateValue('cloudfrontDistributionId', value)}/>
                         <Select options={targetOptions} value={target} onChange={(value) => updateValue('target', value)} />
                     </StyledNewDomainBox>
                     <Show when={errorMessage}><StyledError>{errorMessage}</StyledError></Show>
@@ -137,6 +144,7 @@ const DomainSettings = ({options}) => {
                <thead> 
                 <tr>
                     <th>Domain</th>
+                    <th>Distribution ID</th>
                     <th>Target</th>
                     <th>SiteId</th>
                     <th></th>
@@ -147,6 +155,7 @@ const DomainSettings = ({options}) => {
                         (item) => (
                             <tr>
                                 <td>{item.content.domain}</td>
+                                <td>{item.content.cloudfrontDistributionId}</td>
                                 <td>{item.content.target}</td>
                                 <td>{item.content.siteId}</td>
                                 <StyledTDActions><StyledRemoveButton onClick={() => deleteEntry(item.externalId)}>delete</StyledRemoveButton></StyledTDActions>

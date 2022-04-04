@@ -104,7 +104,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_action( 'create_term', array( &$this, 'publish_term_to_draft'), 10, 3 );
                 add_action( 'edit_term', array( &$this, 'publish_term_to_draft'), 10, 3 );
 
-                add_action( 'pre_delete_term', array( &$this, 'pre_publish_term_to_draft'), 1, 3);
+                add_action( 'pre_delete_term', array( &$this, 'pre_publish_term_to_draft'), 1, 2);
                 add_action( 'delete_term', array( &$this, 'post_publish_term_to_draft'), 1, 3);
                 add_action( 'wp_ajax_publish_to_live', array( &$this, 'ajax_publish_to_live') );
                 add_action( 'wp_ajax_save_to_draft', array( &$this, 'ajax_save_to_draft') );
@@ -407,7 +407,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        public function pre_publish_term_to_draft($term_id, $tt_id, $taxonomy) {
+        public function pre_publish_term_to_draft($term_id, $taxonomy) {
+
             $this->pre_term_url = get_tag_link($term_id);
         }
 
