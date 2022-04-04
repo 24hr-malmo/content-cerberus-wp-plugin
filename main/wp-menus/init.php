@@ -8,16 +8,13 @@ add_action('init', function() {
     global $sitepress;
     global $draft_live_sync;
 
-    $language = '';
-    if (isset($sitepress)) {
-        $language = '/' . $sitepress->get_current_language();
-    }
+    $language_suffix = $draft_live_sync->get_wpml_suffix();
 
     if (isset($draft_live_sync)) {
 
         $registered_locations = get_nav_menu_locations();
         foreach($registered_locations as $location => $index) {
-            $permalink = '/wp-json/content/v1/menus/' . $location . $language;
+            $permalink = '/wp-json/content/v1/menus/' . $location . $language_suffix;
             $draft_live_sync->add_additional_endpoint($permalink);
         }
 
@@ -39,11 +36,9 @@ add_action('init', function() {
 
         if ($menu_location != '') {
 
-            $language = '';
-            if (isset($sitepress)) {
-                $language = '/' . $sitepress->get_current_language();
-            }
-            $permalink = '/wp-json/content/v1/menus/' . $menu_location . $language;
+            $language_suffix = $draft_live_sync->get_wpml_suffix();
+
+            $permalink = '/wp-json/content/v1/menus/' . $menu_location . $language_suffix;
 
             $draft_live_sync->upsert('draft', $permalink);
 

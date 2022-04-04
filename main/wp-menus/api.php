@@ -5,11 +5,7 @@ add_action( 'rest_api_init', function() {
 
     function get_wp_menu_content($menu_location, $language) {
 
-        global $sitepress;
         global $draft_live_sync;
-        if (isset($language) && isset($sitepress)) {
-            $sitepress->switch_lang( $language, false );
-        }
 
         $generator = new ContentCerberusMenuGenerator();
         $response = $generator->get_menu($menu_location, $language);

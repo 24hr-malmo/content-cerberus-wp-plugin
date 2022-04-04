@@ -17,7 +17,7 @@ function graphql_query(string $endpoint, string $query, array $variables = [], $
         ]))) {
             $error = error_get_last();
             error_log(print_r($error, true));
-            throw new \ErrorException($error['message'], $error['type']);
+            throw new ErrorException($error['message'], $error['type']);
         }
 
     } catch (Exception $e) {
