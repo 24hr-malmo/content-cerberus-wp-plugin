@@ -353,32 +353,29 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 }
             }
 
-            // Get the menu item, so we can use it to get its location, which is needed to
-            // calculate the permalink to send as a key to the content server
-            // $menu_item = wp_get_nav_menu_items($menu_id);
-
-            // Find the location of the the current menu
+            // If a registered menu, find the location of it
+            $is_registered_location = false;
             $menu_location = '';
+
             foreach( get_nav_menu_locations() as $location => $menu_id ) {
                 error_log('--- checking if '. $post_id . ' == ' . $menu_id);
                 if( $post_id == $menu_id ){
+                    $is_registered_location = true;
                     $menu_location = $location;
                 }
             }
 
-            if ($menu_location == '') {
-                return;
-            }
 
             // If the wordpress installation has WPML, handle that as well
             global $sitepress;
+
             if (isset($sitepress)) {
-                $menu_permalink = '/wp-json/content/v1/menus/header_menu/' . $sitepress->get_current_language();
+                $menu_permalink = '/wp-json/content/v1/menus/byId/' . $post_id . '/' . $sitepress->get_current_language();
             } else {
-                $menu_permalink = '/wp-json/content/v1/menus/header_menu';
+                $menu_permalink = '/wp-json/content/v1/menus/byId/' . $post_id;
             }
 
-            // We want to pass extra arguments jsut like add_meta_box() would do to the callback publish_status_meta_box_callback
+            // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
             $custom_param = array(
                 'args' => array(
                     'api_path' => $menu_permalink
@@ -386,6 +383,25 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             );
 
             do_action('publish_status_meta_box_navbox', null, $custom_param);
+
+            if ($is_registered_location) {
+
+                if (isset($sitepress)) {
+                    $named_menu_permalink = '/wp-json/content/v1/menus/' . $menu_location . '/' . $sitepress->get_current_language();
+                } else {
+                    $named_menu_permalink = '/wp-json/content/v1/menus/' . $menu_location;
+                }
+
+                // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
+                $custom_param_named_menu = array(
+                    'args' => array(
+                        'api_path' => $named_menu_permalink
+                    )
+                );
+
+                do_action('publish_status_meta_box_navbox', null, $custom_param_named_menu);
+
+            }
 
         }
 
