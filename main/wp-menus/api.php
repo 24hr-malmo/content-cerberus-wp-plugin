@@ -18,7 +18,7 @@ add_action( 'rest_api_init', function() {
 
     }
 
-    function get_wp_menu_content_by_id($id, $language) {
+    function get_wp_menu_content_by_id($id) {
 
         global $sitepress;
         global $draft_live_sync;
@@ -29,7 +29,7 @@ add_action( 'rest_api_init', function() {
         $external_id_slug = 'by_id-' . $id;
 
         $generator = new ContentCerberusMenuGenerator();
-        $response = $generator->get_menu($id, $external_id_slug, $language);
+        $response = $generator->get_menu($id, $external_id_slug);
 
         return $draft_live_sync->clean_response($response);
 
@@ -59,7 +59,7 @@ add_action( 'rest_api_init', function() {
     register_rest_route( 'content/v1', '/menus/byId/(?P<id>\d+)', array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => function($request) {
-            return get_wp_menu_content_by_id($request['id'], '');
+            return get_wp_menu_content_by_id($request['id']);
         },
     ));
 

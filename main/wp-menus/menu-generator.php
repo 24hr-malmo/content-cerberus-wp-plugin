@@ -23,9 +23,14 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
             foreach ($menu_children as $child) {
                 $response->menu[] = $this->parse_item($child);
             }
+
+            if ($language != '') {
+                $language = '-' . $language;
+            }
+
             $response->type = 'menu';
             $response->parentId = '0';
-            $response->externalId = 'menus-' . $external_id_slug . '-' . $language;
+            $response->externalId = 'menus-' . $external_id_slug . $language;
 
             $response = apply_filters('cerberus/menu', $response);
 
