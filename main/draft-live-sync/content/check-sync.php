@@ -63,6 +63,41 @@ trait CheckSyncTrait {
 
         $result = graphql_query($this->content_host, $query, $variables);
 
+        /**
+         * 
+         * If we detect "dynamic" blocks (blocks that autopopulate using a reference, e.g. reusable blocks) in the content, loop through content recursively.
+         * For every "dynamic" block we find, run check_sync on that reference/permalink.
+         * 
+         * If we ever find that the data is not synced, exit the loop and
+         *      loop through result.data.resourceStatus objects (itemStatus) and find the one where (itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
+         *      and change that itemStatus.synced to false
+         * 
+         * All this does is make the publish button clickable, and if we can click it then the code will copy from draft to live
+         * 
+         */
+
+        $blocks = $content->payload->blocks;
+
+        if ($blocks) {
+            foreach ($blocks as $block) {
+
+                if ($block->__reference) {
+                    $innerSyncResults = $this->check_sync($block->__reference);
+
+                    foreach ($innerSyncResults['data']['resourceStatus'] as $itemStatus) {
+
+                        if ($itemStatus['target'] === 'live' && $itemStatus['comparedTo'] === 'draft') {    
+                            if ($itemStatus['synced'] === false) {
+                                $result['data']['resourceStatus'][2]['synced'] = false;
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+
         return $result;
 
     }
