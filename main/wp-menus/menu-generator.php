@@ -11,30 +11,44 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
 
         }
 
-        public function get_menu($menu_location, $language = '') {
+        public function get_menu($term_id, $external_id_slug, $language = '') {
 
             $response = new stdclass();
 
-            $registered_locations = get_nav_menu_locations();
+            $menu_data = get_term($term_id);
+            $menu_children = $this->get_menu_json($term_id);
 
-            if(!isset($registered_locations[$menu_location])){
-                return $response;
-            }
-
-            $menu_data = get_term( $registered_locations[$menu_location]);
-
-            $selected_menu_object = get_term( $registered_locations[$menu_location], 'nav_menu' );
-            $menus = $this->get_menu_json($selected_menu_object->term_id);
             $response->menuName = $menu_data->name;
             $response->menu = array();
-            foreach ($menus as $menu) {
-                $response->menu[] = $this->parse_item($menu);
+            foreach ($menu_children as $child) {
+                $response->menu[] = $this->parse_item($child);
             }
+
+            if ($language != '') {
+                $language = '-' . $language;
+            }
+
             $response->type = 'menu';
             $response->parentId = '0';
-            $response->externalId = 'menus-' . $menu_location . '-' . $language;
+            $response->externalId = 'menus-' . $external_id_slug . $language;
 
             $response = apply_filters('cerberus/menu', $response);
+
+            return $response;
+
+        }
+
+        public function get_menu_by_name($menu_location, $language = '') {
+
+            $registered_locations = get_nav_menu_locations();
+            
+            if(!isset($registered_locations[$menu_location])){
+                return new stdclass();
+            }
+
+            $selected_menu_object = get_term( $registered_locations[$menu_location], 'nav_menu' );
+
+            $response = $this->get_menu($selected_menu_object->term_id, $menu_location, $language);
 
             return $response;
 

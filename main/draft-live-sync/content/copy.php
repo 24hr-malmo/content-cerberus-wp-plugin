@@ -51,13 +51,6 @@ trait CopyTrait {
 
         error_log('--- copy --- $variables to copyResource mutation ' . print_r($variables, true));
 
-        if ($to_target == 'live') {
-            $live_content = $this->get_resource_from_content($permalink, $to_target);
-            $page_content = $live_content['data']['resource']['content'];
-            $this->publish_reusable_blocks($page_content, $from_target, $to_target);
-            // echo json_encode($page_content);
-        }
-
         $query = <<<'GRAPHQL'
             mutation copyResource(
                 $fromTarget: String!
@@ -79,6 +72,13 @@ trait CopyTrait {
         GRAPHQL;
 
         $result = graphql_query($this->content_host, $query, $variables);
+
+        if ($to_target == 'live') {
+            $live_content = $this->get_resource_from_content($permalink, $to_target);
+            $page_content = $live_content['data']['resource']['content'];
+            $this->publish_reusable_blocks($page_content, $from_target, $to_target);
+            // echo json_encode($page_content);
+        }
 
         return $result;
 
