@@ -78,7 +78,7 @@ const MetaBox = ({options}) => {
         e.preventDefault();
         e.stopPropagation();
 
-        setUnpublishing(true);
+        setUnpublishing(true); 
         const result = await wpAjaxAction('unpublish_from_live', payload);
         if (result.data) {
             check(false);

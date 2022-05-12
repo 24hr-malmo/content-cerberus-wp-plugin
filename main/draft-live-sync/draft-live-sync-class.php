@@ -310,6 +310,57 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
+        private function check_if_registered_menu_location_permalink($permalink) {
+            /**
+             * Checks if permalink belongs to a menu with a registered location, e.g. header_menu (and not just by id)
+             */
+            if (!strpos($permalink, 'menus')) {
+                return false;
+            }
+    
+            if (strpos($permalink, 'menus/byId')) {
+                return false;
+            }
+
+            return true;
+        }
+
+        private function get_menu_permalink_from_registered_menu_location_permalink($permalink) {
+            /**
+             * Any menu that is registered to a location, e.g. header_menu, is stored in 2 places, e.g.:
+             *      menus/header_menu/en
+             *      menus/byId/42/en
+             * 
+             * Received permalink is a registered menu link (e.g. /menus/header_menu/ja).
+             * From this we fetch the contents (the stored menu).
+             * Return the id-based permalink of the menu.
+             * 
+             */
+    
+            $content = $this->get_content($permalink);
+    
+            if ($content->payload == '404' || empty($content->payload)) {
+                error_log('--- check-sync --- Couldn\'t find content with $permalink: ' . $permalink);
+                return false;
+            }
+    
+            $registered_menu_ID = $content->payload->menuId;
+            if (!$registered_menu_ID) {
+                return false;
+            }
+    
+            global $sitepress;
+            $language = '';
+    
+            if (isset($sitepress)) {
+                $language = '/' . $sitepress->get_current_language();
+            }
+    
+            $contentDuplicatePermalink = '/wp-json/content/v1/menus/byId/' . $registered_menu_ID . $language;
+    
+            return $contentDuplicatePermalink;
+        }
+
         public function get_enabled_post_types() {
             $post_types = apply_filters('cerberus_post_types', array());
             return $post_types;
@@ -369,39 +420,39 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             // If the wordpress installation has WPML, handle that as well
             global $sitepress;
 
+            $menu_permalink = '';
+
+            $language = '';
             if (isset($sitepress)) {
-                $menu_permalink = '/wp-json/content/v1/menus/byId/' . $post_id . '/' . $sitepress->get_current_language();
+                $language = '/' . $sitepress->get_current_language();
+            }
+
+            /**
+             * 
+             * Menus with registered locations need to be stored in two locations.
+             *      - under their location (e.g. menus/header_menu/ja)
+             *      - and according to their unique menu id (e.g. menus/byId/42/ja)
+             * 
+             * For all intents and purposes we ignore the unique id key/permalink until in the final step of publishing/unpublishing 
+             * the content, where we duplicate the process to make a "copy" on the unique menu id permalink
+             * 
+             */
+            if ($is_registered_location) {
+                $menu_permalink = '/wp-json/content/v1/menus/' . $menu_location;
             } else {
                 $menu_permalink = '/wp-json/content/v1/menus/byId/' . $post_id;
             }
 
+            $permalink = $menu_permalink . $language;
+
             // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
             $custom_param = array(
                 'args' => array(
-                    'api_path' => $menu_permalink
+                    'api_path' => $permalink
                 )
             );
-
+            
             do_action('publish_status_meta_box_navbox', null, $custom_param);
-
-            if ($is_registered_location) {
-
-                if (isset($sitepress)) {
-                    $named_menu_permalink = '/wp-json/content/v1/menus/' . $menu_location . '/' . $sitepress->get_current_language();
-                } else {
-                    $named_menu_permalink = '/wp-json/content/v1/menus/' . $menu_location;
-                }
-
-                // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
-                $custom_param_named_menu = array(
-                    'args' => array(
-                        'api_path' => $named_menu_permalink
-                    )
-                );
-
-                do_action('publish_status_meta_box_navbox', null, $custom_param_named_menu);
-
-            }
 
         }
 
