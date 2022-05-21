@@ -22,17 +22,29 @@ const MetaBox = ({options}) => {
         permalink: options.permalink,
     };
 
+    const coreEditor = wp.data.select( 'core/editor' );
+
     // Dont run this if its an older version of wp or not running gutenberg
     createEffect(() => {
         if (wp && wp.hooks && wp.hooks.addAction) {
+
             check();
+
             wp.hooks.addAction('dls.post-saved', 'dls', () => {
-                if (payload.permalink.includes('?') && payload.permalink.includes('_id=')) {
-                    // It's the first time it's being saved, so reload to get correct permalink
-                    setTimeout(()=>{
-                        location.reload()
-                    }, 1000)
+                if (payload.permalink.includes('/?') && payload.permalink.includes('_id=')) { // It's the first time it's being saved, so reload to get correct permalink
+                    const { isSavingPost } = coreEditor
+                    let safetyCounter = 0;
+    
+                    const savingInternal = setInterval(() => {
+                        if (!isSavingPost() || safetyCounter >= 50) {
+                            location.reload()
+                            clearInterval(savingInternal)
+                        }
+                    }, 100)
+
+                    return
                 }
+                
                 check();
             });
         }
@@ -48,9 +60,6 @@ const MetaBox = ({options}) => {
 
     const pageChangeListener = () => {
         let saveContentButton;
-        let coreEditor;
-
-        coreEditor = wp.data.select( 'core/editor' );
         
         wp.data.subscribe( _.debounce( ()=> {
             if (!saveContentButton) {
@@ -158,7 +167,6 @@ const MetaBox = ({options}) => {
 
         const changesDisabledInfo = document.createElement('i');
         changesDisabledInfo.classList.add('changes-disabled-message');
-        changesDisabledInfo.innerHTML = 'Menu must be unpublished before toggling location';
 
         const savedToDraft = status.draft?.exists;
         const isPublished = status.live && status.live.exists;
@@ -173,16 +181,28 @@ const MetaBox = ({options}) => {
             fieldset.style.opacity = 1;
         }
 
+        const changesDisabledEl = document.querySelector('.changes-disabled-message');
         if (isPublished) {
-            const changesDisabledEl = document.querySelector('.changes-disabled-message');
+            const publishedMessage = 'Menu must be unpublished before toggling location'
+            
             if (changesDisabledEl) {
-                changesDisabledEl.innerHTML = 'Menu must be unpublished before toggling location'
+                changesDisabledEl.innerHTML = publishedMessage
             } else {
+                changesDisabledInfo.innerHTML = publishedMessage;
                 fieldset.prepend(changesDisabledInfo);
             }
         } else {
-            const infoMessage = document.querySelector('.changes-disabled-message');
-            if (infoMessage) infoMessage.parentNode.removeChild(infoMessage);
+            const notSavedMessage = 'Menu must be saved to draft before toggling location'
+            if (!savedToDraft) {
+                if (changesDisabledEl) {
+                    changesDisabledEl.innerHTML = notSavedMessage
+                } else {
+                    changesDisabledInfo.innerHTML = notSavedMessage;
+                    fieldset.prepend(changesDisabledInfo);
+                }
+            } else {
+                if (changesDisabledEl) changesDisabledEl.parentNode.removeChild(changesDisabledEl);
+            }
         }
 
         let currentMenuIsRegisteredToLocation = false;
@@ -196,6 +216,8 @@ const MetaBox = ({options}) => {
 
             if (locationPriorlySet) {
                 input.setAttribute('disabled', true)
+                locationElement.style.pointerEvents = 'none';
+                locationElement.style.opacity = 0.5;
                 locationsSetToOtherMenus = true;
             }
 
