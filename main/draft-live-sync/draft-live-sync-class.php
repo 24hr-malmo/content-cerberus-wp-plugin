@@ -487,9 +487,24 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         public function post_publish_term_to_draft($term_id, $tt_id, $taxonomy) {
 
-            error_log('post_publish_term_to_draft ---- ' . $term_id);
+            $screen = get_current_screen();
 
-            $this->push_to_queue($this->pre_term_url, 'draft', false, 'publish');
+            if ($screen->base === 'nav-menus') {
+                global $sitepress;
+
+                $language = '';
+                if (isset($sitepress)) {
+                    $language = '/' . $sitepress->get_current_language();
+                }
+
+                $key = '/wp-json/content/v1/menus/byId/' . $term_id . $language;
+                $externalId = 'menus-by_id-' . $term_id;
+
+                $this->unpublish('draft', $externalId, $key);
+            } else {
+                $this->push_to_queue($this->pre_term_url, 'draft', false, 'publish');
+            }
+
         }
 
         function ajax_get_diff() {

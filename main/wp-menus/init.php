@@ -25,28 +25,19 @@ add_action('init', function() {
 
     add_action( 'wp_update_nav_menu', function ( $post_id, $data = NULL ) {
 
-        /**
-         * This is run whenever a menu is updated.
-         * We save every menu under byId/$post_id.
-         * If it happens to be a registered menu (e.g. header_menu - registered in functions.php) we also save it under that slug.
-         */
+        error_log('--- updating nav menu');
 
         global $draft_live_sync;
         global $sitepress;
 
-        $is_registered_location = false;
-        $registered_menu_name = '';
+        $location_menus = get_nav_menu_locations(); // Fetches all menus with registered location
+        $menu_location = '';
 
-        foreach( get_nav_menu_locations() as $location => $menu_id ) {
+        foreach( $location_menus as $location => $menu_id ) {
             if( $post_id == $menu_id ){
-
-                $is_registered_location = true;
-                $registered_menu_name = $location;
-
+                $menu_location = $location;
             }
         }
-
-        $permalink = '';
 
         $language = '';
         if (isset($sitepress)) {
@@ -56,9 +47,45 @@ add_action('init', function() {
         $permalink = '/wp-json/content/v1/menus/byId/' . $post_id . $language;
         $draft_live_sync->upsert('draft', $permalink);
     
-        if ($is_registered_location) {
-            $permalink_named_menu = '/wp-json/content/v1/menus/' . $registered_menu_name . $language;
-            $draft_live_sync->upsert('draft', $permalink_named_menu);
+        if ($menu_location !== '') {
+
+            /**
+             * If the menu is associated with a location we must also add it to that location's entry in the database
+             */
+
+            $location_permalink = '/wp-json/content/v1/menus/' . $menu_location . $language;
+            $draft_live_sync->upsert('draft', $location_permalink);
+
+        } else {
+
+            foreach( get_registered_nav_menus() as $registered_location => $name) { // Fetches all registered locations - even if they don't have an associated menu
+                
+                if (!$location_menus[ $registered_location ]) { 
+                    /**
+                     * If we find a registered_location without an associated menu, the content in the registered menu location entry in the DB should be empty.
+                     * This may not be the case if the user has recently unset the location for a particular menu.
+                     * So we loop through all registered menu locations and make sure that if WP doesn't have any content associated with it, our DB (draft) mirrors this state and
+                     * we unpublish the menu from draft in case it's not already empty
+                     */
+
+                    $languageSuffix = '';
+                    if (isset($sitepress)) {
+                        $languageSuffix = '-' . $sitepress->get_current_language();
+                    }
+
+                    $permalink_to_clear = '/wp-json/content/v1/menus/' . $registered_location . $language;
+                    $externalId = 'menus-' . $registered_location . $languageSuffix;
+
+                    $content = $draft_live_sync->get_content($permalink_to_clear);
+    
+                    if ($content->payload != '404' || !empty($content->payload)) {
+                        error_log('--- unpublishing deleted menu(s) from draft: ' . $permalink_to_clear);
+                        $draft_live_sync->unpublish('draft', $externalId, $permalink_to_clear);
+                    }
+        
+                }
+            }
+            
         }
 
     }, 10, 3);

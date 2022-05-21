@@ -19,7 +19,7 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
             $menu_children = $this->get_menu_json($term_id);
 
             $response->menuName = $menu_data->name;
-            $response->menuId = $term_id;
+            $response->menuId = intval($term_id);
             $response->menu = array();
             foreach ($menu_children as $child) {
                 $response->menu[] = $this->parse_item($child);

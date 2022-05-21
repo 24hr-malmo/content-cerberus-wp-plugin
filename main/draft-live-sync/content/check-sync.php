@@ -76,29 +76,39 @@ trait CheckSyncTrait {
          * 
          */
 
-        $blocks = $content->payload->blocks;
+        $synced = true;
+        $this->check_nested_sync_status($content->payload->blocks, $synced);
 
-        if ($blocks) {
-            foreach ($blocks as $block) {
-
-                if ($block->__reference) {
-                    $innerSyncResults = $this->check_sync($block->__reference);
-
-                    foreach ($innerSyncResults['data']['resourceStatus'] as $itemStatus) {
-
-                        if ($itemStatus['target'] === 'live' && $itemStatus['comparedTo'] === 'draft') {    
-                            if ($itemStatus['synced'] === false) {
-                                $result['data']['resourceStatus'][2]['synced'] = false;
-                            }
-                        }
-
-                    }
-                }
-
-            }
+        if (!$synced) {
+            $result['data']['resourceStatus'][2]['synced'] = false;
         }
 
         return $result;
 
+    }
+
+    private function check_nested_sync_status($blocks, &$isSynced) {
+        foreach ($blocks as $block) {
+
+            $innerBlocks = $block->blocks;
+
+            if ($innerBlocks) {
+                $this->check_nested_sync_status($innerBlocks, $isSynced);
+            }
+            
+            if ($block->__reference) {
+                $innerSyncResults = $this->check_sync($block->__reference);
+
+                foreach ($innerSyncResults['data']['resourceStatus'] as $itemStatus) {
+
+                    if ($itemStatus['target'] === 'live' && $itemStatus['comparedTo'] === 'draft') {  
+                          
+                        if (($block->blockName === 'core/block') && ($itemStatus['synced'] === false)) {
+                            $isSynced = false;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

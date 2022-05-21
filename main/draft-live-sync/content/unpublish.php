@@ -6,6 +6,8 @@ trait UnpublishTrait {
 
         $user = new stdclass();
 
+        error_log('--- unpublishing ' . $id . ' with key "' . $key . '" from ' . $target);
+
         // In case we load this with short init?
         if ( function_exists( 'wp_get_current_user' ) ) {
             $user = wp_get_current_user();
