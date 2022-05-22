@@ -31,11 +31,7 @@ const MetaBox = ({options}) => {
             check();
 
             wp.hooks.addAction('dls.post-saved', 'dls', () => {
-                const hasInitialPermalink = payload.permalink.includes('/?') && (
-                    payload.permalink.includes('_id=') || payload.permalink.includes('_type=') // This part may be unnecessary, checking if includes '/?' might suffice
-                );
-
-                if (hasInitialPermalink) {
+                if (!status?.draft?.exists) {
                     /**
                      * It's the first time it's being saved, so reload to get correct permalink (which is needed to e.g. unpublish)
                      */
