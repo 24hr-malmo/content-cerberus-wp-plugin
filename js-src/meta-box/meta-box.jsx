@@ -31,20 +31,28 @@ const MetaBox = ({options}) => {
             check();
 
             wp.hooks.addAction('dls.post-saved', 'dls', () => {
-                if (payload.permalink.includes('/?') && payload.permalink.includes('_id=')) { // It's the first time it's being saved, so reload to get correct permalink
-                    const { isSavingPost } = coreEditor
+                const hasInitialPermalink = payload.permalink.includes('/?') && (
+                    payload.permalink.includes('_id=') || payload.permalink.includes('_type=') // This part may be unnecessary, checking if includes '/?' might suffice
+                );
+
+                if (hasInitialPermalink) {
+                    /**
+                     * It's the first time it's being saved, so reload to get correct permalink (which is needed to e.g. unpublish)
+                     */
+                    const { isSavingPost } = coreEditor;
                     let safetyCounter = 0;
     
                     const savingInternal = setInterval(() => {
                         if (!isSavingPost() || safetyCounter >= 50) {
-                            location.reload()
-                            clearInterval(savingInternal)
+                            location.reload();
+                            clearInterval(savingInternal);
                         }
                     }, 100)
 
-                    return
+                    return;
                 }
-                
+
+                pageChangeListener();
                 check();
             });
         }
@@ -61,40 +69,41 @@ const MetaBox = ({options}) => {
     const pageChangeListener = () => {
         let saveContentButton;
         
-        wp.data.subscribe( _.debounce( ()=> {
+        const unsubscribe = wp.data.subscribe( _.debounce( ()=> {
             if (!saveContentButton) {
-                saveContentButton = document.querySelector('.editor-post-publish-button')
+                saveContentButton = document.querySelector('.editor-post-publish-button');
             }
 
             const hasUnsavedChanges = coreEditor.isEditedPostDirty();
             const hasNonPostEntityChanges = coreEditor.hasNonPostEntityChanges();
-            
+
             if (hasNonPostEntityChanges || hasUnsavedChanges) {
-                setUnsavedPageChanges(true)
+                setUnsavedPageChanges(true);
                 saveContentButton.removeAttribute('disabled');
+                unsubscribe();
             } else {
-                setUnsavedPageChanges(false)
+                setUnsavedPageChanges(false);
                 saveContentButton.setAttribute('disabled', true);
             }
-        }, 300 ) );
+        }, 100 ) );
     }
 
     
     const menuChangeListener = () => { // Listens for changes to enable/disable saving button
-        let menuHasChanged = false
-        let menuChangeDetectingInterval
+        let menuHasChanged = false;
+        let menuChangeDetectingInterval;
 
-        const saveButton = document.querySelector('#save_menu_footer')
-        saveButton.setAttribute('disabled', true)
+        const saveButton = document.querySelector('#save_menu_footer');
+        saveButton.setAttribute('disabled', true);
 
         let blurListener = () => {
-            if (menuHasChanged) return
-            clearInterval(menuChangeDetectingInterval)
+            if (menuHasChanged) return;
+            clearInterval(menuChangeDetectingInterval);
         }
 
         let focusListener = () => {
-            if (menuHasChanged) return
-            menuChangeDetectingInterval = runInterval()
+            if (menuHasChanged) return;
+            menuChangeDetectingInterval = runInterval();
         }
         
         const runInterval = () => setInterval(() => {
@@ -105,14 +114,14 @@ const MetaBox = ({options}) => {
 
                 clearInterval(menuChangeDetectingInterval);
 
-                window.removeEventListener('blur', blurListener)
+                window.removeEventListener('blur', blurListener);
                 window.removeEventListener('focus', focusListener);
             }
         }, 500)
 
         menuChangeDetectingInterval = runInterval();
 
-        window.addEventListener('blur', blurListener)
+        window.addEventListener('blur', blurListener);
         window.addEventListener('focus', focusListener);
     }
 
@@ -162,16 +171,15 @@ const MetaBox = ({options}) => {
          */
          
         const displayLocations = document.querySelectorAll('.menu-theme-locations > .menu-settings-input');
-        const deleteLink = document.querySelector('.submitdelete.deletion.menu-delete');
         const fieldset = document.querySelector('.menu-settings-group.menu-theme-locations');
 
         const changesDisabledInfo = document.createElement('i');
         changesDisabledInfo.classList.add('changes-disabled-message');
 
-        const savedToDraft = status.draft?.exists;
+        const existsInDraft = status.draft?.exists;
         const isPublished = status.live && status.live.exists;
 
-        if (!savedToDraft || isPublished) {
+        if (!existsInDraft || isPublished) {
             fieldset.style.pointerEvents = 'none';
             fieldset.style.cursor = 'not-allowed';
             fieldset.style.opacity = 0.5;
@@ -181,27 +189,27 @@ const MetaBox = ({options}) => {
             fieldset.style.opacity = 1;
         }
 
-        const changesDisabledEl = document.querySelector('.changes-disabled-message');
+        const changesDisabledDOM = document.querySelector('.changes-disabled-message');
         if (isPublished) {
-            const publishedMessage = 'Menu must be unpublished before toggling location'
+            const publishedMessage = 'Menu must be unpublished before toggling location';
             
-            if (changesDisabledEl) {
-                changesDisabledEl.innerHTML = publishedMessage
+            if (changesDisabledDOM) {
+                changesDisabledDOM.innerHTML = publishedMessage;
             } else {
                 changesDisabledInfo.innerHTML = publishedMessage;
                 fieldset.prepend(changesDisabledInfo);
             }
         } else {
-            const notSavedMessage = 'Menu must be saved to draft before toggling location'
-            if (!savedToDraft) {
-                if (changesDisabledEl) {
-                    changesDisabledEl.innerHTML = notSavedMessage
+            const notSavedMessage = 'Menu must be created before toggling location';
+            if (!existsInDraft) {
+                if (changesDisabledDOM) {
+                    changesDisabledDOM.innerHTML = notSavedMessage;
                 } else {
                     changesDisabledInfo.innerHTML = notSavedMessage;
                     fieldset.prepend(changesDisabledInfo);
                 }
             } else {
-                if (changesDisabledEl) changesDisabledEl.parentNode.removeChild(changesDisabledEl);
+                if (changesDisabledDOM) changesDisabledDOM.parentNode.removeChild(changesDisabledDOM);
             }
         }
 
@@ -212,10 +220,10 @@ const MetaBox = ({options}) => {
             const input = locationElement.querySelector('input');
             input.addEventListener('change', () => setUnsavedMenuDisplayLocations(true));
 
-            const locationPriorlySet = locationElement.querySelector('.theme-location-set')
+            const locationAlreadySet = locationElement.querySelector('.theme-location-set');
 
-            if (locationPriorlySet) {
-                input.setAttribute('disabled', true)
+            if (locationAlreadySet) {
+                input.setAttribute('disabled', true);
                 locationElement.style.pointerEvents = 'none';
                 locationElement.style.opacity = 0.5;
                 locationsSetToOtherMenus = true;
@@ -226,21 +234,22 @@ const MetaBox = ({options}) => {
             }
         }
 
-        if (locationsSetToOtherMenus && !isPublished) {
+        if (locationsSetToOtherMenus && !isPublished && existsInDraft) {
             const changesDisabledMessageExists = document.querySelector('.changes-disabled-message');
-            const locationsDisabledText = 'Some locations cannot be set until they have been unset from their original menu'
+            const locationsDisabledText = 'Some locations cannot be set because they are already set';
 
             if (changesDisabledMessageExists) {
-                changesDisabledMessageExists.innerHTML = locationsDisabledText
+                changesDisabledMessageExists.innerHTML = locationsDisabledText;
             } else {
-                changesDisabledInfo.innerHTML = locationsDisabledText
+                changesDisabledInfo.innerHTML = locationsDisabledText;
                 fieldset.prepend(changesDisabledInfo);
             }
         }
 
-        if (!deleteLink) return;
+        if (location.search.includes('menu=0')) return; // Menu has not yet been created and given a unique ID
 
         setMenuCreated(true);
+        const deleteLink = document.querySelector('.submitdelete.deletion.menu-delete');
         let linkReplacement = document.querySelector('.delete-link-replacement');        
 
         if (currentMenuIsRegisteredToLocation || isPublished) {
@@ -331,18 +340,12 @@ const MetaBox = ({options}) => {
                     </Show>
 
                     <Show when={status.live?.exists}>
-                        <Show when={status.live?.synced}>
-                            <Button leftMargin={options.metaMenu} loading={publishing()} disabled={true}>
-                                { unsavedPageChanges() || unsavedMenuChanges() ? 'Save draft before updating on live' : 'Updated on live site' }
-                            </Button>
-                        </Show>
-
-                        <Show when={!status.live?.synced}>
-                            <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) }>
-                                { unsavedPageChanges() || unsavedMenuChanges() ? 'Save draft before updating on live' : 'Update on live site'}
-                            </Button>
-                        </Show>
-
+                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || unsavedPageChanges() || unsavedMenuChanges()}>
+                            { unsavedPageChanges() || unsavedMenuChanges() ? 
+                                'Save draft before updating on live' 
+                                : status.live?.synced ? 'Updated on live site' : 'Update on live site'
+                            }
+                        </Button>
                         <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) }>
                             Unpublish
                         </Button>
