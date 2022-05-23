@@ -23,9 +23,11 @@ const MetaBox = ({options}) => {
     };
 
     let coreEditor;
+    let saveButton;
 
     createEffect(() => {
         if (options.metaMenu) {
+            saveButton = document.querySelector('#save_menu_footer');
             menuChangeListener();
         } else {
             if (wp) {
@@ -42,23 +44,30 @@ const MetaBox = ({options}) => {
             check();
 
             wp.hooks.addAction('dls.post-saved', 'dls', () => {
-                if (!status?.draft?.exists) {
+                if (!status?.draft?.exists && coreEditor.isPublishingPost()) {
                     /**
-                     * It's the first time it's being saved, so reload to get correct permalink (which is needed to e.g. unpublish)
+                     * It's the first time content is being saved to draft  (disregarding wordpress' autosave),
+                     * so reload to get correct permalink (which is needed to e.g. unpublish)
+                     * 
+                     * NB: This wordpress' publishing - NOT the same as cerberus' publish to live database
                      */
+                    
                     const { isSavingPost } = coreEditor;
                     let safetyCounter = 0;
-    
+                    
                     const savingInternal = setInterval(() => {
                         if (!isSavingPost() || safetyCounter >= 50) {
                             location.reload();
                             clearInterval(savingInternal);
                         }
                     }, 100)
-
+                    
                     return;
                 }
 
+                if (!status?.draft?.exists) return; // Wordpress is autosaving content that doesn't yet exist 
+
+                // Content has been updated on draft, listen for further changes
                 pageChangeListener();
                 check();
             });
@@ -92,7 +101,6 @@ const MetaBox = ({options}) => {
         let menuHasChanged = false;
         let menuChangeDetectingInterval;
 
-        const saveButton = document.querySelector('#save_menu_footer');
         saveButton.setAttribute('disabled', true);
 
         let blurListener = () => {
@@ -108,8 +116,7 @@ const MetaBox = ({options}) => {
         const runInterval = () => setInterval(() => {
             if (window?.wpNavMenu?.menusChanged) {
                 menuHasChanged = true;
-                saveButton.removeAttribute('disabled');
-                setUnsavedMenuChanges(true);
+                enableMenuSaveButton();
 
                 clearInterval(menuChangeDetectingInterval);
 
@@ -122,6 +129,11 @@ const MetaBox = ({options}) => {
 
         window.addEventListener('blur', blurListener);
         window.addEventListener('focus', focusListener);
+    }
+
+    const enableMenuSaveButton = () => {
+        saveButton.removeAttribute('disabled');
+        setUnsavedMenuChanges(true);
     }
 
     const check = async (showChecking = true) => {
@@ -217,7 +229,10 @@ const MetaBox = ({options}) => {
         let locationsSetToOtherMenus = false;
         for (let locationElement of displayLocations) {
             const input = locationElement.querySelector('input');
-            input.addEventListener('change', () => setUnsavedMenuDisplayLocations(true));
+            input.addEventListener('change', () => {
+                setUnsavedMenuDisplayLocations(true);
+                enableMenuSaveButton();
+            });
 
             const locationAlreadySet = locationElement.querySelector('.theme-location-set');
 
