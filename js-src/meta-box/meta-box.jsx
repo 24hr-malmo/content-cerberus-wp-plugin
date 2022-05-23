@@ -22,7 +22,18 @@ const MetaBox = ({options}) => {
         permalink: options.permalink,
     };
 
-    const coreEditor = wp.data.select( 'core/editor' );
+    let coreEditor;
+
+    createEffect(() => {
+        if (options.metaMenu) {
+            menuChangeListener();
+        } else {
+            if (wp) {
+                coreEditor = wp.data.select( 'core/editor' );
+                wp.domReady(pageChangeListener);
+            }
+        }
+    });
 
     // Dont run this if its an older version of wp or not running gutenberg
     createEffect(() => {
@@ -51,14 +62,6 @@ const MetaBox = ({options}) => {
                 pageChangeListener();
                 check();
             });
-        }
-    });
-
-    createEffect(() => {
-        if (options.metaMenu) {
-            menuChangeListener();
-        } else {
-            if (wp) wp.domReady(pageChangeListener);
         }
     });
 
