@@ -23,14 +23,14 @@ const MetaBox = ({options}) => {
     };
 
     let coreEditor;
-    let saveButton;
+    let saveMenuButton;
 
     createEffect(() => {
         if (options.metaMenu) {
-            saveButton = document.querySelector('#save_menu_footer');
+            saveMenuButton = document.querySelector('#save_menu_footer');
             menuChangeListener();
         } else {
-            if (wp) {
+            if (wp?.data?.select) {
                 coreEditor = wp.data.select( 'core/editor' );
                 wp.domReady(pageChangeListener);
             }
@@ -44,7 +44,7 @@ const MetaBox = ({options}) => {
             check();
 
             wp.hooks.addAction('dls.post-saved', 'dls', () => {
-                if (!status?.draft?.exists && coreEditor.isPublishingPost()) {
+                if (!status?.draft?.exists && coreEditor?.isPublishingPost()) {
                     /**
                      * It's the first time content is being saved to draft  (disregarding wordpress' autosave),
                      * so reload to get correct permalink (which is needed to e.g. unpublish)
@@ -55,10 +55,10 @@ const MetaBox = ({options}) => {
                     const { isSavingPost } = coreEditor;
                     let safetyCounter = 0;
                     
-                    const savingInternal = setInterval(() => {
+                    const savingInterval = setInterval(() => {
                         if (!isSavingPost() || safetyCounter >= 50) {
                             location.reload();
-                            clearInterval(savingInternal);
+                            clearInterval(savingInterval);
                         }
                     }, 100)
                     
@@ -101,7 +101,7 @@ const MetaBox = ({options}) => {
         let menuHasChanged = false;
         let menuChangeDetectingInterval;
 
-        saveButton.setAttribute('disabled', true);
+        saveMenuButton.setAttribute('disabled', true);
 
         let blurListener = () => {
             if (menuHasChanged) return;
@@ -132,7 +132,7 @@ const MetaBox = ({options}) => {
     }
 
     const enableMenuSaveButton = () => {
-        saveButton.removeAttribute('disabled');
+        saveMenuButton.removeAttribute('disabled');
         setUnsavedMenuChanges(true);
     }
 
