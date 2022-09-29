@@ -19,6 +19,8 @@ trait AjaxCheckSyncTrait {
                 $permalink = $_POST['api_path'];
                 $response = $this->check_sync($permalink);
             }
+            
+            $response = apply_filters('cerberus_check_sync', $response, $permalink);
 
             echo json_encode($response);
 
