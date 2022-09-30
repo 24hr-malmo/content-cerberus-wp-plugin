@@ -15,7 +15,6 @@ trait AjaxPublishToLiveTrait {
         }
 
         $response = $this->copy('draft', 'live', $permalink);
-        $response = apply_filters('cerberus_publish_to_live', $response, $permalink);
 
         if ($this->check_if_registered_menu_location_permalink($permalink)) {
             // If permalink is a menu with registered location (e.g. header_menu) we need to publish it in two places

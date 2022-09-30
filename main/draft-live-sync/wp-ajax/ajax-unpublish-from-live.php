@@ -9,12 +9,10 @@ trait AjaxUnpublishFromLiveTrait {
         if (!empty($_POST['post_id'])) {
             $id = $_POST['post_id'];
             $response = $this->unpublish('live', $id);
-            $response = apply_filters('cerberus_unpublish_from_live', $response, $id);
 
         } else if (!empty($_POST['permalink'])){
             $permalink = $_POST['permalink'];
             $response = $this->unpublish('live', null, $permalink);
-            $response = apply_filters('cerberus_unpublish_from_live', $response, $permalink);
 
             if ($this->check_if_registered_menu_location_permalink($permalink)) {
                 // If permalink is a menu with registered location (e.g. header_menu) we need to unpublish it in two places

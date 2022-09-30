@@ -46,6 +46,7 @@ trait UnpublishTrait {
         );
 
         $response = graphql_query($this->content_host, $query, $variables);
+        $response = apply_filters('cerberus_unpublish', $response, $target, $id, $key);
 
         return $response;
     }

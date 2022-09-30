@@ -83,6 +83,8 @@ trait CheckSyncTrait {
             $result['data']['resourceStatus'][2]['synced'] = false;
         }
 
+        $result = apply_filters('cerberus_check_sync', $result, $this->site_id, $permalink);
+
         return $result;
 
     }
