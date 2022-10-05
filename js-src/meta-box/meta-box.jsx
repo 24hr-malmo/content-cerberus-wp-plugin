@@ -15,6 +15,7 @@ const MetaBox = ({options}) => {
     const [ unsavedMenuDisplayLocations, setUnsavedMenuDisplayLocations ] = createSignal(false);
     const [ unsavedPageChanges, setUnsavedPageChanges ] = createSignal(false);
     const [ unsavedMenuChanges, setUnsavedMenuChanges ] = createSignal(false);
+    const [ unsavedExternalChange, setUnsavedExternalChange ] = createSignal(false);
     const [ menuCreated, setMenuCreated ] = createSignal(false);
     const [ noContentFound, setNoContentFound ] = createSignal(false);
 
@@ -74,6 +75,25 @@ const MetaBox = ({options}) => {
         }
     });
 
+    createEffect(() => {
+        let saveContentButton;
+        document.addEventListener("cerberusListenerEvent", (payload) => {
+            if (payload?.detail?.hasChange) {
+                if (!saveContentButton) {
+                    saveContentButton = document.querySelector('.editor-post-publish-button');
+                    saveContentButton.addEventListener('click', () => {
+                        setUnsavedExternalChange(false);
+                        saveContentButton.setAttribute('disabled', true);
+                    });
+                }
+                if (saveContentButton) {
+                    setUnsavedExternalChange(true);
+                    saveContentButton.removeAttribute('disabled');
+                }                
+            }
+        });
+    });
+
     const pageChangeListener = () => {
         let saveContentButton;
         
@@ -84,8 +104,9 @@ const MetaBox = ({options}) => {
 
             const hasUnsavedChanges = coreEditor.isEditedPostDirty();
             const hasNonPostEntityChanges = coreEditor.hasNonPostEntityChanges();
+            const hasUnsavedExternalChange = unsavedExternalChange();
 
-            if (hasNonPostEntityChanges || hasUnsavedChanges) {
+            if (hasNonPostEntityChanges || hasUnsavedChanges || hasUnsavedExternalChange) {
                 setUnsavedPageChanges(true);
                 saveContentButton.removeAttribute('disabled');
                 unsubscribe();
@@ -144,8 +165,8 @@ const MetaBox = ({options}) => {
         }
 
         try {
-            const result = await wpAjax(`${options.api}/check-sync.php`, payload);
-
+            // const result = await wpAjax(`${options.api}/check-sync.php`, payload);
+            const result = await wpAjaxAction('check_sync', {...payload, api_path: payload.permalink});
             if (!result?.data?.resourceStatus) {
                 throw(payload);
             }
@@ -287,8 +308,14 @@ const MetaBox = ({options}) => {
         }
     }
 
-    const publish = async (e) => {
+    const emitDomEvent = (detail = {}) => {
+        if (document) {
+            const domPublishEvent = new CustomEvent('cerberusChangeEvent', { detail });
+            document.dispatchEvent(domPublishEvent);
+        }
+    }
 
+    const publish = async (e) => {
         // If we dont stop the event, the options page in wp is saved by ACF
         e.preventDefault();
         e.stopPropagation();
@@ -303,6 +330,9 @@ const MetaBox = ({options}) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
 
+        emitDomEvent({
+            action: 'publish_to_live_done'
+        });
     };
 
     const unpublish = async (e) => {
@@ -322,6 +352,9 @@ const MetaBox = ({options}) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setUnpublishing(false);
 
+        emitDomEvent({
+            action: 'unpublish_from_live_done'
+        });
     };
  
     return (
@@ -345,8 +378,8 @@ const MetaBox = ({options}) => {
                     <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
 
                     <Show when={!status.live?.exists}>
-                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ unsavedPageChanges() || unsavedMenuChanges() }>
-                            { unsavedPageChanges() || unsavedMenuChanges() ? 'Save draft before publishing to live' : 'Publish to live site' }
+                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange()}>
+                            { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ? 'Save draft before publishing to live' : 'Publish to live site' }
                         </Button>
                         <Button leftMargin={options.metaMenu} disabled={!status.live?.synced}> 
                             Content not published
@@ -354,13 +387,14 @@ const MetaBox = ({options}) => {
                     </Show>
 
                     <Show when={status.live?.exists}>
-                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || unsavedPageChanges() || unsavedMenuChanges()}>
-                            { unsavedPageChanges() || unsavedMenuChanges() ? 
+                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange()}>
+                            { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ? 
                                 'Save draft before updating on live' 
                                 : status.live?.synced ? 'Updated on live site' : 'Update on live site'
                             }
                         </Button>
-                        <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) }>
+                        {/* The button below is disabled when some external source has indicated that a change has been made. This is to avoid unpublishing wrong content. */}
+                        <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={unsavedExternalChange()}>
                             Unpublish
                         </Button>
                     </Show>
