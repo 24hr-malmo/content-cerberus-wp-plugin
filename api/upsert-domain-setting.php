@@ -38,7 +38,12 @@
         }
 
         global $blog_id;
-        $current_blog_details = get_blog_details( array( 'blog_id' => $blog_id) );
+        if ( is_multisite() ) {
+            $current_blog_details = get_blog_details( array( 'blog_id' => $blog_id) );
+        } else {
+            $current_blog_details = new stdClass();
+            $current_blog_details->blogname = '';
+        }
 
         $variables = array(
             'target' => 'domain-settings',
