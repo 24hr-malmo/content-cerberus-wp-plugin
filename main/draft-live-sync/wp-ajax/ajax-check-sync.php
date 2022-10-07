@@ -19,7 +19,7 @@ trait AjaxCheckSyncTrait {
                 $permalink = $_POST['api_path'];
                 $response = $this->check_sync($permalink);
             }
-
+            
             echo json_encode($response);
 
         } catch (Exception $err) {

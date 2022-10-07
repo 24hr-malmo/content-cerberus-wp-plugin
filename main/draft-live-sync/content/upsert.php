@@ -64,6 +64,7 @@ trait UpsertTrait {
         GRAPHQL;
 
         $result = graphql_query($this->content_host, $query, $variables);
+        $result = apply_filters('cerberus_upsert', $result, $target, $permalink);
 
         return $result;
     }

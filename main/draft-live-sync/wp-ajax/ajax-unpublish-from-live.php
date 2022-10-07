@@ -13,6 +13,12 @@ trait AjaxUnpublishFromLiveTrait {
         } else if (!empty($_POST['permalink'])){
             $permalink = $_POST['permalink'];
             $response = $this->unpublish('live', null, $permalink);
+
+            if ($this->check_if_registered_menu_location_permalink($permalink)) {
+                // If permalink is a menu with registered location (e.g. header_menu) we need to unpublish it in two places
+                $contentDuplicatePermalink =  $this->get_menu_permalink_from_registered_menu_location_permalink($permalink);
+                $this->unpublish('live', null, $contentDuplicatePermalink);
+            }
         }
 
         header( "Content-Type: application/json" );
