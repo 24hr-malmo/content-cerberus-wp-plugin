@@ -248,8 +248,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         // Show another permalink in the edit page view
         function set_correct_permalink($url) {
 
-            error_log(' --- set_correct_permalink --- ' . $url);
-
             $public_host = $this->settings_page->get_overwrite_viewable_permalink();
             $wordpress_url = get_site_url();
 
@@ -317,7 +315,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             if (!strpos($permalink, 'menus')) {
                 return false;
             }
-    
+
             if (strpos($permalink, 'menus/byId')) {
                 return false;
             }
@@ -330,34 +328,34 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
              * Any menu that is registered to a location, e.g. header_menu, is stored in 2 places, e.g.:
              *      menus/header_menu/en
              *      menus/byId/42/en
-             * 
+             *
              * Received permalink is a registered menu link (e.g. /menus/header_menu/ja).
              * From this we fetch the contents (the stored menu).
              * Return the id-based permalink of the menu.
-             * 
+             *
              */
-    
+
             $content = $this->get_content($permalink);
-    
+
             if ($content->payload == '404' || empty($content->payload)) {
                 error_log('--- check-sync --- Couldn\'t find content with $permalink: ' . $permalink);
                 return false;
             }
-    
+
             $registered_menu_ID = $content->payload->menuId;
             if (!$registered_menu_ID) {
                 return false;
             }
-    
+
             global $sitepress;
             $language = '';
-    
+
             if (isset($sitepress)) {
                 $language = '/' . $sitepress->get_current_language();
             }
-    
+
             $contentDuplicatePermalink = '/wp-json/content/v1/menus/byId/' . $registered_menu_ID . $language;
-    
+
             return $contentDuplicatePermalink;
         }
 
@@ -428,14 +426,14 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             }
 
             /**
-             * 
+             *
              * Menus with registered locations need to be stored in two locations.
              *      - under their location (e.g. menus/header_menu/ja)
              *      - and according to their unique menu id (e.g. menus/byId/42/ja)
-             * 
-             * For all intents and purposes we ignore the unique id key/permalink until in the final step of publishing/unpublishing 
+             *
+             * For all intents and purposes we ignore the unique id key/permalink until in the final step of publishing/unpublishing
              * the content, where we duplicate the process to make a "copy" on the unique menu id permalink
-             * 
+             *
              */
             if ($is_registered_location) {
                 $menu_permalink = '/wp-json/content/v1/menus/' . $menu_location;
@@ -451,7 +449,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                     'api_path' => $permalink
                 )
             );
-            
+
             do_action('publish_status_meta_box_navbox', null, $custom_param);
 
         }

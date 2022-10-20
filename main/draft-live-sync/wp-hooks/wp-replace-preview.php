@@ -21,6 +21,9 @@ trait WpReplacePreview {
                     wp_die('Please set the correct domain in domain settings');
                 }
 
+                $permalink = get_permalink($post->ID);
+                $permalink = $this->cleanup_permalink($permalink);
+
                 $slug = $post->post_name;
 
                 $language = '';
@@ -50,7 +53,7 @@ trait WpReplacePreview {
                     'cookies' => http_build_query($_COOKIE, '', ';'),
                 );
 
-                $link = "$host$language/$slug";
+                $link = "$host$language$permalink";
 
                 header('Location: ' . $link);
             }
