@@ -6,8 +6,6 @@ trait GetResourceFromContentTrait {
 
         $this->check_site_id();
 
-        $data = new stdclass();
-
         $permalink = $this->cleanup_permalink($permalink);
 
         $query = <<<'GRAPHQL'

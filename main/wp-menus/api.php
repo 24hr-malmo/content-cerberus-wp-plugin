@@ -2,7 +2,7 @@
 
 
 add_action( 'rest_api_init', function() {
-    
+
     function get_wp_menu_content_by_name($menu_location, $language) {
 
         global $sitepress;
@@ -40,6 +40,7 @@ add_action( 'rest_api_init', function() {
         'callback' => function($request) {
             return get_wp_menu_content_by_name($request['location'], $request['language']);
         },
+        'permission_callback' => '__return_true',
     ));
 
     register_rest_route( 'content/v1', '/menus/(?P<location>\w+)', array(
@@ -47,6 +48,7 @@ add_action( 'rest_api_init', function() {
         'callback' => function($request) {
             return get_wp_menu_content_by_name($request['location'], '');
         },
+        'permission_callback' => '__return_true',
     ));
 
     register_rest_route( 'content/v1', '/menus/byId/(?P<id>\d+)/(?P<language>\w{2})', array(
@@ -54,6 +56,7 @@ add_action( 'rest_api_init', function() {
         'callback' => function($request) {
             return get_wp_menu_content_by_id($request['id'], $request['language']);
         },
+        'permission_callback' => '__return_true',
     ));
 
     register_rest_route( 'content/v1', '/menus/byId/(?P<id>\d+)', array(
@@ -61,6 +64,7 @@ add_action( 'rest_api_init', function() {
         'callback' => function($request) {
             return get_wp_menu_content_by_id($request['id']);
         },
+        'permission_callback' => '__return_true',
     ));
 
 

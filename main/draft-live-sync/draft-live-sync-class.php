@@ -407,7 +407,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $menu_location = '';
 
             foreach( get_nav_menu_locations() as $location => $menu_id ) {
-                error_log('--- checking if '. $post_id . ' == ' . $menu_id);
                 if( $post_id == $menu_id ){
                     $is_registered_location = true;
                     $menu_location = $location;
@@ -471,7 +470,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 return;
             }
 
-            error_log('delete_post ----- ' . $post_id);
+            $permalink = get_permalink($post->ID);
+
+            error_log(" ---- DELETE_POST ---- permalink: $permalink");
 
             $this->unpublish('draft', $post_id);
             $this->unpublish('live', $post_id);

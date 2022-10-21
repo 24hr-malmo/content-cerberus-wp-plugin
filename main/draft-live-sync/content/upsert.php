@@ -4,9 +4,9 @@ trait UpsertTrait {
 
     public function upsert($target, $permalink = '', $callbacks = array()) {
 
-        error_log('Upsert - target: ' . $target . ' - permalink: ' . $permalink);
-
         $permalink = $this->cleanup_permalink($permalink);
+
+        error_log(" ---- UPSERT ---- permalink: $permalink");
 
         $content = $this->get_content($permalink);
 
