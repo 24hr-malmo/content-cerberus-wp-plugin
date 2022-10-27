@@ -215,9 +215,13 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        function get_site_id() {
+        function get_site_id($blog_id = null) {
+            if ($blog_id) {
+                return get_blog_option($blog_id, 'dls_settings_site_id');
+            }
             return $this->site_id;
         }
+
 
         function hide_publishing_actions(){
             global $post;
