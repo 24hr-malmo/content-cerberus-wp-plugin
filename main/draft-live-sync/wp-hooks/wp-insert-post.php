@@ -4,14 +4,12 @@ trait WpInsertPostTrait {
 
     public function wp_insert_post( $post_id, $post = null ) {
 
-        error_log(' --- wp-insert-post --- $post_id: ' . $post_id);
-
         if (is_integer($post_id)) {
             $post = get_post($post_id);
         }
 
         // If this is just a revision, don't send the email.
-        if ( wp_is_post_revision( $post_id)) { // ->ID)) {
+        if ( wp_is_post_revision($post_id)) {
             return;
         }
 
@@ -32,7 +30,6 @@ trait WpInsertPostTrait {
         $permalink = $this->cleanup_permalink($permalink);
 
         $this->upsert('draft', $permalink);
-
     }
 
 }

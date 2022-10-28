@@ -4,8 +4,6 @@ trait GetContentTrait {
 
     function get_content($permalink) {
 
-        error_log(' --- get_content : ' . $permalink);
-
         $data = new stdclass();
 
         $url = 'http://localhost' . $permalink;

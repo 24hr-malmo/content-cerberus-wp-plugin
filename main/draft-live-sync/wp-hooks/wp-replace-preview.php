@@ -6,7 +6,7 @@ trait WpReplacePreview {
 
         add_action('template_redirect', function() {
 
-            if ($_GET['preview'] == 'true' && $_GET['caller'] != 'content-service') {
+            if (isset($_GET['preview']) && $_GET['preview'] == 'true' && $_GET['caller'] != 'content-service') {
 
                 global $post;
                 global $sitepress;
@@ -20,6 +20,9 @@ trait WpReplacePreview {
                 } else {
                     wp_die('Please set the correct domain in domain settings');
                 }
+
+                $permalink = get_permalink($post->ID);
+                $permalink = $this->cleanup_permalink($permalink);
 
                 $slug = $post->post_name;
 
@@ -41,16 +44,7 @@ trait WpReplacePreview {
                     }
                 }
 
-                $iat = time();
-                $exp = $iat + (60 * 60 * 1); //will expire after 1 hour
-                $payload = array(
-                    'iat' => $iat,
-                    'exp' => $exp,
-                    'preview_info' => http_build_query($_GET, '', '&'),
-                    'cookies' => http_build_query($_COOKIE, '', ';'),
-                );
-
-                $link = "$host$language/$slug";
+                $link = "$host$language$permalink";
 
                 header('Location: ' . $link);
             }
@@ -59,6 +53,7 @@ trait WpReplacePreview {
 
         add_action( 'admin_head', function () {
             global $post;
+            $postID = isset($post->ID) ? $post->ID : '';
             echo "
                 <style>
                     button.block-editor-post-preview__button-toggle {
@@ -67,7 +62,7 @@ trait WpReplacePreview {
                 </style>
                 <script type='text/javascript'>
                     window.addEventListener('load', () => {
-                        const originalButton = document.querySelector('[target=\"wp-preview-$post->ID\"]');
+                        const originalButton = document.querySelector('[target=\"wp-preview-$postID\"]');
 
                         if (originalButton) {
                             const previewLink = originalButton.href;

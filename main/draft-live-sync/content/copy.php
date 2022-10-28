@@ -23,8 +23,6 @@ trait CopyTrait {
 
     public function copy($from_target, $to_target, $permalink = '') {
 
-        error_log('--- copy --- $from_target: ' . $from_target . ' $to_target: ' . $to_target . ' $permalink: ' . $permalink);
-
         $permalink = $this->cleanup_permalink($permalink);
 
         $content = $this->get_content($permalink);
@@ -48,8 +46,6 @@ trait CopyTrait {
             'siteId' => $this->site_id,
             'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
         );
-
-        error_log('--- copy --- $variables to copyResource mutation ' . print_r($variables, true));
 
         $query = <<<'GRAPHQL'
             mutation copyResource(
