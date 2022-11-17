@@ -24,27 +24,7 @@ trait WpReplacePreview {
                 $permalink = get_permalink($post->ID);
                 $permalink = $this->cleanup_permalink($permalink);
 
-                $slug = $post->post_name;
-
-                $language = '';
-                if (isset($sitepress)) {
-                    $language = '/' . $sitepress->get_current_language();
-                    $default_language = '/' . $sitepress->get_default_language();
-
-                    //Remove default language, otherwise we get /${lang}/wp_block/ even when we go to default language page (which we normally treat as the base site)
-                    if ($language == $default_language) {
-                        $language = '';
-                    }
-                }
-
-                //If it's a start page we don't use the slug. Instead it will be at the / or ${lang}/
-                if (isset($wp_query)) {
-                    if ($wp_query->is_front_page()) {
-                        $slug = '';
-                    }
-                }
-
-                $link = "$host$language$permalink";
+                $link = "$host$permalink";
 
                 header('Location: ' . $link);
             }
