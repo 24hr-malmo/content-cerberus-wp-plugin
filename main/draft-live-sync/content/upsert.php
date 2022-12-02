@@ -5,10 +5,17 @@ trait UpsertTrait {
     public function upsert($target, $permalink = '', $callbacks = array()) {
 
         $permalink = $this->cleanup_permalink($permalink);
+        
 
         error_log(" ---- UPSERT ---- permalink: $permalink");
 
         $content = $this->get_content($permalink);
+        $newPermalink = apply_filters('enforce_new_permalink', $permalink, $content);
+
+        if ($newPermalink !== $permalink){
+            error_log(" ---- UPSERT ---- permalink updated: $newPermalink");
+        }
+
 
         $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
         if (!$externalId) {
@@ -27,7 +34,7 @@ trait UpsertTrait {
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
             'resource' => array(
-                'key' => $permalink,
+                'key' => $newPermalink,
                 'externalId' => $externalId,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
