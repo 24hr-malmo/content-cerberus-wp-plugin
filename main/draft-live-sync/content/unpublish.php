@@ -13,6 +13,14 @@ trait UnpublishTrait {
             $user = wp_get_current_user();
         }
 
+        // Getting the post id.
+        // Note that the id passed into this (unpublish) function is not defined.
+        // I don't want to change the code more than enough.
+        // The graphql request uses key (and not id).
+        // But for the apply_filters I need the id.
+        $permalink = $this->cleanup_permalink($key);
+        $content = $this->get_content($permalink);
+
         $post = get_post($id);
 
         $post_type = $post->post_type;
@@ -46,7 +54,7 @@ trait UnpublishTrait {
         );
 
         $response = graphql_query($this->content_host, $query, $variables);
-        $response = apply_filters('cerberus_unpublish', $response, $target, $id, $key);
+        $response = apply_filters('cerberus_unpublish', $response, $target, $content->payload->id, $key);
 
         return $response;
     }
