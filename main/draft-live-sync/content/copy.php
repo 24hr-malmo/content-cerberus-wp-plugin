@@ -68,7 +68,7 @@ trait CopyTrait {
         GRAPHQL;
 
         $result = graphql_query($this->content_host, $query, $variables);
-        $result = apply_filters('cerberus_copy', $result, $from_target, $to_target, $permalink);
+        $result = apply_filters('cerberus_copy', $result, $from_target, $to_target, $content->payload->id);
 
         if ($to_target == 'live') {
             $live_content = $this->get_resource_from_content($permalink, $to_target);
