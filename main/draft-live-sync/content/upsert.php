@@ -9,6 +9,12 @@ trait UpsertTrait {
         error_log(" ---- UPSERT ---- permalink: $permalink");
 
         $content = $this->get_content($permalink);
+        $filteredPermalink = apply_filters('cerberus_enforce_new_permalink', $permalink, $content);
+
+        if ($filteredPermalink !== $permalink){
+            error_log(" ---- UPSERT ---- permalink updated: $filteredPermalink");
+        }
+
 
         $externalId = isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid;
         if (!$externalId) {
@@ -27,7 +33,7 @@ trait UpsertTrait {
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
             'resource' => array(
-                'key' => $permalink,
+                'key' => $filteredPermalink,
                 'externalId' => $externalId,
                 'type' => $content->payload->type,
                 'parentId' => strval($content->payload->parentId),
