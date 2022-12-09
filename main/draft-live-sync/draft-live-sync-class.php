@@ -100,10 +100,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
                 // We use **save_post** for deleting purposes
                 add_action( 'save_post', array( &$this, 'delete_post'), 10, 1 );
-
-                add_action( 'create_term', array( &$this, 'publish_term_to_draft'), 10, 3 );
-                add_action( 'edit_term', array( &$this, 'publish_term_to_draft'), 10, 3 );
-
                 add_action( 'pre_delete_term', array( &$this, 'pre_publish_term_to_draft'), 1, 2);
                 add_action( 'delete_term', array( &$this, 'post_publish_term_to_draft'), 1, 3);
                 add_action( 'wp_ajax_publish_to_live', array( &$this, 'ajax_publish_to_live') );
@@ -124,9 +120,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
                 // Filter the content so we can replace hosts etc
                 add_filter('dls_replace_hosts', array(&$this, 'filter_the_content_replace_hosts'), 100);
-
-                // Add hook to ACFs save action to publish on each save
-                add_action('acf/save_post', array( &$this, 'publish_options_to_draft'), 20, 1);
 
                 // This will check if we should redirect normal requests to the admin page
                 add_action('template_redirect', array(&$this, 'redirect_to_wp_admin'), 20);
