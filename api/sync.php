@@ -2,9 +2,6 @@
 
     include 'short-init.php';
 
-    require( ABSPATH . WPINC . '/rewrite.php');
-    require( ABSPATH . WPINC . '/class-wp-rewrite.php');
-
     if(class_exists( 'DraftLiveSync' )){
 
         // Init or use instance of the manager.

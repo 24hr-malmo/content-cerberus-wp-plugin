@@ -19,7 +19,7 @@
             $permalink = $draft_live_sync->cleanup_permalink($_POST['permalink']);
 
             $result = $draft_live_sync->check_sync($permalink, $only_draft_sync);
-            $result->resource = $permalink;
+            $result['resource'] = $permalink;
 
             echo json_encode($result);
 
