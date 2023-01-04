@@ -43,7 +43,7 @@ add_action( 'rest_api_init', function() {
         'permission_callback' => '__return_true',
     ));
 
-    register_rest_route( 'content/v1', '/menus/(?P<location>[a-z]+)', array(
+    register_rest_route( 'content/v1', '/menus/(?P<location>[a-z_]+)', array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => function($request) {
             return get_wp_menu_content_by_name($request['location'], '');
