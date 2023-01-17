@@ -9,7 +9,7 @@ import analyze from 'rollup-plugin-analyzer';
 const fs = require('fs');
 
 const pluginFileContent = fs.readFileSync('./index.php', 'utf8');
-const versionRe = /Version: ([\w\.]+)(\r|\n)/im;
+const versionRe = /Version: ([\w\.\-]+)(\r|\n)/im;
 const versionMatch = versionRe.exec(pluginFileContent);
 
 if (!versionMatch) {
