@@ -20,6 +20,7 @@ const MetaBox = ({options}) => {
     const [ noContentFound, setNoContentFound ] = createSignal(false);
 
     const payload = {
+        post_id: options.postId,
         permalink: options.permalink,
     };
 
@@ -49,24 +50,24 @@ const MetaBox = ({options}) => {
                     /**
                      * It's the first time content is being saved to draft  (disregarding wordpress' autosave),
                      * so reload to get correct permalink (which is needed to e.g. unpublish)
-                     * 
+                     *
                      * NB: This wordpress' publishing - NOT the same as cerberus' publish to live database
                      */
-                    
+
                     const { isSavingPost } = coreEditor;
                     let safetyCounter = 0;
-                    
+
                     const savingInterval = setInterval(() => {
                         if (!isSavingPost() || safetyCounter >= 50) {
                             location.reload();
                             clearInterval(savingInterval);
                         }
                     }, 100)
-                    
+
                     return;
                 }
 
-                if (!status?.draft?.exists) return; // Wordpress is autosaving content that doesn't yet exist 
+                if (!status?.draft?.exists) return; // Wordpress is autosaving content that doesn't yet exist
 
                 // Content has been updated on draft, listen for further changes
                 pageChangeListener();
@@ -89,14 +90,14 @@ const MetaBox = ({options}) => {
                 if (saveContentButton) {
                     setUnsavedExternalChange(true);
                     saveContentButton.removeAttribute('disabled');
-                }                
+                }
             }
         });
     });
 
     const pageChangeListener = () => {
         let saveContentButton;
-        
+
         const unsubscribe = wp.data.subscribe( _.debounce( ()=> {
             if (!saveContentButton) {
                 saveContentButton = document.querySelector('.editor-post-publish-button');
@@ -117,7 +118,7 @@ const MetaBox = ({options}) => {
         }, 100 ) );
     }
 
-    
+
     const menuChangeListener = () => { // Listens for changes to enable/disable saving button
         let menuHasChanged = false;
         let menuChangeDetectingInterval;
@@ -133,7 +134,7 @@ const MetaBox = ({options}) => {
             if (menuHasChanged) return;
             menuChangeDetectingInterval = runInterval();
         }
-        
+
         const runInterval = () => setInterval(() => {
             if (window?.wpNavMenu?.menusChanged) {
                 menuHasChanged = true;
@@ -158,6 +159,7 @@ const MetaBox = ({options}) => {
     }
 
     const check = async (showChecking = true) => {
+    console.log('check: ');
 
         if (showChecking) {
             setChecking(true);
@@ -166,6 +168,8 @@ const MetaBox = ({options}) => {
 
         try {
             // const result = await wpAjax(`${options.api}/check-sync.php`, payload);
+            console.log('payload: ', payload);
+            console.log('payload.permalink: ', payload.permalink);
             const result = await wpAjaxAction('check_sync', {...payload, api_path: payload.permalink});
             if (!result?.data?.resourceStatus) {
                 throw(payload);
@@ -201,7 +205,7 @@ const MetaBox = ({options}) => {
          * ensuring that content is saved correctly and making it more obvious for the editor about
          * what is saved/published (the "stand-alone" menu, and/or the menu registered to a location)
          */
-         
+
         const displayLocations = document.querySelectorAll('.menu-theme-locations > .menu-settings-input');
         const fieldset = document.querySelector('.menu-settings-group.menu-theme-locations');
 
@@ -224,7 +228,7 @@ const MetaBox = ({options}) => {
         const changesDisabledDOM = document.querySelector('.changes-disabled-message');
         if (isPublished) {
             const publishedMessage = 'Menu must be unpublished before toggling location';
-            
+
             if (changesDisabledDOM) {
                 changesDisabledDOM.innerHTML = publishedMessage;
             } else {
@@ -285,7 +289,7 @@ const MetaBox = ({options}) => {
 
         setMenuCreated(true);
         const deleteLink = document.querySelector('.submitdelete.deletion.menu-delete');
-        let linkReplacement = document.querySelector('.delete-link-replacement');        
+        let linkReplacement = document.querySelector('.delete-link-replacement');
 
         if (currentMenuIsRegisteredToLocation || isPublished) {
             deleteLink.style.display = 'none';
@@ -341,7 +345,7 @@ const MetaBox = ({options}) => {
         e.preventDefault();
         e.stopPropagation();
 
-        setUnpublishing(true); 
+        setUnpublishing(true);
 
         const result = await wpAjaxAction('unpublish_from_live', payload);
         if (result.data) {
@@ -356,7 +360,7 @@ const MetaBox = ({options}) => {
             action: 'unpublish_from_live_done'
         });
     };
- 
+
     return (
         <StyledContainer horizontal={options.metaMenu} box={options.optionsMeta}>
 
@@ -373,7 +377,7 @@ const MetaBox = ({options}) => {
                         <StyledStatusText>Content must be saved before publishing</StyledStatusText>
                     </StyledChecking>
                 </Show>
-                
+
                 <Show when={!unsavedMenuDisplayLocations() && status.draft?.exists}>
                     <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
 
@@ -381,15 +385,15 @@ const MetaBox = ({options}) => {
                         <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange()}>
                             { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ? 'Save draft before publishing to live' : 'Publish to live site' }
                         </Button>
-                        <Button leftMargin={options.metaMenu} disabled={!status.live?.synced}> 
+                        <Button leftMargin={options.metaMenu} disabled={!status.live?.synced}>
                             Content not published
                         </Button>
                     </Show>
 
                     <Show when={status.live?.exists}>
                         <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange()}>
-                            { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ? 
-                                'Save draft before updating on live' 
+                            { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ?
+                                'Save draft before updating on live'
                                 : status.live?.synced ? 'Updated on live site' : 'Update on live site'
                             }
                         </Button>
@@ -423,7 +427,7 @@ const MetaBox = ({options}) => {
             <Show when={options.enableDiffButton}>
                 <Button leftMargin={options.metaMenu}>Show diff (raw)</Button>
             </Show>
-            
+
         </StyledContainer>
     );
 

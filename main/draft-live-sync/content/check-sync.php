@@ -92,19 +92,19 @@ trait CheckSyncTrait {
     private function check_nested_sync_status($blocks, &$isSynced) {
         foreach ($blocks as $block) {
 
-            $innerBlocks = $block->blocks;
+            $innerBlocks = $block->blocks ?? null;
 
             if ($innerBlocks) {
                 $this->check_nested_sync_status($innerBlocks, $isSynced);
             }
-            
+
             if ($block->__reference) {
                 $innerSyncResults = $this->check_sync($block->__reference);
 
                 foreach ($innerSyncResults['data']['resourceStatus'] as $itemStatus) {
 
-                    if ($itemStatus['target'] === 'live' && $itemStatus['comparedTo'] === 'draft') {  
-                          
+                    if ($itemStatus['target'] === 'live' && $itemStatus['comparedTo'] === 'draft') {
+
                         if (($block->blockName === 'core/block') && ($itemStatus['synced'] === false)) {
                             $isSynced = false;
                         }
