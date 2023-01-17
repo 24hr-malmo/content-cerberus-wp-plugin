@@ -9,7 +9,7 @@ trait AjaxCheckSyncTrait {
 
         try {
 
-            $reponse = array();
+            $response = array();
 
             if (!empty($_POST['post_id'])) {
                 $id = $_POST['post_id'];
@@ -19,7 +19,7 @@ trait AjaxCheckSyncTrait {
                 $permalink = $_POST['api_path'];
                 $response = $this->check_sync($permalink);
             }
-            
+
             echo json_encode($response);
 
         } catch (Exception $err) {
