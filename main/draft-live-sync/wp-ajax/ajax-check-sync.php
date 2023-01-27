@@ -14,11 +14,11 @@ trait AjaxCheckSyncTrait {
             if (!empty($_POST['post_id'])) {
                 $id = $_POST['post_id'];
                 $permalink = get_permalink($id);
-                $response = $this->check_sync($permalink);
             } else if (!empty($_POST['api_path'])){
                 $permalink = $_POST['api_path'];
-                $response = $this->check_sync($permalink);
             }
+
+            $response = $this->check_sync($permalink);
 
             echo json_encode($response);
 

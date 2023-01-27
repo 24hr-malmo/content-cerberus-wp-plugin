@@ -476,6 +476,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $permalink = get_permalink($post->ID);
 
+            $permalink = $this->cleanup_permalink($permalink);
+
             error_log(" ---- DELETE_POST ---- permalink: $permalink");
 
             $this->unpublish('draft', $post_id);
@@ -594,7 +596,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         function cleanup_permalink($permalink) {
 
-            if (!isset($permalink) || $permalink == '') {
+            if ($permalink != '' && !isset($permalink)) {
                 return $permalink;
             }
 
@@ -609,8 +611,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             // Remove traling slash but not when the permalink equals '/' (start page)
             $permalink = preg_replace('/(.)\/$/', '$1', $permalink);
 
-            return $permalink;
+            if ($permalink == '') {
+                $permalink = '/';
+            }
 
+            return $permalink;
         }
 
         function handle_wpml($permalink) {

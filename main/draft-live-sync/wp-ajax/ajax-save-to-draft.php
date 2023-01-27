@@ -6,12 +6,10 @@ trait AjaxSaveToDraftTrait {
 
         $reponse = array();
         $permalink = '';
-        
+
         if (!empty($_POST['post_id'])) {
             $id = $_POST['post_id'];
             $permalink = get_permalink($id);
-            // error_log(' SAVING ID TO DRAFT ' . $id . ' -- permalink: ' . $permalink);
-            // $response = $this->upsert('draft', $permalink);
         } else if (!empty($_POST['api_path'])){
             $permalink = $_POST['api_path'];
         }
