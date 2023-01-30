@@ -141,7 +141,7 @@ const DomainSettings = ({options}) => {
                 </StyledNewDomainInnerContainer>
             </StyledNewDomainContainer>
             <StyledTable>
-               <thead> 
+               <thead>
                 <tr>
                     <th>Domain</th>
                     <th>Distribution ID</th>
@@ -149,8 +149,8 @@ const DomainSettings = ({options}) => {
                     <th>SiteId</th>
                     <th></th>
                 </tr>
-               </thead> 
-               <tbody> 
+               </thead>
+               <tbody>
                      <For each={state.list}>{
                         (item) => (
                             <tr>
@@ -163,7 +163,7 @@ const DomainSettings = ({options}) => {
                         )
                     }
                     </For>
-                </tbody> 
+                </tbody>
             </StyledTable>
         </StyledContainer>
     );
