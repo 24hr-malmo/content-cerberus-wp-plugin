@@ -15,8 +15,6 @@ const SyncCheck = () => {
     const [ items, setItems ] = createStore({ list: [] });
     const [ checking, setChecking ] = createSignal(false);
 
-    console.log(apiUrl);
-
     createEffect(async () => {
         const result = await wpAjaxAction('get_all_resources');
         const parsed = result.list.map((item, index) => {
