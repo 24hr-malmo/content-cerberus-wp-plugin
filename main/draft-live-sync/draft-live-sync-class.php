@@ -110,6 +110,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_action( 'wp_ajax_reset_tree', array( &$this, 'ajax_reset_tree') );
                 add_action( 'wp_ajax_get_all_resources', array( &$this, 'ajax_get_all_resources') );
                 add_filter( 'admin_menu', array( &$this, 'add_admin_pages'), 10, 2 );
+                add_filter( 'network_admin_menu', array( &$this, 'add_network_admin_pages'), 10, 2 );
                 add_action( 'parse_request', array( &$this, 'parse_requests'));
                 add_filter( 'gettext', array( &$this, 'change_publish_button'), 10, 2 );
                 add_filter( 'get_sample_permalink', array( &$this, 'set_correct_permalink'));//Is this used at all? get_sample_permalink doesn't have same params as page_link, so should maybe be a different function
@@ -285,6 +286,13 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $enable_diff_btn = get_option('dls_settings_enable_diff_viewer');
             $show_diff_button = $enable_diff_btn == 'true' && is_admin() ? 'true' : 'false';
 
+            $require_publication_approval = get_option('dls_settings_require_publication_approval');
+            $enable_publication_approval = $require_publication_approval == 'true' ? 'true' : 'false';
+            
+            $user_has_publication_rights = is_super_admin() ? 'true' : 'false';
+            $user = wp_get_current_user();
+            $user_name = $user_has_publication_rights ? $user->user_nicename : '';
+
             $enable_test_content = get_option('dls_settings_enable_test_content');
             $show_test_content = $enable_test_content == 'true' && is_admin() ? 'true' : 'false';
 
@@ -293,7 +301,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $screen = get_current_screen();
             $is_menu_admin = $screen->base === 'nav-menus';
 
-            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
+            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . ', "requireApproval": ' . $enable_publication_approval . ', "userHasPublicationRights": ' . $user_has_publication_rights . ', "userName": "' . $user_name . '"}</script>';
             $output .= '<div id="dls-metabox-root"' . ($is_menu_admin ? 'data-type="nav-menu"' : '') . '></div>';
 
             if ($echo) {
@@ -549,6 +557,26 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 print '<div id="dls-domain-settings-root"/>';
                 print '</div>';
             });
+            
+            if (!is_multisite() && get_option( 'dls_settings_require_publication_approval')) {
+                add_menu_page('Publication approval', 'Publication approval', 'manage_options', 'publication-approval-dashboard', function () {
+                    print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '"  }</script>';
+                    print '<div class="wrap">';
+                    print '<div id="dls-publication-approval-root"/>';
+                    print '</div>';
+                });
+            }
+        }
+
+        function add_network_admin_pages() {
+            if (is_multisite() && get_option( 'dls_settings_require_publication_approval')) {
+                add_menu_page('Publication approval', 'Publication approval', 'manage_options', 'publication-approval-dashboard', function () {
+                    print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '"  }</script>';
+                    print '<div class="wrap">';
+                    print '<div id="dls-publication-approval-root"/>';
+                    print '</div>';
+                });
+            }
         }
 
         // Constructs a list of urls

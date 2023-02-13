@@ -5,11 +5,13 @@ import { AppProvider } from './cerberus-pages/context/app-context.jsx';
 import App from './cerberus-pages/app/app.jsx';
 import MetaBox from './meta-box/meta-box.jsx';
 import DomainSettings from './domain-settings/domain-settings.jsx';
+import PublicationApprovalDashboard from './publication-approval/publication-approval-dashboard.jsx';
 
 const getData = (id) => {
     try {
         return JSON.parse(document.getElementById(id).innerHTML); // eslint-disable-line
     } catch (err) {
+        console.log('Error in getData', err);
         return {};
     }
 };
@@ -39,6 +41,12 @@ const renderDomainSettings = () => {
     render(() => (<DomainSettings options={data}/>), root);
 };
 
+const renderPublicationApproval = () => {
+    const root = document.getElementById('dls-publication-approval-root');
+    const data = getData('dls-data');
+    render(() => (<PublicationApprovalDashboard options={data}/>), root);
+};
+
 jQuery(document).ready(function ($) {
 
     // Turn off the pre publish dialog
@@ -63,6 +71,8 @@ jQuery(document).ready(function ($) {
         renderAdmin();
     } else if (hookData.hook.includes('toplevel_page_cerberus-domain-settings')) {
         renderDomainSettings();
+    } else if (hookData.hook.includes('toplevel_page_publication-approval')) {
+        renderPublicationApproval();
     } else if (!hookData.hook.includes('.php')) {
         renderMetaBox();
     }

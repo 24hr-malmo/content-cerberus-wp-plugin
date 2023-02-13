@@ -108,11 +108,15 @@
                 add_option('dls_overwrite_viewable_permalink_host');
             }
      
-               if (!get_option('dls_settings_enable_diff_viewer')) {
+            if (!get_option('dls_settings_enable_diff_viewer')) {
                 add_option('dls_settings_enable_diff_viewer');
             }
 
-               if (!get_option('dls_settings_enable_test_content')) {
+            if (!get_option('dls_settings_require_publication_approval')) {
+                add_option('dls_settings_require_publication_approval');
+            }
+
+            if (!get_option('dls_settings_enable_test_content')) {
                 add_option('dls_settings_enable_test_content');
             }
       
@@ -120,6 +124,7 @@
             register_setting( 'my_option_group', 'dls_settings_replace_host_list', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_auto_redirect_to_admin_page', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_enable_diff_viewer', array( $this, 'sanitize' ) );
+            register_setting( 'my_option_group', 'dls_settings_require_publication_approval', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_enable_test_content', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_overwrite_viewable_permalink', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_overwrite_viewable_permalink_host', array( $this, 'sanitize' ) );
@@ -143,6 +148,11 @@
             add_settings_section( 'settings_overwrite_viewable_permalink', 'Overwrite the viewable permalink', array( $this, 'print_overwrite_viewable_permalink' ), 'my-setting-admin' );  
             add_settings_field( 'dls-settings', 'Overwrite the viewable permalink', array( $this, 'overwrite_viewable_permalink_callback'), 'my-setting-admin', 'settings_overwrite_viewable_permalink' );      
             add_settings_field( 'dls-settings-overwrite_viewable_permalink_host', 'Overwrite the viewable permalink host', array( $this, 'overwrite_viewable_permalink_host_callback'), 'my-setting-admin', 'settings_overwrite_viewable_permalink' );      
+
+            if (is_super_admin()) {
+                add_settings_section( 'settings_require_publication_approval', 'Require approval for all publications?', array( $this, 'print_require_publication_approval' ), 'my-setting-admin' );
+                add_settings_section( 'settings_require_publication_approval', 'Require approval for all publications?', array( $this, 'require_publication_approval_callback' ), 'my-setting-admin' );
+            }
 
         }
 
@@ -191,6 +201,10 @@
             print 'If the diff button should be available to use.';            
         }
 
+        public function print_require_publication_approval() {
+            print 'When enabled only certain roles (default is network admins) can publish content to live. Other users must submit a request for approval. Overview of pending requests are available in the network settings.';            
+        }
+
         public function print_enable_test_content() {
             print 'If the test content target should be available to use.';            
         }
@@ -213,6 +227,14 @@
             $value = get_option( 'dls_settings_enable_diff_viewer');
             $checked = $value == 'true' ? ' checked' : '';
             printf("<div><input type=\"checkbox\" name=\"dls_settings_enable_diff_viewer\" value=\"true\" $checked/> Yes</div>");
+
+        }
+
+        public function require_publication_approval_callback() {
+
+            $value = get_option( 'dls_settings_require_publication_approval');
+            $checked = $value == 'true' ? ' checked' : '';
+            printf("<div><input type=\"checkbox\" name=\"dls_settings_require_publication_approval\" value=\"true\" $checked/> Yes</div>");
 
         }
 

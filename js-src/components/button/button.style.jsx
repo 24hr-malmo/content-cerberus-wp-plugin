@@ -22,7 +22,6 @@ export const StyledButton = styled('button')`
     border-style: solid;
     appearance: none;
     border-radius: 3px;
-    white-space: nowrap;
     box-sizing: border-box;
     text-decoration: none;
     text-shadow: none;

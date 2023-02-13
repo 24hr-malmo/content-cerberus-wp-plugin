@@ -27,6 +27,16 @@ export const StyledContainer = styled('div')`
 
 `;
 
+export const StyledError = styled('div')`
+    color: red;
+    padding-top: 0.4rem;
+`;
+
+export const StyledWarning = styled('div')`
+    color: darkgray;
+    padding-top: 0.4rem;
+`;
+
 export const StyledChecking = styled('div')`
     color: #a7aaad;
     border: 1px solid rgb(220, 220, 222);

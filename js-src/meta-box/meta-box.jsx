@@ -1,10 +1,20 @@
 import { createStore } from 'solid-js/store';
-import { createSignal, createEffect, Show } from "solid-js";
-
+import { createSignal, createEffect, Show, onMount } from "solid-js";
 import Button from '../components/button/button.jsx';
 import Loading from '../components/loading/loading.jsx';
-import { wpAjax, wpAjaxAction } from '../utilities/wp-action.js';
-import { StyledContainer, StyledStatusText, StyledChecking } from './meta-box.style.jsx';
+import { wpAjaxAction } from '../utilities/wp-action.js';
+import { StyledContainer, StyledStatusText, StyledChecking, StyledError } from './meta-box.style.jsx';
+import { 
+    contentStatus,
+    setContentStatus,
+    withdrawRequestOnNewDraft,
+    withdrawPublicationRequest,
+    getPublicationRequest,
+} from './publication-approval/publication-approval-store.jsx';
+import PublicationApprovalStatus from './publication-approval/publication-approval-status.jsx';
+import PublishingControls from './publication-approval/publishing-controls.jsx'
+import PublicationWarning from './publication-approval/publication-warning.jsx';
+import PublishingUpdateControls from './publication-approval/publishing-update-controls.jsx';
 
 const MetaBox = ({options}) => {
 
@@ -25,6 +35,17 @@ const MetaBox = ({options}) => {
 
     let coreEditor;
     let saveMenuButton;
+
+    onMount(() => {
+        if (options.requireApproval) {
+            setContentStatus({ 
+                options: options,
+                setChecking: setChecking,
+                syncStatus: status,
+                publish: (e) => publish(e),
+            });
+        }
+    })
 
     createEffect(() => {
         if (options.metaMenu) {
@@ -108,14 +129,22 @@ const MetaBox = ({options}) => {
 
             if (hasNonPostEntityChanges || hasUnsavedChanges || hasUnsavedExternalChange) {
                 setUnsavedPageChanges(true);
+                saveContentButton.addEventListener('click', savingToDraftHandler);
                 saveContentButton.removeAttribute('disabled');
                 unsubscribe();
             } else {
                 setUnsavedPageChanges(false);
+                saveContentButton.removeEventListener('click', savingToDraftHandler);
                 saveContentButton.setAttribute('disabled', true);
             }
         }, 100 ) );
-    }
+    };
+
+    const savingToDraftHandler = () => {
+        if (options.requireApproval) {
+            withdrawRequestOnNewDraft();
+        }
+    };
 
     
     const menuChangeListener = () => { // Listens for changes to enable/disable saving button
@@ -165,7 +194,6 @@ const MetaBox = ({options}) => {
         }
 
         try {
-            // const result = await wpAjax(`${options.api}/check-sync.php`, payload);
             const result = await wpAjaxAction('check_sync', {...payload, api_path: payload.permalink});
             if (!result?.data?.resourceStatus) {
                 throw(payload);
@@ -178,6 +206,10 @@ const MetaBox = ({options}) => {
             });
 
             setNoContentFound(false);
+
+            if (options.requireApproval) {
+                getPublicationRequest();
+            }
 
             if (options.metaMenu) {
                 menuCheck();
@@ -329,6 +361,7 @@ const MetaBox = ({options}) => {
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
+        withdrawPublicationRequest()
 
         emitDomEvent({
             action: 'publish_to_live_done'
@@ -356,7 +389,50 @@ const MetaBox = ({options}) => {
             action: 'unpublish_from_live_done'
         });
     };
- 
+
+    createEffect(() => {
+        setContentStatus({changesNotSavedToDraft: changesNotSavedToDraft()})
+    })
+
+    createEffect(() => {
+        setContentStatus({publishing: publishing()})
+    })
+
+    createEffect(() => {
+        setContentStatus({publishing: publishing()})
+    })
+
+    const changesNotSavedToDraft = () => {
+        return unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange();
+    };    
+        
+    const publishingControls = () => {
+        if (options.requireApproval) {
+            return <PublishingControls />
+        }
+
+        return (
+            <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ changesNotSavedToDraft() }>
+                { changesNotSavedToDraft() ? 'Save draft before publishing to live' : 'Publish to live site' }
+            </Button>
+        )
+    }
+
+    const publishUpdateButtons = () => {
+        if (options.requireApproval) {
+            return <PublishingUpdateControls/>
+        };
+
+        return (
+            <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || changesNotSavedToDraft()}>
+                { changesNotSavedToDraft() ? 
+                    'Save draft before updating on live' 
+                    : status.live?.synced ? 'Updated on live site' : 'Update on live site'
+                }
+            </Button>
+        );
+    }
+
     return (
         <StyledContainer horizontal={options.metaMenu} box={options.optionsMeta}>
 
@@ -375,28 +451,28 @@ const MetaBox = ({options}) => {
                 </Show>
                 
                 <Show when={!unsavedMenuDisplayLocations() && status.draft?.exists}>
-                    <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
+                    <Show when={options.requireApproval}>
+                        <PublicationApprovalStatus/>
+                    </Show>
+                    <Show when={!options.requireApproval}>
+                        <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
+                    </Show>
 
                     <Show when={!status.live?.exists}>
-                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange()}>
-                            { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ? 'Save draft before publishing to live' : 'Publish to live site' }
-                        </Button>
-                        <Button leftMargin={options.metaMenu} disabled={!status.live?.synced}> 
+                        { publishingControls() }
+                        <Button leftMargin={options.metaMenu} disabled={true}> 
                             Content not published
                         </Button>
+                        <PublicationWarning/>
                     </Show>
 
                     <Show when={status.live?.exists}>
-                        <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange()}>
-                            { unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange() ? 
-                                'Save draft before updating on live' 
-                                : status.live?.synced ? 'Updated on live site' : 'Update on live site'
-                            }
-                        </Button>
+                        { publishUpdateButtons() }
                         {/* The button below is disabled when some external source has indicated that a change has been made. This is to avoid unpublishing wrong content. */}
                         <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={unsavedExternalChange()}>
                             Unpublish
                         </Button>
+                        <PublicationWarning/>
                     </Show>
                 </Show>
 
@@ -423,7 +499,11 @@ const MetaBox = ({options}) => {
             <Show when={options.enableDiffButton}>
                 <Button leftMargin={options.metaMenu}>Show diff (raw)</Button>
             </Show>
-            
+
+            <Show when={contentStatus.errorMessage}>
+                <StyledError>{contentStatus.errorMessage}</StyledError>
+            </Show>
+
         </StyledContainer>
     );
 
