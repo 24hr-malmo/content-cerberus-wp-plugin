@@ -7,25 +7,28 @@ export const [contentStatus, setContentStatus] = createStore({
     syncStatus: {},
     publish: () => null,
     changesNotSavedToDraft: false,
+    showRejectionControls: false,
+    rejectionReason: '',
+
     approvalStatus: '',
     errorMessage: '',
     approvedBy: '',
 })
 
+export const setRejectionReason = (msg) => {
+    setContentStatus({ rejectionReason: msg });
+}
+
 export const setApprovalStatus = (status) => {    
     setContentStatus({ approvalStatus: status });
 }
 
-export const setErrorMessage = (msg) => {
-    setContentStatus({ errorMessage: msg });
-}
-
-export const setApprovedBy = (name) => {
-    setContentStatus({ approvedBy: name });
+export const toggleRejectionControls = () => {
+    setContentStatus((state) => ({ showRejectionControls: !state.showRejectionControls }) );
 }
 
 export const withdrawRequestOnNewDraft = () => {
-    if (contentStatus.options.requireApproval && !contentStatus.options.userHasPublicationRights) {
+    if (contentStatus.options.requireApproval) {
         withdrawPublicationRequest();
     }
 }
@@ -38,11 +41,13 @@ export const getPublicationRequest = async () => {
 
         if (result.data.resource?.content) {
             const content = result.data.resource.content;
-            if (content.approvedBy) {
-                setApprovedBy(' by ' + content.approvedBy);
-            }
-            
-            setApprovalStatus(content.status);
+
+            setContentStatus({
+                approvalStatus: content.status, 
+                approvedBy: content.approvedBy,
+                rejectedBy: content.rejectedBy,
+                rejectionReason: content.rejectionReason || '',
+            });
         } else {
             setApprovalStatus('');
         }
@@ -52,13 +57,16 @@ export const getPublicationRequest = async () => {
 };
 
 
-export const upsertPublicationRequest = async (status) => {    
+export const upsertPublicationRequest = async (status) => { 
+    
     try {
         await wpAjax(`${contentStatus.options.api}/upsert-publication-request.php`, {
             permalink: contentStatus.options.permalink,
             status: status,
             editorUrl: window?.location.href,
             approvedBy: status === 'approved' ? contentStatus.options.userName : '',
+            rejectedBy: status === 'rejected' ? contentStatus.options.userName : '',
+            rejectionReason: contentStatus.rejectionReason,
         });
 
         return {};
@@ -81,12 +89,13 @@ const deletePublicationRequest = async () => {
     }
 };
 
-export const updatePublicationApproval = async (status = '') => {
+export const updatePublicationApproval = async (status = '', options) => {
     contentStatus.setChecking(true);
-    const result = await upsertPublicationRequest(status);
+    const result = await upsertPublicationRequest(status, options);
 
     if (result.err) {
-        setErrorMessage('Error changing status to ' + status);
+        setContentStatus({ errorMessage: 'Error changing status to ' + status });
+        console.log('Err upserting request', result.err);
     } else {
         setApprovalStatus(status);
     }
@@ -99,10 +108,15 @@ export const withdrawPublicationRequest = async () => {
     const result = await deletePublicationRequest();
 
     if (result.err) {
-        setErrorMessage('Something went wrong withdrawing publication request', result.err);
+        setContentStatus({ errorMessage: 'Something went wrong withdrawing publication request' });
+        console.log('Err deleting request', result.err);
     } else {
         setApprovalStatus('');
     }
 
     contentStatus.setChecking(false);
+}
+
+export const beginRejection = () => {
+    toggleRejectionControls();
 }

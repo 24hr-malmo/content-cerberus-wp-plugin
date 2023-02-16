@@ -9,6 +9,7 @@ const StyledType = styled('div')`
     min-width: 50px;
     display: flex;
     justify-content: center;
+    align-self: flex-start;
 `;
 
 const StyledTitle = styled('a')`
@@ -24,12 +25,24 @@ export const StyledText = styled('p')`
     color: gray;
 `;
 
+const StyledRejectionHeading = styled('h5')`
+    margin: 0;
+    margin-bottom: 0.3rem;
+    text-decoration: underline;
+`;
+
 const StyledPublicationRequestItem = styled('div')`
     margin-top: 0.8rem;
     display: flex;
     align-items: center;
     font-size: 15px;
 `; 
+
+const StyledRejectionPanel = styled('div')`
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+
+`;
 
 const PublicationRequestItem = (props) => {
 
@@ -48,7 +61,28 @@ const PublicationRequestItem = (props) => {
         <StyledPublicationRequestItem key={props.item.post_id}>
             <StyledType>{props.item.type}</StyledType>
             <StyledText>
-                 <StyledTitle href={props.item.editorUrl} target="_blank">{props.item.post_title}</StyledTitle>, requested by <em>{props.item.from_user_name}</em> ({formatDateAndTime()})
+
+                 <StyledTitle 
+                    href={props.item.editorUrl}
+                    target="_blank"
+                >
+                    {props.item.post_title}
+                </StyledTitle>
+
+                <span>, requested by <em>{props.item.from_user_name}</em></span>
+
+                <Show when={props.item.status === 'rejected'}>
+                    <span> - rejected by {props.item.rejectedBy} </span>
+                </Show>
+
+                ({formatDateAndTime()})
+
+                 <Show when={props.item.status === 'rejected'}>
+                     <StyledRejectionPanel>
+                        <StyledRejectionHeading>Rejection message:</StyledRejectionHeading>
+                        <em>{props.item.rejectionReason}</em>
+                     </StyledRejectionPanel>
+                 </Show>
             </StyledText>
         </StyledPublicationRequestItem>    
     )

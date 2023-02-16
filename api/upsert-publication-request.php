@@ -24,6 +24,8 @@
         $approvalStatus = $_POST['status'];
         $editorUrl = $_POST['editorUrl'];
         $approvedBy = $_POST['approvedBy'];
+        $rejectedBy = $_POST['rejectedBy'];
+        $rejectionReason = $_POST['rejectionReason'];
 
         try {
             $post = $draft_live_sync->get_content($permalink);
@@ -61,6 +63,8 @@
                     'status' => $approvalStatus,
                     'editorUrl' => $editorUrl,
                     'approvedBy' => $approvedBy,
+                    'rejectedBy' => $rejectedBy,
+                    'rejectionReason' => $rejectionReason,
                 ),
                 'tags' => [$approvalStatus],
             ),
