@@ -3,6 +3,11 @@ function graphql_query(string $endpoint, string $query, array $variables = [], $
 
     try {
 
+        // We get the token from an env
+        if (getenv("CONTENT_JWT")) {
+            $token = getenv("CONTENT_JWT");
+        }
+
         $headers = ['Content-Type: application/json', 'User-Agent: grapqh-client'];
         if (null !== $token) {
             $headers[] = "Authorization: Bearer $token";
