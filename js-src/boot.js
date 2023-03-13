@@ -49,9 +49,10 @@ const renderPublicationApproval = () => {
 
 jQuery(document).ready(function ($) {
 
-    // Turn off the pre publish dialog
-    if (wp && wp.data && wp.data.dispatch) {
-        wp.data.dispatch('core/editor').disablePublishSidebar();
+    // Turn off the pre publish dialog of pages using the Gutenberg editor
+    const editor = wp?.data?.dispatch('core/editor');
+    if (editor) {
+        editor.disablePublishSidebar();
     }
 
     hooks();

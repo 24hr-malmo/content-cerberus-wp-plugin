@@ -37,6 +37,10 @@ const MetaBox = ({options}) => {
     let saveMenuButton;
 
     onMount(() => {
+        if (options.metaMenu) {
+            return;
+        }
+        
         if (options.requireApproval) {
             setContentStatus({ 
                 options: options,
@@ -141,7 +145,7 @@ const MetaBox = ({options}) => {
     };
 
     const savingToDraftHandler = () => {
-        if (options.requireApproval) {
+        if (!options.metaMenu && options.requireApproval) {
             withdrawRequestOnNewDraft();
         }
     };
@@ -207,7 +211,7 @@ const MetaBox = ({options}) => {
 
             setNoContentFound(false);
 
-            if (options.requireApproval) {
+            if (!options.metaMenu && options.requireApproval) {
                 getPublicationRequest();
             }
 
@@ -361,7 +365,10 @@ const MetaBox = ({options}) => {
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
-        withdrawPublicationRequest()
+
+        if (!options.metaMenu) {
+            withdrawPublicationRequest()
+        } 
 
         emitDomEvent({
             action: 'publish_to_live_done'
@@ -391,15 +398,21 @@ const MetaBox = ({options}) => {
     };
 
     createEffect(() => {
-        setContentStatus({changesNotSavedToDraft: changesNotSavedToDraft()})
+        if (!options.metaMenu) {
+            setContentStatus({changesNotSavedToDraft: changesNotSavedToDraft()})
+        }
     })
 
     createEffect(() => {
-        setContentStatus({publishing: publishing()})
+        if (!options.metaMenu) {
+            setContentStatus({publishing: publishing()})
+        }
     })
 
     createEffect(() => {
-        setContentStatus({publishing: publishing()})
+        if (!options.metaMenu) {
+            setContentStatus({publishing: publishing()})
+        }
     })
 
     const changesNotSavedToDraft = () => {
@@ -407,7 +420,7 @@ const MetaBox = ({options}) => {
     };    
         
     const publishingControls = () => {
-        if (options.requireApproval) {
+        if (!options.metaMenu && options.requireApproval) {
             return <PublishingControls />
         }
 
@@ -419,7 +432,7 @@ const MetaBox = ({options}) => {
     }
 
     const publishUpdateButtons = () => {
-        if (options.requireApproval) {
+        if (!options.metaMenu && options.requireApproval) {
             return <PublishingUpdateControls/>
         };
 
@@ -451,7 +464,7 @@ const MetaBox = ({options}) => {
                 </Show>
                 
                 <Show when={!unsavedMenuDisplayLocations() && status.draft?.exists}>
-                    <Show when={options.requireApproval}>
+                    <Show when={!options.metaMenu && options.requireApproval}>
                         <PublicationApprovalStatus/>
                     </Show>
                     <Show when={!options.requireApproval}>
@@ -463,7 +476,9 @@ const MetaBox = ({options}) => {
                         <Button leftMargin={options.metaMenu} disabled={true}> 
                             Content not published
                         </Button>
-                        <PublicationWarning/>
+                        <Show when={!options.metaMenu}>
+                            <PublicationWarning/>
+                        </Show>
                     </Show>
 
                     <Show when={status.live?.exists}>
@@ -472,7 +487,9 @@ const MetaBox = ({options}) => {
                         <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={unsavedExternalChange()}>
                             Unpublish
                         </Button>
-                        <PublicationWarning/>
+                        <Show when={!options.metaMenu}>
+                            <PublicationWarning/>
+                        </Show>
                     </Show>
                 </Show>
 
