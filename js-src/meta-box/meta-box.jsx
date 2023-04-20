@@ -367,6 +367,7 @@ const MetaBox = ({options}) => {
         setPublishing(false);
 
         if (!options.metaMenu) {
+            // TODO: This should also not show on site settings pages!
             withdrawPublicationRequest()
         } 
 

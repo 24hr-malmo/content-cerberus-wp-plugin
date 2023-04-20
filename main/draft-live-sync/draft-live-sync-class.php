@@ -209,6 +209,38 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
+        // Adds an ACF post settings screen/page so it can be handled by content cerberus
+        public function activate_acf_post_settings($options_name, $permalink) {
+            $page = acf_options_page()->get_page( $options_name );
+            $post_settings_page = $page['post_type'] . '_page_' . $options_name;
+
+            // Hook to save the post settings
+            add_action('acf/save_post', function () use ($post_settings_page, $permalink) {
+                $screen = get_current_screen();
+                if ($screen->id === $post_settings_page) {
+                    $this->upsert('draft', $permalink);
+                }
+            }, 100);
+
+            // Add to the total list of endpoints for admin uses
+            $this->additional_endpoints[] = $permalink;
+
+            // This is needed, dont rememebr why but it wont work without
+            add_action($post_settings_page, function() {
+                ob_start();
+            }, 1);
+
+            // And here is where we actualy create the placeholder for the box
+            add_action($post_settings_page, function() use ($permalink) {
+                $content = ob_get_clean();
+                $meta_box_object = array( 'args' => array ( 'api_path' => $permalink));
+                $custom_metabox = $this->publish_status_meta_box_callback(null, $meta_box_object, false, true);
+                $content = str_replace('<div id="submitdiv" class="postbox " >', $custom_metabox . '<div id="submitdiv" class="postbox replace-done">', $content);
+                echo $content;
+            }, 20);
+
+        }
+
         function get_site_id($blog_id = null) {
             if ($blog_id) {
                 return get_blog_option($blog_id, 'dls_settings_site_id');
