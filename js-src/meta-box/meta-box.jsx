@@ -3,7 +3,7 @@ import { createSignal, createEffect, Show } from "solid-js";
 
 import Button from '../components/button/button.jsx';
 import Loading from '../components/loading/loading.jsx';
-import { wpAjax, wpAjaxAction } from '../utilities/wp-action.js';
+import { wpAjaxAction } from '../utilities/wp-action.js';
 import { StyledContainer, StyledStatusText, StyledChecking } from './meta-box.style.jsx';
 
 const MetaBox = ({options}) => {
@@ -19,8 +19,9 @@ const MetaBox = ({options}) => {
     const [ menuCreated, setMenuCreated ] = createSignal(false);
     const [ noContentFound, setNoContentFound ] = createSignal(false);
 
+    // Not sure if it's better to use post_id here, since we are sending it in to the MetaBox options
     const payload = {
-        post_id: options.postId,
+        // post_id: options.postId,
         permalink: options.permalink,
     };
 
@@ -159,7 +160,6 @@ const MetaBox = ({options}) => {
     }
 
     const check = async (showChecking = true) => {
-    console.log('check: ');
 
         if (showChecking) {
             setChecking(true);
@@ -167,9 +167,6 @@ const MetaBox = ({options}) => {
         }
 
         try {
-            // const result = await wpAjax(`${options.api}/check-sync.php`, payload);
-            console.log('payload: ', payload);
-            console.log('payload.permalink: ', payload.permalink);
             const result = await wpAjaxAction('check_sync', {...payload, api_path: payload.permalink});
             if (!result?.data?.resourceStatus) {
                 throw(payload);
