@@ -94,11 +94,11 @@ trait CheckSyncTrait {
 
             $innerBlocks = $block->blocks ?? null;
 
-            if ($innerBlocks) {
+            if (isset($innerBlocks)) {
                 $this->check_nested_sync_status($innerBlocks, $isSynced);
             }
 
-            if ($block->__reference) {
+            if (isset($block->__reference)) {
                 $innerSyncResults = $this->check_sync($block->__reference);
 
                 foreach ($innerSyncResults['data']['resourceStatus'] as $itemStatus) {

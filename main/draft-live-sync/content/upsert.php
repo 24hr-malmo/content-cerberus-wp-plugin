@@ -2,11 +2,11 @@
 
 trait UpsertTrait {
 
-    public function upsert($target, $permalink = '', $callbacks = array()) {
+    public function upsert($target, $permalink = '', $callbacks = array(), $sync_tree = true) {
 
         $permalink = $this->cleanup_permalink($permalink);
 
-        error_log(" ---- UPSERT ---- permalink: $permalink");
+        error_log(" ---- UPSERT ---- permalink: $permalink, sync_tree: $sync_tree");
 
         $content = $this->get_content($permalink);
         $filteredPermalink = apply_filters('cerberus_enforce_new_permalink', $permalink, $content);
@@ -32,6 +32,7 @@ trait UpsertTrait {
             'target' => $target,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
+            'syncTree' => $sync_tree,
             'resource' => array(
                 'key' => $filteredPermalink,
                 'externalId' => $externalId,
@@ -44,9 +45,9 @@ trait UpsertTrait {
             ),
         );
 
-        error_log(print_r($variables, true));
+        // error_log(print_r($variables, true));
 
-        if ($callbacks['content'] && is_callable($callbacks['content'])) {
+        if ($callbacks && $callbacks['content'] && is_callable($callbacks['content'])) {
             $callbacks['content']($variables);
         }
 
@@ -56,6 +57,7 @@ trait UpsertTrait {
                 $userInfo: String!
                 $resource: ResourceInstance!
                 $siteId: String!
+                $syncTree: Boolean
             ) {
                 upsertResource (
                     target: $target
@@ -63,6 +65,7 @@ trait UpsertTrait {
                     userInfo: $userInfo
                     host: "wordpress"
                     resource: $resource
+                    syncTree: $syncTree
             ) {
                 success
             }

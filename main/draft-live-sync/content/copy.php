@@ -21,7 +21,7 @@ trait CopyTrait {
 
     }
 
-    public function copy($from_target, $to_target, $permalink = '') {
+    public function copy($from_target, $to_target, $permalink = '', $sync_tree = true) {
 
         $permalink = $this->cleanup_permalink($permalink);
 
@@ -39,12 +39,15 @@ trait CopyTrait {
             $user = wp_get_current_user();
         }
 
+        error_log(" ---- COPY ---- permalink: $permalink, sync_tree: $sync_tree");
+
         $variables = array(
             'fromTarget' => $from_target,
             'toTarget' => $to_target,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,
             'externalId' => isset($content->payload->externalId) ? $content->payload->externalId : $content->payload->guid,
+            'syncTree' => $sync_tree,
         );
 
         $query = <<<'GRAPHQL'
@@ -54,6 +57,7 @@ trait CopyTrait {
                 $userInfo: String!
                 $externalId: String!
                 $siteId: String!
+                $syncTree: Boolean
             ) {
                 copyResource (
                     toTarget: $toTarget
@@ -61,6 +65,7 @@ trait CopyTrait {
                     siteId: $siteId
                     userInfo: $userInfo
                     externalId: $externalId
+                    syncTree: $syncTree
             ) {
                 success
             }

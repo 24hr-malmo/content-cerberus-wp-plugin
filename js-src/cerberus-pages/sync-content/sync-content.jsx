@@ -14,6 +14,7 @@ const SyncContent = ({type}) => {
     const [ _, { apiUrl } ] = useContext(AppContext);
     const [ items, setItems ] = createStore({ list: [] });
     const [ checking, setChecking ] = createSignal(false);
+    const [ createTreeChecking, setCreateTreeChecking ] = createSignal(false);
 
     createEffect(async () => {
         const result = await wpAjaxAction('get_all_resources');
@@ -26,15 +27,33 @@ const SyncContent = ({type}) => {
         setItems({list: parsed});
     });
 
-    const sync = async (item) => {
 
+    const recreateTree = async () => {
         try {
+            setCreateTreeChecking(true);
+            
+            const result = await wpAjax(`${apiUrl}/recreate-tree.php`, {
+                action: 'recreate_tree',
+                release: type,
+            });
 
+            setCreateTreeChecking(false);
+            window && console.log(result);
+            window && window.alert('Recreating tree done - check console.log for response');
+        } catch (err) {
+            window && window.alert('Error recreating tree - check console.log');
+        }
+    };
+
+    const sync = async (item, { syncTreeAndCache = true }) => {
+        
+        try {            
             const result = await wpAjax(`${apiUrl}/sync.php`, {
                 action: 'sync',
                 permalink: item.permalink,
                 release: type,
                 sync_check: false,
+                sync_tree: syncTreeAndCache,
             });
 
             if (result.data) {
@@ -52,13 +71,13 @@ const SyncContent = ({type}) => {
 
     };
 
-    const syncItem = async (item) => {
+    const syncItem = async (item, config) => {
         setChecking(true);
-        await sync(item);
+        await sync(item, config);
         setChecking(false);
     }
 
-    const doAll = async () => {
+    const doAll = async (config) => {
 
         if (checking()) {
             return;
@@ -80,14 +99,14 @@ const SyncContent = ({type}) => {
                 index++;
             });
             for await (let item of items.list) {
-                await sync(item);
+                await sync(item, config);
             }
             setChecking(false);
         }
 
     };
 
-    const syncByType = async (type) => {
+    const syncByType = async (type, config) => {
         setChecking(true);
         const filtered = items.list.filter(item => item.type === type);
         filtered.forEach((_, index) => {
@@ -97,7 +116,7 @@ const SyncContent = ({type}) => {
             index++;
         });
         for await (let item of filtered) {
-            await sync(item);
+            await sync(item, config);
         }
         setChecking(false);
     };
@@ -113,7 +132,12 @@ const SyncContent = ({type}) => {
             <PageTop
                 title={title}
                 description={description}
-                actions={ (<Button loading={checking()} onClick={() => doAll() }>{ buttonText }</Button>) }
+                actions={ (
+                    <div>
+                        <Button loading={checking()} onClick={() => doAll({ syncTreeAndCache: false }) }>{ buttonText }</Button>
+                        <Button loading={createTreeChecking()} onClick={() => recreateTree() }>{ "Recreate tree, required after type/all syncs" }</Button>
+                    </div>
+                    ) }
             />
             <For each={items.list}>
                 { (item) =>  {
@@ -121,8 +145,8 @@ const SyncContent = ({type}) => {
                         showDraft={ type === 'draft' }
                         showLive={ type === 'live' }
                         showSyncButton={ true }
-                        onClick={() => syncItem(item)}
-                        onTypeClick={() => syncByType(item.type)}
+                        onClick={() => syncItem(item, { syncTreeAndCache: true })}
+                        onTypeClick={() => syncByType(item.type, { syncTreeAndCache: false })}
                         item={item}
                         permalink={item.permalink}
                     />);

@@ -14,28 +14,15 @@
 
         $draft_live_sync = new DraftLiveSync($dir, DraftLiveSyncVERSION, $content_draft_url, $api_token, true);
 
-        $permalink = $_POST['permalink'];
-        $sync_tree = $_POST['sync_tree'] === 'true' ? true : false;
-        $sync_check = $_POST['sync_check'] === 'true' ? true : false;
-
         $release = $_POST['release'] === 'draft' ? 'draft' : 'live';
+        
+        $result = $draft_live_sync->recreate_tree($release);
 
         try {
-
-            if ($release === 'live') {
-                $result = $draft_live_sync->copy('draft', 'live', $permalink, $sync_tree);
-            } else {
-                $result = $draft_live_sync->upsert('draft', $permalink, null, $sync_tree);
-            }
-
-            // $result->permalink = $permalink;
-
+            $result = $draft_live_sync->recreate_tree($release);
             echo json_encode($result);
-
         } catch (Exception $e) {
-
             echo json_encode($e);
-
         }
 
         //Don't forget to always exit in the ajax function.
