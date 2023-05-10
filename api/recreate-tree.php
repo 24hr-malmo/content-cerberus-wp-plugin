@@ -16,8 +16,6 @@
 
         $release = $_POST['release'] === 'draft' ? 'draft' : 'live';
         
-        $result = $draft_live_sync->recreate_tree($release);
-
         try {
             $result = $draft_live_sync->recreate_tree($release);
             echo json_encode($result);
