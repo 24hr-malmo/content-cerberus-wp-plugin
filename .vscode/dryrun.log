@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/freddy/projects/sdevprogram/cerberus-fixes'
+rm -rf ./js-dist
+make: Leaving directory '/home/freddy/projects/sdevprogram/cerberus-fixes'
+ 
