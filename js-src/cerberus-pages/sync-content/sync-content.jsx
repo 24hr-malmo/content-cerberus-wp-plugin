@@ -100,7 +100,7 @@ const SyncContent = ({type}) => {
                 } );
                 index++;
             });
-            for await (let item of items.list) {
+            for await (let item of filteredItems.list) {
                 await sync(item, config);
             }
             setChecking(false);
