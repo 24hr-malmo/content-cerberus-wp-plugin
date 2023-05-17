@@ -13,6 +13,7 @@ const SyncContent = ({type}) => {
 
     const [ _, { apiUrl } ] = useContext(AppContext);
     const [ items, setItems ] = createStore({ list: [] });
+    const [ filteredItems, setFilteredItems ] = createStore({ list: [] });
     const [ checking, setChecking ] = createSignal(false);
     const [ createTreeChecking, setCreateTreeChecking ] = createSignal(false);
 
@@ -25,13 +26,14 @@ const SyncContent = ({type}) => {
             };
         });
         setItems({list: parsed});
+        setFilteredItems({list: parsed});
     });
 
 
     const recreateTree = async () => {
         try {
             setCreateTreeChecking(true);
-            
+
             const result = await wpAjax(`${apiUrl}/recreate-tree.php`, {
                 action: 'recreate_tree',
                 release: type,
@@ -46,8 +48,8 @@ const SyncContent = ({type}) => {
     };
 
     const sync = async (item, { syncTreeAndCache = true }) => {
-        
-        try {            
+
+        try {
             const result = await wpAjax(`${apiUrl}/sync.php`, {
                 action: 'sync',
                 permalink: item.permalink,
@@ -84,7 +86,7 @@ const SyncContent = ({type}) => {
         }
 
         let ok = false;
-        if (type === 'live' && confirm('Do you really which to publish everything?')) {
+        if (type === 'live' && confirm('Do you really want to publish the list?')) {
             ok = true;
         } else if (type === 'draft') {
             ok = true;
@@ -92,8 +94,8 @@ const SyncContent = ({type}) => {
 
         if (ok) {
             setChecking(true);
-            items.list.forEach((_, index) => {
-                setItems('list', index, 'status', {
+            filteredItems.list.forEach((_, index) => {
+                setFilteredItems('list', index, 'status', {
                     state: '',
                 } );
                 index++;
@@ -108,9 +110,9 @@ const SyncContent = ({type}) => {
 
     const syncByType = async (type, config) => {
         setChecking(true);
-        const filtered = items.list.filter(item => item.type === type);
+        const filtered = filteredItems.list.filter(item => item.type === type);
         filtered.forEach((_, index) => {
-            setItems('list', index, 'status', {
+            setFilteredItems('list', index, 'status', {
                 state: '',
             } );
             index++;
@@ -121,7 +123,24 @@ const SyncContent = ({type}) => {
         setChecking(false);
     };
 
-    const buttonText = type === 'draft' ? 'Begin to sync to Draft' : 'Publish everything to Live';
+    const filterItems = (query) => {
+        if (query === '') {
+            setFilteredItems({ list: items.list });
+            return;
+        }
+
+        const filtered = items.list.filter(item => {
+            return item.permalink.startsWith(query);
+        });
+
+        setFilteredItems({ list: filtered });
+    };
+
+    const handleFilterItems = (event) => {
+        filterItems(event.target.value);
+    };
+
+    const buttonText = type === 'draft' ? 'Begin to sync to Draft' : 'Publish list to Live';
     const title = type === 'draft' ? 'Sync Draft' : 'Sync Live';
     const description = type === 'draft' ?
         'This is where you can make sure that wordpress and the draft content is in sync' :
@@ -139,7 +158,11 @@ const SyncContent = ({type}) => {
                     </div>
                     ) }
             />
-            <For each={items.list}>
+            <div style="padding-bottom:10px;">
+                <label for="filter">Filter</label>
+                <input type="text" name="filter" onInput={handleFilterItems} />
+            </div>
+            <For each={filteredItems.list}>
                 { (item) =>  {
                     return (<Item
                         showDraft={ type === 'draft' }
@@ -154,9 +177,6 @@ const SyncContent = ({type}) => {
             </For>
         </Page>
     );
-
 };
 
 export default SyncContent;
-
-
