@@ -366,8 +366,7 @@ const MetaBox = ({options}) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
 
-        if (!options.metaMenu) {
-            // TODO: This should also not show on site settings pages!
+        if (!options.metaMenu && options.requireApproval) {
             withdrawPublicationRequest()
         } 
 
