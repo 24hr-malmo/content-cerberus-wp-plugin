@@ -1,5 +1,6 @@
 import { createStore } from 'solid-js/store';
 import { wpAjax } from '../../utilities/wp-action.js';
+// import { sendEmail } from '../../utilities/send-mail.js';
 
 export const [contentStatus, setContentStatus] = createStore({
     options: {},
@@ -33,7 +34,8 @@ export const withdrawRequestOnNewDraft = () => {
     }
 }
 
-export const getPublicationRequest = async () => {
+export const getPublicationRequest = async () => {    
+    
     try {
         const result = await wpAjax(`${contentStatus.options.api}/get-publication-request.php`, {
             permalink: contentStatus.options.permalink
@@ -41,12 +43,16 @@ export const getPublicationRequest = async () => {
 
         if (result.data.resource?.content) {
             const content = result.data.resource.content;
+            console.log('content.from_user_email', content.from_user_email);
 
             setContentStatus({
                 approvalStatus: content.status, 
                 approvedBy: content.approvedBy,
                 rejectedBy: content.rejectedBy,
                 rejectionReason: content.rejectionReason || '',
+                requestedBy: content.requestedBy,
+                userEmail: content.from_user_email,
+                postTitle: content.post_title,
             });
         } else {
             setApprovalStatus('');
@@ -57,8 +63,7 @@ export const getPublicationRequest = async () => {
 };
 
 
-export const upsertPublicationRequest = async (status) => { 
-    
+export const upsertPublicationRequest = async (status) => {
     try {
         await wpAjax(`${contentStatus.options.api}/upsert-publication-request.php`, {
             permalink: contentStatus.options.permalink,
@@ -67,6 +72,7 @@ export const upsertPublicationRequest = async (status) => {
             approvedBy: status === 'approved' ? contentStatus.options.userName : '',
             rejectedBy: status === 'rejected' ? contentStatus.options.userName : '',
             rejectionReason: contentStatus.rejectionReason,
+            requestedBy: contentStatus.options.userName,
         });
 
         return {};
@@ -101,7 +107,45 @@ export const updatePublicationApproval = async (status = '', options) => {
     }
 
     contentStatus.setChecking(false);
+
+    // if (status === 'approved' || status === 'rejected') {
+    //     notifyEditor();
+    // }
 }
+
+// const notifyEditor = async () => {
+//     const admin = contentStatus.options.userName;    
+
+//     const greeting = contentStatus.requestedBy ? `Hello ${contentStatus.requestedBy},\n\n` : `Hello,\n\n`;
+//     const postLink = `View it here: ${window?.location.href}`;
+//     const closer = `\n\nThis is an automated message. Please do not reply to this email.\n\n`;
+
+//     const subject = {
+//         approved: 'Approved publication',
+//         rejected: 'Rejected publication',
+//     }
+
+//     let body = {
+//         approved: `${greeting}Your post "${contentStatus.postTitle}" has been approved by ${admin}. \n\n${postLink}.${closer}`,
+//         rejected: `${greeting}Your post "${contentStatus.postTitle}" has been rejected by ${admin}. \n\n${postLink}. \n\nReason: \n${contentStatus.rejectionReason}${closer}}`,
+//     }
+
+//     const mail = 'christofer.haglund@24hr.se';
+//     const status = contentStatus.approvalStatus;
+//     console.log('sending email', mail, subject[status], body[status]);
+
+//     try {
+//         const result = await wpAjax(`${contentStatus.options.api}/send-email.php`, {
+//             to: mail,
+//             subject: subject[status],
+//             body: body[status],
+//         });
+    
+//         console.log('result from sending email: ', result);
+//     } catch (err) {
+//         console.log('Error sending email', err);
+//     }
+// }
 
 export const withdrawPublicationRequest = async () => {
     contentStatus.setChecking(true);

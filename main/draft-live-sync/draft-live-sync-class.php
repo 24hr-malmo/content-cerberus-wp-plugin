@@ -333,7 +333,20 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $screen = get_current_screen();
             $is_menu_admin = $screen->base === 'nav-menus';
 
-            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . ', "requireApproval": ' . $enable_publication_approval . ', "userHasPublicationRights": ' . $user_has_publication_rights . ', "userName": "' . $user_name . '"}</script>';
+            $options_meta = ($options_meta ? 'true' : 'false');
+            $api_url = plugins_url('../api', dirname(__FILE__));
+            $output = '<script id="dls-data" type="application/json">{ 
+                "optionsMeta": '.$options_meta.', 
+                "api": "'.$api_url.'", 
+                "postId": "'.$post_id.'", 
+                "permalink": "'.$permalink.'", 
+                "enableDiffButton": '.$show_diff_button.', 
+                "enableTestContent": '.$show_test_content.', 
+                "requireApproval": '.$enable_publication_approval.', 
+                "userHasPublicationRights": '.$user_has_publication_rights.', 
+                "userName": "'.$user_name.'"
+            }</script>';
+
             $output .= '<div id="dls-metabox-root"' . ($is_menu_admin ? 'data-type="nav-menu"' : '') . '></div>';
 
             if ($echo) {

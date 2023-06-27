@@ -1,12 +1,8 @@
-import { contentStatus, updatePublicationApproval, beginRejection, toggleRejectionControls, setRejectionReason } from './publication-approval-store.jsx';
+import { contentStatus, updatePublicationApproval, beginRejection, toggleRejectionControls, setRejectionReason } from './store.jsx';
 import Button from '../../components/button/button.jsx';
 import PublishButton from './publish-button.jsx';
 
-const AdminPublicationControls = () => {
-
-    const sendRejection = () => {
-        updatePublicationApproval('rejected');
-    }
+const AdminControls = () => {
 
     return (
         <>
@@ -17,6 +13,16 @@ const AdminPublicationControls = () => {
             >
                 Approve 
             </Button>
+
+            <Show when={!contentStatus.showRejectionControls}>
+                <Button
+                    leftMargin={contentStatus.options.metaMenu}
+                    onClick={ (e) => beginRejection() }
+                    disabled={contentStatus.showRejectionControls}
+                >
+                    Reject
+                </Button>
+            </Show>
 
             <Show when={contentStatus.showRejectionControls}>
                 <div  style={{ 'margin-block': '1.5rem' }}>
@@ -41,7 +47,7 @@ const AdminPublicationControls = () => {
                         </Button>
                         <Button
                             leftMargin={contentStatus.options.metaMenu}
-                            onClick={ (e) => sendRejection()}
+                            onClick={ (e) => updatePublicationApproval('rejected')}
                             disabled={false}
                             style={{ 'margin-top': 0 }}
                         >
@@ -51,17 +57,6 @@ const AdminPublicationControls = () => {
                 </div>
             </Show>
 
-
-            <Show when={!contentStatus.showRejectionControls}>
-                <Button
-                    leftMargin={contentStatus.options.metaMenu}
-                    onClick={ (e) => beginRejection() }
-                    disabled={contentStatus.showRejectionControls}
-                >
-                    Reject
-                </Button>
-            </Show>
-
             <Show when={!contentStatus.showRejectionControls}>
                 <PublishButton />
             </Show>
@@ -69,4 +64,4 @@ const AdminPublicationControls = () => {
     )
 }
 
-export default AdminPublicationControls;
+export default AdminControls;

@@ -52,6 +52,7 @@
                 'content' => array(
                     'from_user_id' => strval($user->ID),
                     'from_user_name' => strval($user->user_nicename),
+                    'from_user_email' => strval($user->user_email),
                     'from_site_id' => $draft_live_sync->get_site_id(),
                     'from_site_name' => $siteName,
                     'post_title' => $post->payload->post_title,

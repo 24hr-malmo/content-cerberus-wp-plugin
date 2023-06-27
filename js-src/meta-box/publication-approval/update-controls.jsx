@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
-import { contentStatus, updatePublicationApproval, withdrawPublicationRequest } from './publication-approval-store.jsx';
+import { contentStatus, updatePublicationApproval, withdrawPublicationRequest } from './store.jsx';
 import Button from '../../components/button/button.jsx';
-import AdminPublicationControls from './admin-publication-controls.jsx';
+import AdminControls from './admin-controls.jsx';
 
 const PublishingUpdateControls = () => {
 
@@ -38,7 +38,7 @@ const PublishingUpdateControls = () => {
 
             <Show when={contentStatus.approvalStatus === 'pending'}>
                 <Show when={contentStatus.options.userHasPublicationRights}>
-                    <AdminPublicationControls />
+                    <AdminControls />
                 </Show>
                 <Show when={!contentStatus.options.userHasPublicationRights}>
                     <Button
@@ -81,7 +81,6 @@ const PublishingUpdateControls = () => {
             </Show>
 
             <Show when={contentStatus.approvalStatus === 'rejected'}>
-                hejhejehj
                 <Show when={!contentStatus.options.userHasPublicationRights}>
                     <Button
                         leftMargin={contentStatus.options.metaMenu}

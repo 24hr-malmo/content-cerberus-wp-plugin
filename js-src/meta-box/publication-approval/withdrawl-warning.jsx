@@ -1,8 +1,8 @@
 import { Show } from "solid-js";
-import { contentStatus } from './publication-approval-store.jsx';
+import { contentStatus } from './store.jsx';
 import { StyledWarning } from '../meta-box.style.jsx';
 
-const PublicationWarning = () => {
+const WithdrawlWarning = () => {
 
     return (
         <Show when={contentStatus.approvalStatus === 'pending' && contentStatus.changesNotSavedToDraft}>
@@ -13,4 +13,4 @@ const PublicationWarning = () => {
     )
 };
 
-export default PublicationWarning;
+export default WithdrawlWarning;

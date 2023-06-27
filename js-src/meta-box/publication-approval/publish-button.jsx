@@ -1,5 +1,5 @@
 
-import { contentStatus } from './publication-approval-store.jsx';
+import { contentStatus } from './store.jsx';
 import Button from '../../components/button/button.jsx';
 
 const PublishButton = () => {

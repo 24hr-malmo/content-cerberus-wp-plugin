@@ -1,15 +1,14 @@
 import { Switch, Match } from "solid-js";
 import { styled } from 'solid-styled-components';
 import { StyledStatusText } from '../meta-box.style.jsx';
-import { contentStatus } from './publication-approval-store.jsx';
+import { contentStatus } from './store.jsx';
 
 const StyledRejectionMessage = styled('div')`
     padding: 0.25rem;
     background: #fefbe6;
-
 `;
 
-const PublicationApprovalStatus = () => {
+const ApprovalStatus = () => {
 
     return (
         <Switch>
@@ -31,4 +30,4 @@ const PublicationApprovalStatus = () => {
     );
 };
 
-export default PublicationApprovalStatus;
+export default ApprovalStatus;

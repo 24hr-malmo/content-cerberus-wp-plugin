@@ -10,11 +10,11 @@ import {
     withdrawRequestOnNewDraft,
     withdrawPublicationRequest,
     getPublicationRequest,
-} from './publication-approval/publication-approval-store.jsx';
-import PublicationApprovalStatus from './publication-approval/publication-approval-status.jsx';
-import PublishingControls from './publication-approval/publishing-controls.jsx'
-import PublicationWarning from './publication-approval/publication-warning.jsx';
-import PublishingUpdateControls from './publication-approval/publishing-update-controls.jsx';
+} from './publication-approval/store.jsx';
+import ApprovalStatus from './publication-approval/status.jsx';
+import PublishingControls from './publication-approval/controls.jsx'
+import WithdrawlWarning from './publication-approval/withdrawl-warning.jsx';
+import PublishingUpdateControls from './publication-approval/update-controls.jsx';
 
 const MetaBox = ({options}) => {
 
@@ -35,9 +35,10 @@ const MetaBox = ({options}) => {
 
     let coreEditor;
     let saveMenuButton;
+    const isPost = !options.metaMenu && !options.optionsMeta;    
 
     onMount(() => {
-        if (options.metaMenu) {
+        if (!isPost) {
             return;
         }
         
@@ -145,7 +146,7 @@ const MetaBox = ({options}) => {
     };
 
     const savingToDraftHandler = () => {
-        if (!options.metaMenu && options.requireApproval) {
+        if (isPost && options.requireApproval) {
             withdrawRequestOnNewDraft();
         }
     };
@@ -211,7 +212,7 @@ const MetaBox = ({options}) => {
 
             setNoContentFound(false);
 
-            if (!options.metaMenu && options.requireApproval) {
+            if (isPost && options.requireApproval) {
                 getPublicationRequest();
             }
 
@@ -366,7 +367,7 @@ const MetaBox = ({options}) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
 
-        if (!options.metaMenu && options.requireApproval) {
+        if (isPost && options.requireApproval) {
             withdrawPublicationRequest()
         } 
 
@@ -398,19 +399,19 @@ const MetaBox = ({options}) => {
     };
 
     createEffect(() => {
-        if (!options.metaMenu) {
+        if (isPost) {
             setContentStatus({changesNotSavedToDraft: changesNotSavedToDraft()})
         }
     })
 
     createEffect(() => {
-        if (!options.metaMenu) {
+        if (isPost) {
             setContentStatus({publishing: publishing()})
         }
     })
 
     createEffect(() => {
-        if (!options.metaMenu) {
+        if (isPost) {
             setContentStatus({publishing: publishing()})
         }
     })
@@ -420,7 +421,7 @@ const MetaBox = ({options}) => {
     };    
         
     const publishingControls = () => {
-        if (!options.metaMenu && options.requireApproval) {
+        if (isPost && options.requireApproval) {
             return <PublishingControls />
         }
 
@@ -432,7 +433,7 @@ const MetaBox = ({options}) => {
     }
 
     const publishUpdateButtons = () => {
-        if (!options.metaMenu && options.requireApproval) {
+        if (isPost && !options.optionsMeta && options.requireApproval) {
             return <PublishingUpdateControls/>
         };
 
@@ -464,8 +465,8 @@ const MetaBox = ({options}) => {
                 </Show>
                 
                 <Show when={!unsavedMenuDisplayLocations() && status.draft?.exists}>
-                    <Show when={!options.metaMenu && options.requireApproval}>
-                        <PublicationApprovalStatus/>
+                    <Show when={isPost && options.requireApproval}>
+                        <ApprovalStatus/>
                     </Show>
                     <Show when={!options.requireApproval}>
                         <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
@@ -476,8 +477,8 @@ const MetaBox = ({options}) => {
                         <Button leftMargin={options.metaMenu} disabled={true}> 
                             Content not published
                         </Button>
-                        <Show when={!options.metaMenu}>
-                            <PublicationWarning/>
+                        <Show when={isPost}>
+                            <WithdrawlWarning/>
                         </Show>
                     </Show>
 
@@ -487,8 +488,8 @@ const MetaBox = ({options}) => {
                         <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={unsavedExternalChange()}>
                             Unpublish
                         </Button>
-                        <Show when={!options.metaMenu}>
-                            <PublicationWarning/>
+                        <Show when={isPost}>
+                            <WithdrawlWarning/>
                         </Show>
                     </Show>
                 </Show>
