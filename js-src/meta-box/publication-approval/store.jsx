@@ -114,8 +114,8 @@ export const updatePublicationApproval = async (status = '', options) => {
 }
 
 const notifyEditor = async () => {
-    const { postTitle, rejectionReason, approvalStatus,  } = contentStatus;
-    const { userName: admin, editorEmail, siteTitle } = contentStatus.options;
+    const { postTitle, rejectionReason, approvalStatus, editorEmail } = contentStatus;
+    const { userName: admin, siteTitle } = contentStatus.options;
 
     try {
         await wpAjax(`${contentStatus.options.api}/send-publication-approval-email.php`, {
