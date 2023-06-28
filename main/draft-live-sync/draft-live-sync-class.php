@@ -320,6 +320,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $require_publication_approval = get_option('dls_settings_require_publication_approval');
             $enable_publication_approval = $require_publication_approval == 'true' ? 'true' : 'false';
+
+            $use_custom_smtp_for_publication_approval = get_option('dls_use_custom_smtp_for_publication_approval') == 'true' ? 'true' : 'false';
             
             $user_has_publication_rights = is_super_admin() ? 'true' : 'false';
             $user = wp_get_current_user();
@@ -343,7 +345,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 "enableDiffButton": '.$show_diff_button.', 
                 "enableTestContent": '.$show_test_content.', 
                 "requireApproval": '.$enable_publication_approval.', 
-                "userHasPublicationRights": '.$user_has_publication_rights.', 
+                "userHasPublicationRights": '.$user_has_publication_rights.',
+                "useCustomSmtp": '.$use_custom_smtp_for_publication_approval.',
                 "userName": "'.$user_name.'"
             }</script>';
 

@@ -43,7 +43,6 @@ export const getPublicationRequest = async () => {
 
         if (result.data.resource?.content) {
             const content = result.data.resource.content;
-            console.log('content.from_user_email', content.from_user_email);
 
             setContentStatus({
                 approvalStatus: content.status, 
@@ -51,8 +50,9 @@ export const getPublicationRequest = async () => {
                 rejectedBy: content.rejectedBy,
                 rejectionReason: content.rejectionReason || '',
                 requestedBy: content.requestedBy,
-                userEmail: content.from_user_email,
+                editorEmail: content.from_user_email,
                 postTitle: content.post_title,
+                siteTitle: content.from_site_name,
             });
         } else {
             setApprovalStatus('');
@@ -108,44 +108,32 @@ export const updatePublicationApproval = async (status = '', options) => {
 
     contentStatus.setChecking(false);
 
-    // if (status === 'approved' || status === 'rejected') {
-    //     notifyEditor();
-    // }
+    if (status === 'approved' || status === 'rejected') {
+        notifyEditor();
+    }
 }
 
-// const notifyEditor = async () => {
-//     const admin = contentStatus.options.userName;    
+const notifyEditor = async () => {
+    const { postTitle, rejectionReason, approvalStatus,  } = contentStatus;
+    const { userName: admin, editorEmail, siteTitle } = contentStatus.options;
 
-//     const greeting = contentStatus.requestedBy ? `Hello ${contentStatus.requestedBy},\n\n` : `Hello,\n\n`;
-//     const postLink = `View it here: ${window?.location.href}`;
-//     const closer = `\n\nThis is an automated message. Please do not reply to this email.\n\n`;
-
-//     const subject = {
-//         approved: 'Approved publication',
-//         rejected: 'Rejected publication',
-//     }
-
-//     let body = {
-//         approved: `${greeting}Your post "${contentStatus.postTitle}" has been approved by ${admin}. \n\n${postLink}.${closer}`,
-//         rejected: `${greeting}Your post "${contentStatus.postTitle}" has been rejected by ${admin}. \n\n${postLink}. \n\nReason: \n${contentStatus.rejectionReason}${closer}}`,
-//     }
-
-//     const mail = 'christofer.haglund@24hr.se';
-//     const status = contentStatus.approvalStatus;
-//     console.log('sending email', mail, subject[status], body[status]);
-
-//     try {
-//         const result = await wpAjax(`${contentStatus.options.api}/send-email.php`, {
-//             to: mail,
-//             subject: subject[status],
-//             body: body[status],
-//         });
-    
-//         console.log('result from sending email: ', result);
-//     } catch (err) {
-//         console.log('Error sending email', err);
-//     }
-// }
+    try {
+        await wpAjax(`${contentStatus.options.api}/send-publication-approval-email.php`, {
+            data: {
+                useCustomMailSystem: contentStatus.options.useCustomSmtp,
+                postTitle,
+                rejectionReason,
+                approvalStatus,
+                admin,
+                editorEmail,
+                siteTitle,
+                postUrl: window?.location.href,
+            }
+        });
+    } catch (err) {
+        console.log('Error sending email');
+    }
+}
 
 export const withdrawPublicationRequest = async () => {
     contentStatus.setChecking(true);

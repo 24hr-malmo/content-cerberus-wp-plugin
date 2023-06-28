@@ -116,6 +116,10 @@
                 add_option('dls_settings_require_publication_approval');
             }
 
+            if (!get_option('dls_use_custom_smtp_for_publication_approval')) {
+                add_option('dls_use_custom_smtp_for_publication_approval');
+            }
+
             if (!get_option('dls_settings_enable_test_content')) {
                 add_option('dls_settings_enable_test_content');
             }
@@ -125,6 +129,7 @@
             register_setting( 'my_option_group', 'dls_settings_auto_redirect_to_admin_page', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_enable_diff_viewer', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_require_publication_approval', array( $this, 'sanitize' ) );
+            register_setting( 'my_option_group', 'dls_use_custom_smtp_for_publication_approval', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_settings_enable_test_content', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_overwrite_viewable_permalink', array( $this, 'sanitize' ) );
             register_setting( 'my_option_group', 'dls_overwrite_viewable_permalink_host', array( $this, 'sanitize' ) );
@@ -150,8 +155,10 @@
             add_settings_field( 'dls-settings-overwrite_viewable_permalink_host', 'Overwrite the viewable permalink host', array( $this, 'overwrite_viewable_permalink_host_callback'), 'my-setting-admin', 'settings_overwrite_viewable_permalink' );      
 
             if (is_super_admin()) {
-                add_settings_section( 'settings_require_publication_approval', 'Require approval for all publications?', array( $this, 'print_require_publication_approval' ), 'my-setting-admin' );
-                add_settings_section( 'settings_require_publication_approval', 'Require approval for all publications?', array( $this, 'require_publication_approval_callback' ), 'my-setting-admin' );
+                add_settings_section( 'publication_approval', 'Publication approval', array( $this, 'print_require_publication_approval' ), 'my-setting-admin' );
+                add_settings_field( 'dls_publication_approval', 'Require approval for publications?', array( $this, 'require_publication_approval_callback' ), 'my-setting-admin', 'publication_approval' );
+
+                add_settings_field( 'dls_settings_publication_approval_custom_smtp', 'Use custom SMTP?', array( $this, 'use_custom_smtp_for_publication_approval'), 'my-setting-admin', 'publication_approval' );
             }
 
         }
@@ -201,10 +208,6 @@
             print 'If the diff button should be available to use.';            
         }
 
-        public function print_require_publication_approval() {
-            print 'When enabled only certain roles (default is network admins) can publish content to live. Other users must submit a request for approval. Overview of pending requests are available in the network settings.';            
-        }
-
         public function print_enable_test_content() {
             print 'If the test content target should be available to use.';            
         }
@@ -230,11 +233,40 @@
 
         }
 
+        public function print_require_publication_approval() {
+            print '<p>When enabled, only network admins will be able to publish content to live without restrictions, whereas regular users must have their draft approved before being able to do so. An admin dashboard for viewing any pending publication requests is available in the Network Admin > Publication approval tab. The restricted content is limited to "post" types (not other content such as menus, settings, categories, etc.).</p>';
+
+            print '<p>Editors see the status of their request on the post itself, but if all the following environment variables are in place then the editors will also receive a notification email when the status is updated:</p>';
+            
+            $fromEmail = getenv('SMTP_FROM_EMAIL') !== null ? getenv('SMTP_FROM_EMAIL') : 'Not found';
+            $username = getenv('SMTP_USERNAME') !== null ? '*****' : 'Not found';
+            $password = getenv('SMTP_PASSWORD') !== null ? '*****' : 'Not found';
+            $host = getenv('SMTP_HOST') !== null ? '*****' : 'Not found';
+            $port = getenv('SMTP_PORT') !== null ? getenv('SMTP_PORT') : 'Not found';
+
+            print '<div>SMTP_FROM_EMAIL: <em>' .$fromEmail. '</em></div>';
+            print '<div>SMTP_USERNAME: <em>' .$username. '</em></div>';
+            print '<div>SMTP_PASSWORD: <em>' .$password. '</em></div>';
+            print '<div>SMTP_HOST: <em>' .$host. '</em></div>';
+            print '<div>SMTP_PORT: <em>' .$port. '</em></div>';
+
+        }
+
         public function require_publication_approval_callback() {
 
             $value = get_option( 'dls_settings_require_publication_approval');
             $checked = $value == 'true' ? ' checked' : '';
             printf("<div><input type=\"checkbox\" name=\"dls_settings_require_publication_approval\" value=\"true\" $checked/> Yes</div>");
+
+        }
+
+        public function use_custom_smtp_for_publication_approval() {
+
+            $value = get_option( 'dls_use_custom_smtp_for_publication_approval');
+            $checked = $value == 'true' ? ' checked' : '';
+            printf("<div><input type=\"checkbox\" name=\"dls_use_custom_smtp_for_publication_approval\" value=\"true\" $checked/> Yes</div>");
+
+            print '<p>This will override the default email settings and allow you to use a custom configuration. The hook to add an action to is: email_publication_approval_verdict_to_editor, and the callback will be passed four arguments: receipient email address, subject, message, and data object containing all the information in case you wish to draft a custom email response.</p>';
 
         }
 
