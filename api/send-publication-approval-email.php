@@ -29,6 +29,28 @@
         }
     }
 
+    function send_approval_status_email( $phpmailer ) {
+        $username = getenv('SMTP_USERNAME'); 
+        $password = getenv('SMTP_PASSWORD');
+        $host = getenv('SMTP_HOST');
+        $port = getenv('SMTP_PORT');
+        $fromEmail = getenv('SMTP_FROM_EMAIL');
+
+        $phpmailer->isSMTP();
+        $phpmailer->Host       = $host;
+        $phpmailer->Port       = $port;
+        $phpmailer->SMTPSecure = 'tls';
+        $phpmailer->SMTPAuth   = true;
+        $phpmailer->Username   = $username;
+        $phpmailer->Password   = $password;
+        $phpmailer->From       = $fromEmail;
+        $phpmailer->FromName   = 'No Reply';
+    }
+
+    function send_approval_status_email_content_type() {
+        return "text/html";
+    }
+
     try {
         error_log('-- publication-approval - Drafting email');
 
@@ -46,17 +68,28 @@
         $useCustomMailSystem = $data['useCustomMailSystem'] === 'true' ?? false;
 
         if ($useCustomMailSystem) {
-            error_log('-- publication-approval - Using custom mail system');
             $result = apply_filters('email_publication_approval_verdict_to_editor', $toAddress, $subject, $message, $data);
+
             if ($result === 'error') {
                 throw new Exception('Error sending email');
             }
             
             echo json_encode('success');
         } else {
+
+            // We config the mailer and later unregister the filters and actions so that the default wp_mail() function works as expected.
+            // This is because we want this approval feature to work standalone, without configuration of SMTP settings (env variables is all that's needed).
+            add_filter( 'wp_mail_content_type','send_approval_status_email_content_type' );
+            add_action( 'phpmailer_init', 'send_approval_status_email' );
+
             wp_mail( $toAddress, $subject, $message );
+
+            remove_filter( 'wp_mail_content_type','send_approval_status_email_content_type' );
+            remove_action( 'phpmailer_init', 'send_approval_status_email' );
+
             error_log('-- publication-approval - Email sent!');
             echo json_encode('success');
+
         }
     } catch ( Exception $e ) {
         error_log('-- publication-approval - Error sending email: ' .$e->getMessage());
