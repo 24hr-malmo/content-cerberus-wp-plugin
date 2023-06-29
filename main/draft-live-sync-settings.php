@@ -233,16 +233,31 @@
 
         }
 
+        private function checkEnvVariable($envVariableName, $returnValue = false) {
+            $value = getenv($envVariableName);
+        
+            if ($value !== false && $value !== null && $value !== '') {
+                if ($returnValue) {
+                    return $value;
+                } else {
+                    return 'Found';
+                }
+            } else {
+                return 'Not found';
+            }
+        }
+        
+
         public function print_require_publication_approval() {
             print '<p>When enabled, only network admins will be able to publish content to live without restrictions, whereas regular users must have their draft approved before being able to do so. An admin dashboard for viewing any pending publication requests is available in the Network Admin > Publication approval tab. The restricted content is limited to "post" types (not other content such as menus, settings, categories, etc.).</p>';
 
             print '<p>Editors see the status of their request on the post itself, but if all the following environment variables are in place then the editors will also receive a notification email when the status is updated:</p>';
             
-            $fromEmail = getenv('SMTP_FROM_EMAIL') !== null ? getenv('SMTP_FROM_EMAIL') : 'Not found';
-            $username = getenv('SMTP_USERNAME') !== null ? '*****' : 'Not found';
-            $password = getenv('SMTP_PASSWORD') !== null ? '*****' : 'Not found';
-            $host = getenv('SMTP_HOST') !== null ? '*****' : 'Not found';
-            $port = getenv('SMTP_PORT') !== null ? getenv('SMTP_PORT') : 'Not found';
+            $fromEmail = $this->checkEnvVariable('SMTP_FROM_EMAIL', true);
+            $username = $this->checkEnvVariable('SMTP_USERNAME');
+            $password = $this->checkEnvVariable('SMTP_PASSWORD');
+            $host = $this->checkEnvVariable('SMTP_HOST');
+            $port = $this->checkEnvVariable('SMTP_PORT', true);
 
             print '<div>SMTP_FROM_EMAIL: <em>' .$fromEmail. '</em></div>';
             print '<div>SMTP_USERNAME: <em>' .$username. '</em></div>';
