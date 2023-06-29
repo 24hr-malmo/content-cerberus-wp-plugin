@@ -51,7 +51,7 @@ const PublishingControls = () => {
                         disabled={contentStatus.changesNotSavedToDraft}
                     >
                         { contentStatus.changesNotSavedToDraft 
-                            ? 'Save draft before publish request'
+                            ? 'Save draft before publishing request'
                             : 'Request approval to publish'
                         }
                     </Button>
