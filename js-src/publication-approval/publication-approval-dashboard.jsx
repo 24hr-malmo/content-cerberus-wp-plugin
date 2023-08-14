@@ -41,12 +41,34 @@ const PublicationApprovalDashboard = ({options}) => {
         }
     };
 
+    const deletePublicationRequest = async (postId) => {
+        console.log('Deleting publication request: ' + postId);
+        try {
+            const result = await wpAjax(`${options.api}/delete-publication-request.php`, {
+                postId
+            });
+
+            console.log('Delete result', result);
+
+            if (result?.errors?.length) {
+                throw new Error(result.errors[0]?.message);
+            }
+
+            getPublicationRequests();
+        } catch (err) {
+            console.log('Error deleting publication request', err)
+            setErrorMsg('Error deleting publication request');
+        }
+    };
+
     const sortRequests = (unsortedRequests = []) => {
         const listsByStatus = {
             pending: {},
             approved: {},
             rejected: {},
         }
+
+        console.log('Unsorted requests', unsortedRequests);
 
         const requests = unsortedRequests.sort((a, b) => {
             return new Date(b.content.updated_on) - new Date(a.content.updated_on);
@@ -61,8 +83,12 @@ const PublicationApprovalDashboard = ({options}) => {
                 listsByStatus[status][siteTitleAndDomain] = [];
             }
             
-            listsByStatus[status][siteTitleAndDomain].push(request.content);
+            listsByStatus[status][siteTitleAndDomain].push(request);
         })
+
+        console.log('Approved: ', listsByStatus.approved);
+        console.log('Pending: ', listsByStatus.pending);
+        console.log('Rejected: ', listsByStatus.rejected);
 
         setApproved(listsByStatus.approved);
         setRejected(listsByStatus.rejected);
@@ -92,7 +118,10 @@ const PublicationApprovalDashboard = ({options}) => {
                         <StyledSiteList>
                             <StyledDomainHeading>{ domain }</StyledDomainHeading>
                             <For each={ siteRequests[domain] }>{(item) => 
-                                <PublicationRequestItem item={ item } />
+                                <PublicationRequestItem
+                                    item={ item }
+                                    manualDelete={() => deletePublicationRequest(item.content.post_id)}
+                                />
                             }</For>
                         </StyledSiteList>
                     )}</For>
@@ -116,7 +145,8 @@ const PublicationApprovalDashboard = ({options}) => {
             </Show>
 
             <Show when={ errorMsg() }>
-                <span>{ errorMsg() }</span>
+                <p>{ errorMsg() }</p>
+                <p>Reload page</p>
             </Show>
         </div>
     );

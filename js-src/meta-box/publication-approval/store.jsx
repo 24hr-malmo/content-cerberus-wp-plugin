@@ -35,10 +35,12 @@ export const withdrawRequestOnNewDraft = () => {
 }
 
 export const getPublicationRequest = async () => {    
+
+    console.log('Getting publication request for:', contentStatus.options.permalink);
     
     try {
         const result = await wpAjax(`${contentStatus.options.api}/get-publication-request.php`, {
-            permalink: contentStatus.options.permalink
+            postId: contentStatus.options.postId
         });
 
         if (result.data.resource?.content) {
@@ -54,7 +56,11 @@ export const getPublicationRequest = async () => {
                 postTitle: content.post_title,
                 siteTitle: content.from_site_name,
             });
+
+            console.log('Publication request: ', contentStatus);
+            
         } else {
+            console.log('No publication request found for:', contentStatus.options.permalink);
             setApprovalStatus('');
         }
     } catch (err) {
@@ -62,8 +68,9 @@ export const getPublicationRequest = async () => {
     }
 };
 
-
 export const upsertPublicationRequest = async (status) => {
+    console.log('Creating/updating pub request for ' + contentStatus.options.permalink + ': ', contentStatus);
+    
     try {
         await wpAjax(`${contentStatus.options.api}/upsert-publication-request.php`, {
             permalink: contentStatus.options.permalink,
@@ -71,8 +78,8 @@ export const upsertPublicationRequest = async (status) => {
             editorUrl: window?.location.href,
             approvedBy: status === 'approved' ? contentStatus.options.userName : '',
             rejectedBy: status === 'rejected' ? contentStatus.options.userName : '',
+            requestedBy: status === 'pending' ? contentStatus.options.userName : contentStatus.requestedBy,
             rejectionReason: contentStatus.rejectionReason,
-            requestedBy: contentStatus.options.userName,
         });
 
         return {};
@@ -83,10 +90,16 @@ export const upsertPublicationRequest = async (status) => {
 };
 
 const deletePublicationRequest = async () => {
+    console.log('Deleting pub request for ' + contentStatus.options.permalink + ': ', contentStatus);
+    
     try {
-        await wpAjax(`${contentStatus.options.api}/delete-publication-request.php`, {
-            permalink: contentStatus.options.permalink,
+        const result = await wpAjax(`${contentStatus.options.api}/delete-publication-request.php`, {
+            postId: contentStatus.options.postId
         });
+
+        if (!result?.data?.deleteResource?.success) {
+            console.log('Unable to delete publication request because: ', result?.errors?.[0]?.message);
+        }
 
         return {};
     } catch (err) {
@@ -95,9 +108,9 @@ const deletePublicationRequest = async () => {
     }
 };
 
-export const updatePublicationApproval = async (status = '', options) => {
+export const updatePublicationApproval = async (status = '') => {
     contentStatus.setChecking(true);
-    const result = await upsertPublicationRequest(status, options);
+    const result = await upsertPublicationRequest(status);
 
     if (result.err) {
         setContentStatus({ errorMessage: 'Error changing status to ' + status });

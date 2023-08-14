@@ -83,6 +83,14 @@ const SyncCheck = () => {
         setChecking(false);
     };
 
+    const getAllTargetsContent = async (permalink) => {
+        const result = await wpAjax(`${apiUrl}/get-all-targets-content.php`, {
+            permalink: permalink
+        });
+
+        return result;
+    }
+
     return (
         <Page>
             <PageTop
@@ -97,6 +105,7 @@ const SyncCheck = () => {
                         showLive={true}
                         showCheckButton={true}
                         item={item}
+                        getAllTargetsContent={() => getAllTargetsContent(item.permalink)}
                         permalink={item.permalink}
                         onClick={() => syncItem(item) }
                         onTypeClick={() => syncByType(item.type) }

@@ -530,6 +530,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $this->unpublish('draft', $post_id);
             $this->unpublish('live', $post_id);
 
+            $require_publication_approval = get_option('dls_settings_require_publication_approval');
+            
+            if ($require_publication_approval == 'true') {
+                $this->unpublishPublicationRequest($post_id);
+            }
         }
 
         public function pre_publish_term_to_draft($term_id, $taxonomy) {

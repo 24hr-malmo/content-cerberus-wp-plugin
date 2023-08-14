@@ -43,6 +43,8 @@ const MetaBox = ({options}) => {
         }
         
         if (options.requireApproval) {
+            console.log('Options', options);
+            
             setContentStatus({ 
                 options: options,
                 setChecking: setChecking,
@@ -134,13 +136,13 @@ const MetaBox = ({options}) => {
 
             if (hasNonPostEntityChanges || hasUnsavedChanges || hasUnsavedExternalChange) {
                 setUnsavedPageChanges(true);
-                saveContentButton.addEventListener('click', savingToDraftHandler);
-                saveContentButton.removeAttribute('disabled');
+                saveContentButton && saveContentButton.addEventListener('click', savingToDraftHandler);
+                saveContentButton && saveContentButton.removeAttribute('disabled');
                 unsubscribe();
             } else {
                 setUnsavedPageChanges(false);
-                saveContentButton.removeEventListener('click', savingToDraftHandler);
-                saveContentButton.setAttribute('disabled', true);
+                saveContentButton && saveContentButton.removeEventListener('click', savingToDraftHandler);
+                saveContentButton && saveContentButton.setAttribute('disabled', true);
             }
         }, 100 ) );
     };
@@ -209,6 +211,9 @@ const MetaBox = ({options}) => {
                 live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
                 state: 'loaded',
             });
+
+            console.log('status: ', status);
+            
 
             setNoContentFound(false);
 
@@ -513,9 +518,6 @@ const MetaBox = ({options}) => {
                 <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={!status.test?.synced}>
                     { status.test && status.test.synced ? 'Unpublish from test target' : 'Publish to test target' }
                 </Button>
-            </Show>
-            <Show when={options.enableDiffButton}>
-                <Button leftMargin={options.metaMenu}>Show diff (raw)</Button>
             </Show>
 
             <Show when={contentStatus.errorMessage}>

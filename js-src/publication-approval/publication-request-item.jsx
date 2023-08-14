@@ -47,7 +47,7 @@ const StyledRejectionPanel = styled('div')`
 const PublicationRequestItem = (props) => {
 
     const formatDateAndTime = () => {
-        const date = new Date(props.item.updated_on);
+        const date = new Date(props.item.content.updated_on);
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, "0");
         const day = date.getDate().toString().padStart(2, "0");
@@ -57,33 +57,42 @@ const PublicationRequestItem = (props) => {
         return formattedDate;
     }
 
+    const logData = () => {
+        console.log('Request data: ', props.item);
+    };
+
     return (
-        <StyledPublicationRequestItem key={props.item.post_id}>
-            <StyledType>{props.item.type}</StyledType>
+        <StyledPublicationRequestItem key={props.item.content.post_id}>
+            <StyledType onClick={logData}>{props.item.content.type}</StyledType>
             <StyledText>
 
                  <StyledTitle 
-                    href={props.item.editorUrl}
+                    href={props.item.content.editorUrl}
                     target="_blank"
                 >
-                    {props.item.post_title}
+                    {props.item.content.post_title}
                 </StyledTitle>
 
-                <span>, requested by <em>{props.item.from_user_name}</em></span>
+                <span>, requested by <em>{props.item.content.requestedBy}</em></span>
 
-                <Show when={props.item.status === 'rejected'}>
-                    <span> - rejected by {props.item.rejectedBy} </span>
+                <Show when={props.item.content.status === 'rejected'}>
+                    <span> - rejected by <em>{props.item.content.rejectedBy}</em> </span>
+                </Show>
+
+                <Show when={props.item.content.status === 'approved'}>
+                    <span> - approved by <em>{props.item.content.approvedBy}</em> </span>
                 </Show>
 
                 ({formatDateAndTime()})
 
-                 <Show when={props.item.status === 'rejected'}>
+                 <Show when={props.item.content.status === 'rejected'}>
                      <StyledRejectionPanel>
                         <StyledRejectionHeading>Rejection message:</StyledRejectionHeading>
-                        <em>{props.item.rejectionReason}</em>
+                        <em>{props.item.content.rejectionReason}</em>
                      </StyledRejectionPanel>
                  </Show>
             </StyledText>
+            <button onClick={props.manualDelete}>Force Delete</button>
         </StyledPublicationRequestItem>    
     )
 }

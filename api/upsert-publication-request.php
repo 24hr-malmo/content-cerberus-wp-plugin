@@ -26,6 +26,7 @@
         $approvedBy = $_POST['approvedBy'];
         $rejectedBy = $_POST['rejectedBy'];
         $rejectionReason = $_POST['rejectionReason'];
+        $requestedBy = $_POST['requestedBy'];
 
         try {
             $post = $draft_live_sync->get_content($permalink);
@@ -40,6 +41,7 @@
         }
 
         $siteName = $current_blog_details->blogname;
+        $requestExternalId = 'publication-request-' . $post->payload->id;
         
         $variables = array(
             'target' => 'publication-requests',
@@ -47,7 +49,7 @@
             'userInfo' => strval($user->ID),
             'resource' => array(
                 'key' => $permalink,
-                'externalId' => 'publication-request-' . $post->payload->id,
+                'externalId' => $requestExternalId,
                 'type' => 'publication-request',
                 'content' => array(
                     'from_user_id' => strval($user->ID),
@@ -65,7 +67,9 @@
                     'editorUrl' => $editorUrl,
                     'approvedBy' => $approvedBy,
                     'rejectedBy' => $rejectedBy,
+                    'requestedBy' => $requestedBy,
                     'rejectionReason' => $rejectionReason,
+                    'externalId' => $post->payload->externalId,
                 ),
                 'tags' => [$approvalStatus],
             ),

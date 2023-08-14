@@ -12,18 +12,18 @@ if(class_exists( 'DraftLiveSync' )){
     $api_token = getenv('API_TOKEN');
 
     $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
-    $permalink = $draft_live_sync->cleanup_permalink($_POST['permalink']);
+    $externalId = 'publication-request-' . $_POST['postId'];
 
     $query = <<<'GRAPHQL'
         query getResource(
             $siteId: String!
             $target: String!
-            $key: String!
+            $externalId: String!
         ) {
             resource (
                 siteId: $siteId
                 target: $target
-                key: $key
+                externalId: $externalId
             ) {
                 content
                 tags
@@ -34,7 +34,7 @@ if(class_exists( 'DraftLiveSync' )){
     $variables = array(
         'siteId' => 'publication-requests',
         'target' => 'publication-requests',
-        'key' => $permalink,
+        'externalId' => $externalId,
     );
 
     try {
