@@ -325,7 +325,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             
             $user_has_publication_rights = is_super_admin() ? 'true' : 'false';
             $user = wp_get_current_user();
-            $user_name = $user_has_publication_rights ? $user->user_nicename : '';
+            $user_name = $user->user_nicename;
 
             $enable_test_content = get_option('dls_settings_enable_test_content');
             $show_test_content = $enable_test_content == 'true' && is_admin() ? 'true' : 'false';
@@ -616,6 +616,21 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                     print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '"  }</script>';
                     print '<div class="wrap">';
                     print '<div id="dls-publication-approval-root"/>';
+                    print '</div>';
+                });
+            }
+            
+            if (!is_super_admin() && get_option( 'dls_settings_require_publication_approval')) {
+                add_menu_page('Publication requests', 'Publication requests', 'manage_options', 'publication-requests-dashboard', function () {
+                    $user = wp_get_current_user();
+
+                    print '<script id="dls-data" type="application/json">{ 
+                        "api": "'.plugins_url( '../api', dirname(__FILE__) ).'",
+                        "userName": "'.$user->user_nicename.'"
+                    }</script>';
+                    print '<script id="dls-data" type="application/json">{ "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '"  }</script>';
+                    print '<div class="wrap">';
+                    print '<div id="dls-publication-requests-root"/>';
                     print '</div>';
                 });
             }

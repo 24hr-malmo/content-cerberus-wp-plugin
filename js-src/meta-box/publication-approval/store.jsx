@@ -34,8 +34,7 @@ export const withdrawRequestOnNewDraft = () => {
     }
 }
 
-export const getPublicationRequest = async () => {    
-
+export const getPublicationRequest = async () => {
     console.log('Getting publication request for:', contentStatus.options.permalink);
     
     try {

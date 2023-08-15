@@ -17,7 +17,7 @@ const StyledDomainHeading = styled('p')`
     font-size: 15px;
 `;
 
-const PublicationApprovalDashboard = ({options}) => {
+const PublicationRequestsDashboard = ({options}) => {
 
     const [approved, setApproved] = createSignal([]);
     const [pending, setPending] = createSignal([]);
@@ -70,9 +70,13 @@ const PublicationApprovalDashboard = ({options}) => {
 
         console.log('Unsorted requests', unsortedRequests);
 
-        const requests = unsortedRequests.sort((a, b) => {
-            return new Date(b.content.updated_on) - new Date(a.content.updated_on);
-        })
+        const requests = unsortedRequests
+            .filter(request => {
+                return request.content.requestedBy === options.userName;
+            })
+            .sort((a, b) => {
+                return new Date(b.content.updated_on) - new Date(a.content.updated_on);
+            })
 
         requests.forEach(request => {
             const status = request.content.status;
@@ -121,7 +125,7 @@ const PublicationApprovalDashboard = ({options}) => {
                                 <PublicationRequestItem
                                     item={ item }
                                     manualDelete={() => deletePublicationRequest(item.content.post_id)}
-                                    type={ 'admin' }
+                                    type={ 'editor' }
                                 />
                             }</For>
                         </StyledSiteList>
@@ -133,7 +137,7 @@ const PublicationApprovalDashboard = ({options}) => {
 
     return (
         <div>
-            <Heading1>All Publication requests</Heading1>
+            <Heading1>Personal publication requests</Heading1>
 
             <Show when={loading() && !errorMsg()}>
                 <StyledText>Loading...</StyledText>
@@ -154,5 +158,5 @@ const PublicationApprovalDashboard = ({options}) => {
 
 };
 
-export default PublicationApprovalDashboard;
+export default PublicationRequestsDashboard;
 

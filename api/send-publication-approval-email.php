@@ -30,7 +30,7 @@
     }
 
     function send_approval_status_email( $phpmailer ) {
-        $username = getenv('SMTP_USERNAME'); 
+        $username = getenv('SMTP_USERNAME');
         $password = getenv('SMTP_PASSWORD');
         $host = getenv('SMTP_HOST');
         $port = getenv('SMTP_PORT');
@@ -82,12 +82,12 @@
             add_filter( 'wp_mail_content_type','send_approval_status_email_content_type' );
             add_action( 'phpmailer_init', 'send_approval_status_email' );
 
-            wp_mail( $toAddress, $subject, $message );
+            $result = wp_mail( $toAddress, $subject, $message );
 
             remove_filter( 'wp_mail_content_type','send_approval_status_email_content_type' );
             remove_action( 'phpmailer_init', 'send_approval_status_email' );
 
-            error_log('-- publication-approval - Email sent!');
+            error_log('-- publication-approval - Email presumed sent: ' . json_encode($result));
             echo json_encode('success');
 
         }

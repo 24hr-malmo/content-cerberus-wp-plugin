@@ -6,6 +6,7 @@ import App from './cerberus-pages/app/app.jsx';
 import MetaBox from './meta-box/meta-box.jsx';
 import DomainSettings from './domain-settings/domain-settings.jsx';
 import PublicationApprovalDashboard from './publication-approval/publication-approval-dashboard.jsx';
+import PublicationRequestsDashboard from './publication-approval/publication-requests-dashboard.jsx';
 
 const getData = (id) => {
     try {
@@ -41,10 +42,16 @@ const renderDomainSettings = () => {
     render(() => (<DomainSettings options={data}/>), root);
 };
 
-const renderPublicationApproval = () => {
+const renderPublicationApprovalDashboard = () => {
     const root = document.getElementById('dls-publication-approval-root');
     const data = getData('dls-data');
     render(() => (<PublicationApprovalDashboard options={data}/>), root);
+};
+
+const renderPublicationRequests = () => {
+    const root = document.getElementById('dls-publication-requests-root');
+    const data = getData('dls-data');
+    render(() => (<PublicationRequestsDashboard options={data}/>), root);
 };
 
 jQuery(document).ready(function ($) {
@@ -73,7 +80,9 @@ jQuery(document).ready(function ($) {
     } else if (hookData.hook.includes('toplevel_page_cerberus-domain-settings')) {
         renderDomainSettings();
     } else if (hookData.hook.includes('toplevel_page_publication-approval')) {
-        renderPublicationApproval();
+        renderPublicationApprovalDashboard();
+    } else if (hookData.hook.includes('toplevel_page_publication-requests')) {
+        renderPublicationRequests();
     } else if (!hookData.hook.includes('.php')) {
         renderMetaBox();
     }

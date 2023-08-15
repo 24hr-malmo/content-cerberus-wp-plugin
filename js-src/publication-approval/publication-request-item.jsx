@@ -1,4 +1,5 @@
 import { styled } from 'solid-styled-components';
+import Button from '../components/button/button.jsx';
 
 const StyledType = styled('div')`
     text-transform: uppercase;
@@ -34,14 +35,21 @@ const StyledRejectionHeading = styled('h5')`
 const StyledPublicationRequestItem = styled('div')`
     margin-top: 0.8rem;
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
     font-size: 15px;
 `; 
+
+const StyledWrappedButton = styled('div')`
+    display: flex;
+    align-items: flex-start;
+    margin-top: -10px;
+    padding-inline: 1rem;
+`;
 
 const StyledRejectionPanel = styled('div')`
     padding-left: 1rem;
     margin-top: 0.5rem;
-
 `;
 
 const PublicationRequestItem = (props) => {
@@ -73,17 +81,19 @@ const PublicationRequestItem = (props) => {
                     {props.item.content.post_title}
                 </StyledTitle>
 
-                <span>, requested by <em>{props.item.content.requestedBy}</em></span>
+                <Show when={props.type === 'admin'}>
+                    <span>, requested by <em>{props.item.content.requestedBy}</em></span>                
+                </Show>
 
                 <Show when={props.item.content.status === 'rejected'}>
-                    <span> - rejected by <em>{props.item.content.rejectedBy}</em> </span>
+                    <span> - rejected by <em>{props.item.content.rejectedBy}</em></span>
                 </Show>
 
                 <Show when={props.item.content.status === 'approved'}>
-                    <span> - approved by <em>{props.item.content.approvedBy}</em> </span>
+                    <span> - approved by <em>{props.item.content.approvedBy}</em></span>
                 </Show>
 
-                ({formatDateAndTime()})
+                {` (${formatDateAndTime()})`}
 
                  <Show when={props.item.content.status === 'rejected'}>
                      <StyledRejectionPanel>
@@ -92,7 +102,9 @@ const PublicationRequestItem = (props) => {
                      </StyledRejectionPanel>
                  </Show>
             </StyledText>
-            <button onClick={props.manualDelete}>Force Delete</button>
+            <StyledWrappedButton>
+                <Button onClick={props.manualDelete}>Delete</Button>
+            </StyledWrappedButton>
         </StyledPublicationRequestItem>    
     )
 }
