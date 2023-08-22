@@ -455,6 +455,20 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 }
             }
 
+            $permalink = $this->get_menu_permalink_from_post_id($post_id);
+
+            // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
+            $custom_param = array(
+                'args' => array(
+                    'api_path' => $permalink
+                )
+            );
+
+            do_action('publish_status_meta_box_navbox', null, $custom_param);
+
+        }
+
+        public function get_menu_permalink_from_post_id ($post_id) {
             // If a registered menu, find the location of it
             $is_registered_location = false;
             $menu_location = '';
@@ -495,15 +509,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $permalink = $menu_permalink . $language;
 
-            // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
-            $custom_param = array(
-                'args' => array(
-                    'api_path' => $permalink
-                )
-            );
-
-            do_action('publish_status_meta_box_navbox', null, $custom_param);
-
+            return $permalink;
         }
 
         public function meta_box_publish_status_nav_menus($object) {
@@ -793,6 +799,25 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 $option->type = 'option';
                 $option->permalink = rtrim($option_permalink, '/');
                 array_push($list, $option);
+            }
+
+            $menus = wp_get_nav_menus();
+
+            foreach ( $menus as $menu ) {
+                $menu_permalink = $this->get_menu_permalink_from_post_id($menu->term_id);
+
+                if (!in_array($menu_permalink, array_column($list, 'permalink'))) {
+                    /**
+                     * if the menu_permalink already exists in the list, we dont add it again.
+                     * Menus which are "registered_locations" (e.g. "primary", "header", etc.) have already been added by
+                     * the wp-menus init (but that method doesn't work for user created/non-static menus).
+                     */
+
+                    $menu = new stdclass();
+                    $menu->type = 'menu';
+                    $menu->permalink = rtrim($menu_permalink, '/');
+                    array_push($list, $menu);
+                }
             }
 
             // Add special footer API call

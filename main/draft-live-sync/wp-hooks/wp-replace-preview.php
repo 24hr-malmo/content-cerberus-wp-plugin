@@ -24,7 +24,9 @@ trait WpReplacePreview {
                 $permalink = get_permalink($post->ID);
                 $permalink = $this->cleanup_permalink($permalink);
 
-                $link = "$host$permalink";
+                $formatted_link = "$host$permalink";
+
+                $link = apply_filters( 'customize_preview_link', $formatted_link, $post, $host );
 
                 header('Location: ' . $link);
             }
