@@ -148,9 +148,15 @@ const MetaBox = ({options}) => {
     };
 
     const savingToDraftHandler = () => {
-        if (isPost && options.requireApproval) {
-            withdrawRequestOnNewDraft();
+        if (contentStatus.approvalStatus === '') {
+            return;
         }
+
+        if (!isPost || !options.requireApproval) {
+            return;
+        }
+
+        withdrawRequestOnNewDraft();
     };
 
     
@@ -372,7 +378,7 @@ const MetaBox = ({options}) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
 
-        if (isPost && options.requireApproval) {
+        if (isPost && options.requireApproval && contentStatus.approvalStatus !== '') {
             withdrawPublicationRequest()
         } 
 

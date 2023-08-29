@@ -33,16 +33,20 @@ trait UnpublishPublicationRequestTrait {
             }
         GRAPHQL;
 
+        $target = 'publication-requests';
+        $externalId ='publication-request-' . $id;
+        $key = '';
+
         $variables = array(
-            'target' => 'publication-requests',
-            'externalId' => 'publication-request-' . $id,
+            'target' => $target,
+            'externalId' => $externalId,
             'key' => '',
             'userInfo' => strval($user->ID),
             'siteId' => 'publication-requests',
         );
 
         $response = graphql_query($this->content_host, $query, $variables);
-        $response = apply_filters('cerberus_unpublish', $response, $target, $content->payload->id, $key);
+        $response = apply_filters('cerberus_unpublish', $response, $target, $externalId, $key);
 
         return $response;
     }
