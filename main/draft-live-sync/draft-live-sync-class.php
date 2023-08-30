@@ -564,8 +564,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 $externalId = 'menus-by_id-' . $term_id;
 
                 $this->unpublish('draft', $externalId, $key);
-            } else {
-                $this->push_to_queue($this->pre_term_url, 'draft', false, 'publish');
             }
 
         }
