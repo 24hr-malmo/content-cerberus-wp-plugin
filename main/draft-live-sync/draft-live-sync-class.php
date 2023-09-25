@@ -182,7 +182,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $pages = acf_options_page()->get_pages();
             $position = array_search($options_name, array_column($pages, 'menu_slug'));
-            if ($position > 2) {
+            if ($position >= 2) {
                 $page = acf_options_page()->get_page( $options_name );
                 $parent_slug = str_replace('_', '-', $page['parent_slug']);
                 $options_page = $parent_slug . '_page_' . $options_name;
