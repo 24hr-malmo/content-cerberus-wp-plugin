@@ -41,6 +41,7 @@ trait UpsertTrait {
                 'content' => $content->payload,
                 'host' => 'wordpress',
                 'tags' => isset($content->payload->tags) ? $content->payload->tags : [],
+                'date' => $content->payload->date,
             ),
         );
 
