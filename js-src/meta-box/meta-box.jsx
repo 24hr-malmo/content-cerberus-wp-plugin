@@ -43,8 +43,6 @@ const MetaBox = ({options}) => {
         }
         
         if (options.requireApproval) {
-            console.log('Options', options);
-            
             setContentStatus({ 
                 options: options,
                 setChecking: setChecking,
@@ -108,15 +106,19 @@ const MetaBox = ({options}) => {
         document.addEventListener("cerberusListenerEvent", (payload) => {
             if (payload?.detail?.hasChange) {
                 if (!saveContentButton) {
+                    // Add listener to save button, so that when it's clicked we can disable it
                     saveContentButton = document.querySelector('.editor-post-publish-button');
                     saveContentButton.addEventListener('click', () => {
                         setUnsavedExternalChange(false);
                         saveContentButton.setAttribute('disabled', true);
+                        window.onbeforeunload = null;
                     });
                 }
                 if (saveContentButton) {
+                    // Enable save button
                     setUnsavedExternalChange(true);
                     saveContentButton.removeAttribute('disabled');
+                    window.onbeforeunload = () => true;
                 }                
             }
         });

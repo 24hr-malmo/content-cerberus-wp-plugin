@@ -35,7 +35,6 @@ export const withdrawRequestOnNewDraft = () => {
 }
 
 export const getPublicationRequest = async () => {
-    console.log('Getting publication request for:', contentStatus.options.permalink);
     
     try {
         const result = await wpAjax(`${contentStatus.options.api}/get-publication-request.php`, {
@@ -56,7 +55,7 @@ export const getPublicationRequest = async () => {
                 siteTitle: content.from_site_name,
             });
 
-            console.log('Publication request: ', contentStatus);
+            console.log(`Publication request for ${contentStatus.options.permalink}: `, contentStatus);
             
         } else {
             console.log('No publication request found for:', contentStatus.options.permalink);
@@ -68,7 +67,7 @@ export const getPublicationRequest = async () => {
 };
 
 export const upsertPublicationRequest = async (status) => {
-    console.log('Creating/updating pub request for ' + contentStatus.options.permalink + ': ', contentStatus);
+    // console.log('Creating/updating pub request for ' + contentStatus.options.permalink + ': ', contentStatus);
     
     try {
         await wpAjax(`${contentStatus.options.api}/upsert-publication-request.php`, {
