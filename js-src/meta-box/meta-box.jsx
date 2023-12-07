@@ -29,7 +29,7 @@ const MetaBox = ({options}) => {
     const [ menuCreated, setMenuCreated ] = createSignal(false);
     const [ noContentFound, setNoContentFound ] = createSignal(false);
 
-    const payload = {
+    let payload = {
         permalink: options.permalink,
     };
 
@@ -79,16 +79,33 @@ const MetaBox = ({options}) => {
                      * NB: This wordpress' publishing - NOT the same as cerberus' publish to live database
                      */
                     
-                    const { isSavingPost } = coreEditor;
                     let safetyCounter = 0;
-                    
-                    const savingInterval = setInterval(() => {
-                        if (!isSavingPost() || safetyCounter >= 50) {
-                            location.reload();
-                            clearInterval(savingInterval);
+                    const getPermalink = () => {
+                        const regex = /http(s|):\/\/(.*?)(\/[\w\/-]*)\//gm;
+                        const permalink = coreEditor.getPermalink();
+                        const match = regex.exec(permalink);
+                        if (match) {
+                            return match[3];
                         }
-                    }, 100)
-                    
+                        return '';
+                    };
+
+                    const getNewPermalink = () => {
+                        if (coreEditor.getCurrentPost().status !== 'auto-draft') {
+                            payload = {
+                                permalink: getPermalink()
+                            }
+                            setUnsavedPageChanges(false);
+                            check();
+                            return;
+                        }
+                        if (safetyCounter++ <= 50) {
+                            setTimeout(getNewPermalink, 100);
+                        }
+                    }
+
+                    getNewPermalink();
+
                     return;
                 }
 
@@ -538,3 +555,5 @@ const MetaBox = ({options}) => {
 };
 
 export default MetaBox;
+
+
