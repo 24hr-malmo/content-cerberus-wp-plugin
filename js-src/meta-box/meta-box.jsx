@@ -83,7 +83,7 @@ const MetaBox = ({options}) => {
         }
         // A temp fix, if we dont use a timeout .edit-post-header__settings is undefined.
         // And this whole button doesnt really belong in this meta-box.
-        setTimeout(addPreviewButton, 500);
+        setTimeout(addPreviewButton, 700);
     })
 
     createEffect(() => {
@@ -130,8 +130,9 @@ const MetaBox = ({options}) => {
                                 permalink: getPermalink()
                             }
                             setUnsavedPageChanges(false);
-                            getLinkToPreview().style.display = 'flex';
+                            setNoContentFound(false);
                             check();
+                            getLinkToPreview().style.display = 'flex';
                             return;
                         }
                         if (safetyCounter++ <= 50) {
