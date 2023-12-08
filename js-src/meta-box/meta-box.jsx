@@ -28,6 +28,7 @@ const MetaBox = ({options}) => {
     const [ unsavedExternalChange, setUnsavedExternalChange ] = createSignal(false);
     const [ menuCreated, setMenuCreated ] = createSignal(false);
     const [ noContentFound, setNoContentFound ] = createSignal(false);
+    const [ getLinkToPreview, setLinkToPreview ] = createSignal(null);
 
     let payload = {
         permalink: options.permalink,
@@ -50,6 +51,39 @@ const MetaBox = ({options}) => {
                 publish: (e) => publish(e),
             });
         }
+
+
+        const addPreviewButton = () => {
+            const previewTarget = '_new';
+            const linkToPreview = document.createElement('a');
+            linkToPreview.classList.add('components-button');
+            linkToPreview.classList.add('is-secondary');
+            if (wp.data.select('core/editor').getCurrentPost().status === 'auto-draft') {
+                linkToPreview.style.display = 'none';
+            }
+
+            linkToPreview.innerHTML = 'Preview';
+            setLinkToPreview(linkToPreview);
+            document.querySelector('.edit-post-header__settings').prepend(linkToPreview);
+            linkToPreview.addEventListener('click', function(event) {
+                const previewLink = wp.data.select('core/editor').getEditedPostPreviewLink();
+                if (wp.data.select('core/editor').isEditedPostDirty()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    wp.data
+                        .dispatch('core/editor')
+                        .savePost({ isPreview: true })
+                        .then(() => {
+                            window.open( previewLink, previewTarget );
+                        });
+                } else {
+                    window.open( previewLink, previewTarget );
+                }
+            });
+        }
+        // A temp fix, if we dont use a timeout .edit-post-header__settings is undefined.
+        // And this whole button doesnt really belong in this meta-box.
+        setTimeout(addPreviewButton, 500);
     })
 
     createEffect(() => {
@@ -96,6 +130,7 @@ const MetaBox = ({options}) => {
                                 permalink: getPermalink()
                             }
                             setUnsavedPageChanges(false);
+                            getLinkToPreview().style.display = 'flex';
                             check();
                             return;
                         }
@@ -555,5 +590,3 @@ const MetaBox = ({options}) => {
 };
 
 export default MetaBox;
-
-

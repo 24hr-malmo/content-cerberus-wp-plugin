@@ -42,36 +42,6 @@ trait WpReplacePreview {
                         display: none;
                     }
                 </style>
-                <script type='text/javascript'>
-                    window.addEventListener('load', () => {
-                        const originalButton = document.querySelector('[target=\"wp-preview-$postID\"]');
-
-                        if (originalButton) {
-                            const previewLink = originalButton.href;
-                            const previewTarget = originalButton.target;
-                            const linkToPreview = document.createElement('a');
-                            linkToPreview.classList.add('components-button');
-                            linkToPreview.classList.add('is-secondary');
-                            linkToPreview.innerHTML = 'Preview';
-                            document.querySelector('.edit-post-header__settings').prepend(linkToPreview);
-                            linkToPreview.addEventListener('click', function(event) {
-                                if (wp.data.select('core/editor').isEditedPostDirty()) {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    wp.data
-                                        .dispatch('core/editor')
-                                        .savePost({ isPreview: true })
-                                        .then(() => {
-                                            window.open( previewLink, previewTarget );
-                                        });
-                                } else {
-                                    window.open( previewLink, previewTarget );
-                                }
-
-                            });
-                        }
-                    });
-                </script>
             ";
         });
 
