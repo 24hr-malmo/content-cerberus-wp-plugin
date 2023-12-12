@@ -11,4 +11,4 @@ prod: clear
 	git commit . -m "build version"
 	git tag -a v$(shell cat version.txt) -m "new release"
 	git push
-	#git push origin v$(shell cat version.txt)
+	git push origin v$(shell cat version.txt)
