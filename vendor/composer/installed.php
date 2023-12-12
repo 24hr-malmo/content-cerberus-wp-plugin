@@ -3,7 +3,7 @@
         'name' => '24hr/content-cerberus-wp-plugin',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '5aefb31f20120f524ed4e6b63d9d74b62f0a3584',
+        'reference' => '65b142151a264593b0d23772fa3c59608fe3f5bf',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '24hr/content-cerberus-wp-plugin' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '5aefb31f20120f524ed4e6b63d9d74b62f0a3584',
+            'reference' => '65b142151a264593b0d23772fa3c59608fe3f5bf',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
