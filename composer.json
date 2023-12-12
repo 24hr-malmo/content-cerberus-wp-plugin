@@ -1,0 +1,6 @@
+{
+  "name": "24hr/content-cerberus-wp-plugin",
+  "description": "Cerberus",
+  "type": "wordpress-plugin",
+  "require": {}
+}
