@@ -1,6 +1,9 @@
 # rawb-wp-draft-sync-plugin
 The main plugin for our headless wp integration
 
+## Activating the UI
+This plugin is not intended for normal or 
+
 Misc docs:
 
 ## Add additional endpoints that should be synced:
@@ -22,6 +25,10 @@ add_filter('dls_additional_endpoints', 'rawb_add_additional_endpoints', 10, 1);
 ```
 
 # Changelog
+
+### [2023-12-12] v0.16.5
+* Hide Cerberus plugin for normal users with activation mechanism
+
 
 ### [2023-03-12] v0.15.4
 * Added support for auth token for all requests to the content service

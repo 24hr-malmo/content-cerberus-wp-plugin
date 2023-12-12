@@ -87,4 +87,58 @@ jQuery(document).ready(function ($) {
         renderMetaBox();
     }
 
+
+    // This make sure we can activate cerberus with a secret click
+
+    const toggleCerberus = () => {
+        const showCerberus = getCookie('cerberus-activated') === 'true';
+        const cerberus = document.querySelector('#toplevel_page_draft-live-sync');
+        if (showCerberus && cerberus) {
+            cerberus.style.display = 'block';
+        } else if (cerberus) {
+            cerberus.style.display = 'none';
+        }
+    }
+    toggleCerberus();
+
+    const initiator = document.querySelector('#cerberus-initiator');
+    if (initiator) {
+        let counter = 0;
+        initiator.addEventListener('click', () => {
+            if (counter++ > 9) {
+                const showCerberus = getCookie('cerberus-activated') === 'true';
+                if (!showCerberus) {
+                    setCookie('cerberus-activated', true, 1000);
+                } else {
+                    setCookie('cerberus-activated', false, 0);
+                }
+                toggleCerberus();
+                counter = 0;
+            }
+        });
+    }
+
 });
+
+const setCookie = (name, value, days) => {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+};
+
+const getCookie = (name) => {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+

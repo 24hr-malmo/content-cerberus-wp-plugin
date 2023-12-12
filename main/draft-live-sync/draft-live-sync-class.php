@@ -291,6 +291,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         function enqueue_admin_scripts($hook) {
             echo "<script id=\"dls-hooks\" type=\"application/json\">{ \"hook\": \"$hook\" }</script>";
+            echo "<div id=\"cerberus-initiator\"></div>";
+            echo "<style>#toplevel_page_draft-live-sync { display: none; } #cerberus-initiator { z-index: 100000; position: absolute; left: 0; bottom: 0; height: 10px; width: 10px; } #cerberus-initiator:hover { background-color: orange } </style>";
             wp_enqueue_style( 'dls-css', plugins_url( '../css/style.css', __FILE__ ) );
             wp_enqueue_script( 'dls-entry-script', $this->js_script);
         }
