@@ -125,9 +125,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 // Filter the content so we can replace hosts etc
                 add_filter('dls_replace_hosts', array(&$this, 'filter_the_content_replace_hosts'), 100);
 
-                // Add hook to ACFs save action to publish on each save
-                add_action('acf/save_post', array( &$this, 'publish_options_to_draft'), 20, 1);
-
                 // This will check if we should redirect normal requests to the admin page
                 add_action('template_redirect', array(&$this, 'redirect_to_wp_admin'), 20);
 

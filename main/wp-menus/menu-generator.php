@@ -26,6 +26,8 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
             }
 
             if ($language != '') {
+                $response->language = $language;
+
                 $language = '-' . $language;
             }
 
@@ -42,7 +44,7 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
         public function get_menu_by_name($menu_location, $language = '') {
 
             $registered_locations = get_nav_menu_locations();
-            
+
             if(!isset($registered_locations[$menu_location])){
                 return new stdclass();
             }
