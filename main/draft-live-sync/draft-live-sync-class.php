@@ -697,22 +697,26 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         function get_all_resources() {
 
-            $list = array();
+            $list = [];
 
             $option_permalinks = $this->additional_endpoints;
 
-            foreach ( $option_permalinks as $option_permalink ) {
-                $option = new stdclass();
-                $option->type = 'option';
-                $option->permalink = rtrim($option_permalink, '/');
-                array_push($list, $option);
+            if (is_array($option_permalinks) && !empty($option_permalinks)) {
+                foreach ( $option_permalinks as $option_permalink ) {
+                    $option = new stdclass();
+                    $option->type = 'option';
+                    $option->permalink = rtrim($option_permalink, '/');
+                    array_push($list, $option);
+                }
             }
 
             // Add special footer API call
             $post_types = $this->get_enabled_post_types();
 
-            foreach ( $post_types as $post_type ) {
-                $list = array_merge($list, $this->add_to_complete_url_list($post_type));
+            if (is_array($post_types) && !empty($post_types)) {
+                foreach ( $post_types as $post_type ) {
+                    $list = array_merge($list, $this->add_to_complete_url_list($post_type));
+                }
             }
 
             // $list = array_merge($list, $this->add_tags_to_complete_url_list());
