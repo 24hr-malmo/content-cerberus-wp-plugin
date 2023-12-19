@@ -76,8 +76,10 @@ trait CheckSyncTrait {
          *
          */
 
-        $synced = true;
-        $this->check_nested_sync_status($content->payload->blocks, $synced);
+        if (!empty($content->payload) && !empty($content->payload->blocks)) {
+            $synced = true;
+            $this->check_nested_sync_status($content->payload->blocks, $synced);
+        }
 
         if (!$synced) {
             $result['data']['resourceStatus'][2]['synced'] = false;
