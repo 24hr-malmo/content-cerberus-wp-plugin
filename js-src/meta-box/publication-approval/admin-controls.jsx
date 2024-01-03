@@ -8,16 +8,16 @@ const AdminControls = () => {
         <>
             <Button
                 leftMargin={contentStatus.options.metaMenu}
-                onClick={ (e) => updatePublicationApproval('approved')}
+                onClick={(e) => updatePublicationApproval('approved')}
                 disabled={contentStatus.showRejectionControls}
             >
-                Approve 
+                Approve
             </Button>
 
             <Show when={!contentStatus.showRejectionControls}>
                 <Button
                     leftMargin={contentStatus.options.metaMenu}
-                    onClick={ (e) => beginRejection() }
+                    onClick={(e) => beginRejection()}
                     disabled={contentStatus.showRejectionControls}
                 >
                     Reject
@@ -25,21 +25,21 @@ const AdminControls = () => {
             </Show>
 
             <Show when={contentStatus.showRejectionControls}>
-                <div  style={{ 'margin-block': '1.5rem' }}>
+                <div style={{ 'margin-block': '1.5rem' }}>
                     <h4 style={{ 'margin-bottom': 0 }}>Rejection reason</h4>
-                    <textarea 
+                    <textarea
                         rows={4}
-                        placeholder="Message to the editor"
-                        maxLength={200} 
+                        placeholder='Message to the editor'
+                        maxLength={200}
                         style={{ width: '100%', 'margin-top': '0.5rem' }}
-                        onChange={ e => {
-                            setRejectionReason(e.target.value) 
+                        onChange={(e) => {
+                            setRejectionReason(e.target.value);
                         }}
                     />
                     <div style={{ display: 'flex' }}>
                         <Button
                             leftMargin={contentStatus.options.metaMenu}
-                            onClick={ (e) => toggleRejectionControls()}
+                            onClick={(e) => toggleRejectionControls()}
                             disabled={false}
                             style={{ 'margin-top': 0, 'margin-right': '0.2rem' }}
                         >
@@ -47,7 +47,7 @@ const AdminControls = () => {
                         </Button>
                         <Button
                             leftMargin={contentStatus.options.metaMenu}
-                            onClick={ (e) => updatePublicationApproval('rejected')}
+                            onClick={(e) => updatePublicationApproval('rejected')}
                             disabled={false}
                             style={{ 'margin-top': 0 }}
                         >
@@ -61,7 +61,7 @@ const AdminControls = () => {
                 <PublishButton />
             </Show>
         </>
-    )
+    );
 }
 
 export default AdminControls;

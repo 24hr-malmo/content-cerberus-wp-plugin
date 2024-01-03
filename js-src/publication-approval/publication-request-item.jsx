@@ -89,7 +89,7 @@ const PublicationRequestItem = (props) => {
                     <span> - rejected by <em>{props.item.content.rejectedBy}</em></span>
                 </Show>
 
-                <Show when={props.item.content.status === 'approved'}>
+                <Show when={props.item.content.status === 'approved' || props.item.content.status === 'approvedAndPublished'}>
                     <span> - approved by <em>{props.item.content.approvedBy}</em></span>
                 </Show>
 

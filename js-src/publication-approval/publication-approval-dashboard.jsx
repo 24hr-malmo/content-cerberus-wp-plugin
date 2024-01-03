@@ -17,19 +17,64 @@ const StyledDomainHeading = styled('p')`
     font-size: 15px;
 `;
 
+export const StyledTabs = styled('div')`
+    width: 100%;
+    border-bottom: solid 2px #c3c4c7;
+    height: 2rem;
+    display: flex;
+    align-items: flex-end;
+`;
+
+export const StyledContent = styled('div')`
+    background-color: white;
+    width: 100%;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    border: solid 2px #c3c4c7;
+    border-top: none;
+`;
+
+export const StyledTab = styled('button')`
+    padding: 1rem;
+    border: solid 1px #c3c4c7;
+    border-bottom: solid 2px #c3c4c7;
+    margin-left: 4px;
+    border-radius: 3px 3px 0 0;
+    transition: all 0.3s ease-in-out;
+    transform: translateY(2px);
+    cursor: pointer;
+    background-color: #f0f0f1;
+
+    ${(props) =>
+        props.isActive &&
+        `
+        border-bottom: solid 2px transparent;
+        background-color: white;
+    `}
+`;
+
+const tabs = [
+    { slug: 'pending', name: 'Pending' },
+    { slug: 'approved', name: 'Approved' },
+    { slug: 'approvedAndPublished', name: 'Published' },
+    { slug: 'rejected', name: 'Rejected' },
+];
+
 const PublicationApprovalDashboard = ({options}) => {
 
     const [approved, setApproved] = createSignal([]);
+    const [approvedAndPublished, setApprovedAndPublished] = createSignal([]);
     const [pending, setPending] = createSignal([]);
     const [rejected, setRejected] = createSignal([]);
     
     const [loading, setLoading] = createSignal(false);
     const [errorMsg, setErrorMsg] = createSignal('');
+    const [activeTab, setActiveTab] = createSignal('pending');
 
     onMount(() => {
         setLoading(true);
         getPublicationRequests();
-    })
+    });
 
     const getPublicationRequests = async () => {
         try {
@@ -65,6 +110,7 @@ const PublicationApprovalDashboard = ({options}) => {
         const listsByStatus = {
             pending: {},
             approved: {},
+            approvedAndPublished: {},
             rejected: {},
         }
 
@@ -84,13 +130,15 @@ const PublicationApprovalDashboard = ({options}) => {
             }
             
             listsByStatus[status][siteTitleAndDomain].push(request);
-        })
+        });
 
         console.log('Approved: ', listsByStatus.approved);
+        console.log('Approved And Published: ', listsByStatus.approvedAndPublished);
         console.log('Pending: ', listsByStatus.pending);
         console.log('Rejected: ', listsByStatus.rejected);
 
         setApproved(listsByStatus.approved);
+        setApprovedAndPublished(listsByStatus.approvedAndPublished);
         setRejected(listsByStatus.rejected);
         setPending(listsByStatus.pending);
 
@@ -107,48 +155,72 @@ const PublicationApprovalDashboard = ({options}) => {
 
         return (
             <StyledStatusList>
-                <Heading3>
-                    { title }
-                </Heading3>
+                <Heading3>{title}</Heading3>
                 <Show
-                    when={ siteSlugs.length !== 0 }
-                    fallback={ <StyledText>None to show</StyledText> }
+                    when={siteSlugs.length !== 0}
+                    fallback={<StyledText>None to show</StyledText>}
                 >
-                    <For each={ siteSlugs }>{(domain) => (
-                        <StyledSiteList>
-                            <StyledDomainHeading>{ domain }</StyledDomainHeading>
-                            <For each={ siteRequests[domain] }>{(item) => 
-                                <PublicationRequestItem
-                                    item={ item }
-                                    manualDelete={() => deletePublicationRequest(item.content.post_id)}
-                                    type={ 'admin' }
-                                />
-                            }</For>
-                        </StyledSiteList>
-                    )}</For>
+                    <For each={siteSlugs}>
+                        {(domain) => (
+                            <StyledSiteList>
+                                <StyledDomainHeading>{domain}</StyledDomainHeading>
+                                <For each={siteRequests[domain]}>
+                                    {(item) => (
+                                        <PublicationRequestItem
+                                            item={item}
+                                            manualDelete={() => deletePublicationRequest(item.content.post_id)}
+                                            type={'admin'}
+                                        />
+                                    )}
+                                </For>
+                            </StyledSiteList>
+                        )}
+                    </For>
                 </Show>
             </StyledStatusList>
-        )
-    }
+        );
+    };
 
     return (
         <div>
-            <Heading1>All Publication requests</Heading1>
+            <Heading1>Publication requests</Heading1>
 
-            <Show when={loading() && !errorMsg()}>
-                <StyledText>Loading...</StyledText>
-            </Show>
+            <StyledTabs>
+                <For each={tabs}>
+                    {(tab, i) => (
+                        <StyledTab
+                            isActive={tab.slug === activeTab()}
+                            onClick={() => setActiveTab(tab.slug)}
+                        >
+                            {tab.name}
+                        </StyledTab>
+                    )}
+                </For>
+            </StyledTabs>
 
-            <Show when={ !loading() && !errorMsg() }>
-                {createStatusList({ title: 'Pending', siteRequests: pending() })}
-                {createStatusList({ title: 'Approved', siteRequests: approved() })}
-                {createStatusList({ title: 'Rejected', siteRequests: rejected() })}
-            </Show>
+            <StyledContent>
+                <Show when={loading() && !errorMsg()}>
+                    <StyledText>Loading...</StyledText>
+                </Show>
 
-            <Show when={ errorMsg() }>
-                <p>{ errorMsg() }</p>
-                <p>Reload page</p>
-            </Show>
+                <Show when={activeTab() === 'pending' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Pending', siteRequests: pending() })}
+                </Show> 
+                <Show when={activeTab() === 'approved' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Approved', siteRequests: approved() })}
+                </Show>
+                <Show when={activeTab() === 'approvedAndPublished' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Published', siteRequests: approvedAndPublished() })}
+                </Show>
+                <Show when={activeTab() === 'rejected' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Rejected', siteRequests: rejected() })}
+                </Show>
+
+                <Show when={errorMsg()}>
+                    <p>{errorMsg()}</p>
+                    <p>Reload page</p>
+                </Show>
+            </StyledContent>
         </div>
     );
 

@@ -37,7 +37,7 @@ if(class_exists( 'DraftLiveSync' )){
 
     try {
 
-        $result = graphql_query($draft_live_sync->content_host, $query, $variables);        
+        $result = graphql_query($draft_live_sync->content_host, $query, $variables);
 
         // Loop through the resources array and filter out the posts that don't exist
         $filteredResources = [];

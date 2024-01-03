@@ -4,12 +4,12 @@ import Button from '../components/button/button.jsx';
 import Loading from '../components/loading/loading.jsx';
 import { wpAjaxAction } from '../utilities/wp-action.js';
 import { StyledContainer, StyledStatusText, StyledChecking, StyledError } from './meta-box.style.jsx';
-import { 
+import {
     contentStatus,
     setContentStatus,
     withdrawRequestOnNewDraft,
-    withdrawPublicationRequest,
     getPublicationRequest,
+    updatePublicationApproval,
 } from './publication-approval/store.jsx';
 import ApprovalStatus from './publication-approval/status.jsx';
 import PublishingControls from './publication-approval/controls.jsx'
@@ -424,6 +424,9 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setPublishing(true);
+        
+        await updatePublicationApproval('approvedAndPublished');
+
         const result = await wpAjaxAction('publish_to_live', payload);
         if (result.data) {
             check(false);
@@ -433,9 +436,6 @@ const MetaBox = ({options}) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
 
-        if (isPost && options.requireApproval && contentStatus.approvalStatus !== '') {
-            withdrawPublicationRequest()
-        } 
 
         emitDomEvent({
             action: 'publish_to_live_done'

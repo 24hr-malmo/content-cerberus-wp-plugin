@@ -74,7 +74,7 @@ export const upsertPublicationRequest = async (status) => {
             permalink: contentStatus.options.permalink,
             status: status,
             editorUrl: window?.location.href,
-            approvedBy: status === 'approved' ? contentStatus.options.userName : '',
+            approvedBy: status === 'approved' || status === 'approvedAndPublished' ? contentStatus.options.userName : '',
             rejectedBy: status === 'rejected' ? contentStatus.options.userName : '',
             requestedBy: status === 'pending' ? contentStatus.options.userName : contentStatus.requestedBy,
             rejectionReason: contentStatus.rejectionReason,
@@ -108,6 +108,7 @@ const deletePublicationRequest = async () => {
 
 export const updatePublicationApproval = async (status = '') => {
     contentStatus.setChecking(true);
+
     const result = await upsertPublicationRequest(status);
 
     if (result.err) {
