@@ -3,6 +3,7 @@ import { styled } from 'solid-styled-components';
 export const StyledContainer = styled('div')`
 
     padding-top: 6px;
+    box-sizing: border-box !important;
 
     ${p => p.horizontal ? `
         display: flex;   

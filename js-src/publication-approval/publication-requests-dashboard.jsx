@@ -3,6 +3,7 @@ import { styled } from 'solid-styled-components';
 import { Heading1, Heading3 } from '../components/heading/heading.jsx';
 import { wpAjax } from '../utilities/wp-action.js';
 import PublicationRequestItem, { StyledText } from './publication-request-item.jsx';
+import { StyledTabs, StyledTab, StyledContent } from './publication-approval-dashboard.jsx';
 
 const StyledStatusList = styled('div')`
     margin-bottom: 3rem;
@@ -17,11 +18,21 @@ const StyledDomainHeading = styled('p')`
     font-size: 15px;
 `;
 
+const tabs = [
+    { slug: 'pending', name: 'Pending' },
+    { slug: 'approved', name: 'Approved' },
+    { slug: 'approvedAndPublished', name: 'Published' },
+    { slug: 'rejected', name: 'Rejected' },
+];
+
 const PublicationRequestsDashboard = ({options}) => {
 
     const [approved, setApproved] = createSignal([]);
+    const [approvedAndPublished, setApprovedAndPublished] = createSignal([]);
     const [pending, setPending] = createSignal([]);
     const [rejected, setRejected] = createSignal([]);
+    const [activeTab, setActiveTab] = createSignal('pending');
+
     
     const [loading, setLoading] = createSignal(false);
     const [errorMsg, setErrorMsg] = createSignal('');
@@ -65,6 +76,7 @@ const PublicationRequestsDashboard = ({options}) => {
         const listsByStatus = {
             pending: {},
             approved: {},
+            approvedAndPublished: {},
             rejected: {},
         }
 
@@ -91,10 +103,12 @@ const PublicationRequestsDashboard = ({options}) => {
         })
 
         console.log('Approved: ', listsByStatus.approved);
+        console.log('Approved And Published:', listsByStatus.approvedAndPublished);
         console.log('Pending: ', listsByStatus.pending);
         console.log('Rejected: ', listsByStatus.rejected);
 
         setApproved(listsByStatus.approved);
+        setApprovedAndPublished(listsByStatus.approvedAndPublished);
         setRejected(listsByStatus.rejected);
         setPending(listsByStatus.pending);
 
@@ -137,22 +151,44 @@ const PublicationRequestsDashboard = ({options}) => {
 
     return (
         <div>
-            <Heading1>Personal publication requests</Heading1>
+            <Heading1>My publication requests</Heading1>
 
-            <Show when={loading() && !errorMsg()}>
-                <StyledText>Loading...</StyledText>
-            </Show>
+            <StyledTabs>
+                <For each={tabs}>
+                    {(tab, i) => (
+                        <StyledTab
+                            isActive={tab.slug === activeTab()}
+                            onClick={() => setActiveTab(tab.slug)}
+                        >
+                            {tab.name}
+                        </StyledTab>
+                    )}
+                </For>
+            </StyledTabs>
 
-            <Show when={ !loading() && !errorMsg() }>
-                {createStatusList({ title: 'Pending', siteRequests: pending() })}
-                {createStatusList({ title: 'Approved', siteRequests: approved() })}
-                {createStatusList({ title: 'Rejected', siteRequests: rejected() })}
-            </Show>
+            <StyledContent>
+                <Show when={loading() && !errorMsg()}>
+                    <StyledText>Loading...</StyledText>
+                </Show>
 
-            <Show when={ errorMsg() }>
-                <p>{ errorMsg() }</p>
-                <p>Reload page</p>
-            </Show>
+                <Show when={activeTab() === 'pending' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Pending', siteRequests: pending() })}
+                </Show>
+                <Show when={activeTab() === 'approved' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Approved', siteRequests: approved() })}
+                </Show>
+                <Show when={activeTab() === 'approvedAndPublished' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Published', siteRequests: approvedAndPublished() })}
+                </Show>
+                <Show when={activeTab() === 'rejected' && !loading() && !errorMsg()}>
+                    {createStatusList({ title: 'Rejected', siteRequests: rejected() })}
+                </Show>
+
+                <Show when={errorMsg()}>
+                    <p>{errorMsg()}</p>
+                    <p>Reload page</p>
+                </Show>
+            </StyledContent>
         </div>
     );
 

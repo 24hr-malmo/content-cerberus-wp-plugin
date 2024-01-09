@@ -2,9 +2,7 @@
 The main plugin for our headless wp integration
 
 ## Activating the UI
-This plugin is not intended for normal or 
-
-Misc docs:
+This plugin is not intended for regular admin users. It is only used by the developers to sync content from the draft to the live site. To activate the UI, you need to click in the bottom left corner of the wordpress sidebar. If you hover your mouse over the corner, you will see it turn orange. Click that area 10 times to reveal the tab for Cerberus.
 
 ## Add additional endpoints that should be synced:
 

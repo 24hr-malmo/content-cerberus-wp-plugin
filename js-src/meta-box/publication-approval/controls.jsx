@@ -8,33 +8,31 @@ const debugging = false;
 
 const DebugPanel = () => {
     return (
-        <div style={{background: 'lightgray', padding: '0.5rem'}}>
-            <h5>
-                Dev mode
-            </h5>
-            <Button 
+        <div style={{ background: 'lightgray', padding: '0.5rem' }}>
+            <h5>Dev mode</h5>
+            <Button
                 leftMargin={contentStatus.options.metaMenu}
-                onClick={ (e) => updatePublicationApproval('approved')}
+                onClick={(e) => updatePublicationApproval('approved')}
                 disabled={false}
             >
                 Approve
             </Button>
-            <Button 
+            <Button
                 leftMargin={contentStatus.options.metaMenu}
-                onClick={ (e) => updatePublicationApproval('rejected') }
+                onClick={(e) => updatePublicationApproval('rejected')}
                 disabled={false}
             >
                 Reject
             </Button>
-            <Button 
+            <Button
                 leftMargin={contentStatus.options.metaMenu}
-                onClick={ (e) => updatePublicationApproval('pending')}
+                onClick={(e) => updatePublicationApproval('pending')}
                 disabled={contentStatus.changesNotSavedToDraft}
             >
                 Set to pending
             </Button>
         </div>
-    )
+    );
 }
 
 const PublishingControls = () => {

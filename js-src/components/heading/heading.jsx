@@ -6,7 +6,9 @@ export const Heading1 = styled('div')`
     font-weight: bold;
     text-align: center;
     width: 100%;
-    padding: 3rem 0 2rem;
+    margin: 2rem 0 4rem;
+    line-height: 1.2;
+    display: block;
 `;
 
 export const Heading2 = styled('h2')`
