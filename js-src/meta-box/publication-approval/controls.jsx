@@ -88,7 +88,7 @@ const PublishingControls = () => {
                     >
                         { contentStatus.changesNotSavedToDraft 
                             ? 'Discard unapproved changes to publish'
-                            : 'Publish to live site 123'
+                            : 'Publish to live site'
                         }
                     </Button>
                 </Show>

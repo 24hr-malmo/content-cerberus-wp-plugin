@@ -2,7 +2,7 @@ clear:
 	rm -rf ./js-dist
 
 dev: clear
-	./node_modules/webpack/bin/webpack.js --watch
+	npm run dev
 
 prod: clear
 
