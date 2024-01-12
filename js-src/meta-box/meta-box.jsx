@@ -36,7 +36,7 @@ const MetaBox = ({options}) => {
 
     let coreEditor;
     let saveMenuButton;
-    const isPost = !options.metaMenu && !options.optionsMeta;    
+    const isPost = !options.metaMenu && !options.optionsMeta;   
 
     onMount(() => {
         if (!isPost) {
@@ -425,7 +425,9 @@ const MetaBox = ({options}) => {
 
         setPublishing(true);
         
-        await updatePublicationApproval('approvedAndPublished');
+        if (options.requireApproval === true) {
+            await updatePublicationApproval('approvedAndPublished');
+        }
 
         const result = await wpAjaxAction('publish_to_live', payload);
         if (result.data) {
