@@ -69,13 +69,15 @@ const PublicationRequestItem = (props) => {
         console.log('Request data: ', props.item);
     };
 
+    const itemLink = `${props.item.content['wp-domain']}${props.item.content.editorUrl}`;
+
     return (
         <StyledPublicationRequestItem key={props.item.content.post_id}>
             <StyledType onClick={logData}>{props.item.content.type}</StyledType>
             <StyledText>
 
                  <StyledTitle 
-                    href={props.item.content.editorUrl}
+                    href={itemLink}
                     target="_blank"
                 >
                     {props.item.content.post_title}
