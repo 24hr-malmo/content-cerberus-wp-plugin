@@ -424,10 +424,9 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setPublishing(true);
-        
-        if (options.requireApproval === true) {
+        if (options.requireApproval === true && (contentStatus.approvalStatus === 'pending' || contentStatus.approvalStatus === 'approved')) {
             await updatePublicationApproval('approvedAndPublished');
-        }
+        }       
 
         const result = await wpAjaxAction('publish_to_live', payload);
         if (result.data) {
