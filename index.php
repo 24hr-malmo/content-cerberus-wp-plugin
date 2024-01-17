@@ -2,7 +2,7 @@
 
 
 /*
-Plugin Name: Cerberus Content Next
+Plugin Name: Cerberus Content Next local
 Plugin URI: http://24hr.se
 Description: Saves content to a Draft Content Service and gives the possibility to push the content to live
 Version: 1.1.2
