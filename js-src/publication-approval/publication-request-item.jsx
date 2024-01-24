@@ -69,7 +69,16 @@ const PublicationRequestItem = (props) => {
         console.log('Request data: ', props.item);
     };
 
-    const itemLink = `${props.item.content['wp-domain']}${props.item.content.editorUrl}`;
+
+    const getItemLink = () => {
+        // If the domain has been obfuscated (e.g. on prod) we have to add it to the editorUrl
+        const domain = props.item.content['wp-domain'];
+        const itemLink = props.item.content.editorUrl.includes(domain)
+            ? props.item.content.editorUrl
+            : `${props.item.content['wp-domain']}${props.item.content.editorUrl}`;
+
+        return itemLink;
+    }
 
     return (
         <StyledPublicationRequestItem key={props.item.content.post_id}>
@@ -77,7 +86,7 @@ const PublicationRequestItem = (props) => {
             <StyledText>
 
                  <StyledTitle 
-                    href={itemLink}
+                    href={getItemLink()}
                     target="_blank"
                 >
                     {props.item.content.post_title}
