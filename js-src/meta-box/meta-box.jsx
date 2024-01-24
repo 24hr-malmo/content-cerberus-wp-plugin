@@ -52,7 +52,6 @@ const MetaBox = ({options}) => {
             });
         }
 
-
         const addPreviewButton = () => {
             const previewTarget = '_new';
             const linkToPreview = document.createElement('a');

@@ -51,7 +51,7 @@
             'siteId' => 'domain-settings',
             'resource' => array(
                 'key' => $domain,
-                'externalId' => $id,
+                'externalId' => '$id',
                 'type' => 'domain-setting',
                 'content' => array(
                     'target' => $target,

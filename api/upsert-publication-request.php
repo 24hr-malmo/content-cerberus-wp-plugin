@@ -41,8 +41,8 @@
         }
 
         $siteName = $current_blog_details->blogname;
-        $requestExternalId = 'publication-request-' . $post->payload->id;
-        
+        $requestExternalId = 'publication-request-' . $post->payload->id . '-site-id-' . $draft_live_sync->get_site_id();
+
         $variables = array(
             'target' => 'publication-requests',
             'siteId' => 'publication-requests',

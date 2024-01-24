@@ -12,7 +12,8 @@ if(class_exists( 'DraftLiveSync' )){
     $api_token = getenv('API_TOKEN');
 
     $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
-    $externalId = 'publication-request-' . $_POST['postId'];
+    
+    $externalId = 'publication-request-' . $_POST['postId'] . '-site-id-' . $draft_live_sync->get_site_id();
 
     $query = <<<'GRAPHQL'
         query getResource(
@@ -38,7 +39,6 @@ if(class_exists( 'DraftLiveSync' )){
     );
 
     try {
-        
         $result = graphql_query($draft_live_sync->content_host, $query, $variables);
         echo json_encode($result);
 

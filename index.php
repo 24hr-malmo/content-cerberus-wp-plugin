@@ -5,7 +5,7 @@
 Plugin Name: Cerberus Content Next
 Plugin URI: http://24hr.se
 Description: Saves content to a Draft Content Service and gives the possibility to push the content to live
-Version: 1.1.5
+Version: 1.1.6
 Author: Dr Tapia <camilo.tapia@24hr.se>
  */
 
@@ -17,7 +17,6 @@ if ( !defined( 'ABSPATH' ) ) {
     die( '-1' );
 
 } else {
-
     $dir = dirname( __FILE__ );
 
     $plugin_info = get_file_data(__FILE__, array( 'Version' => 'Version') );
