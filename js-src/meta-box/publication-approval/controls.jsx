@@ -4,11 +4,13 @@ import Button from '../../components/button/button.jsx';
 import PublishButton from './publish-button.jsx';
 import AdminControls from './admin-controls.jsx';
 
-const debugging = false;
+const debugging = true;
+
+console.log('contentStatus :>> ', contentStatus);
 
 const DebugPanel = () => {
     return (
-        <div style={{ background: 'lightgray', padding: '0.5rem' }}>
+        <div style={{ background: 'lightgray', padding: '0.5rem', margin: '0.5rem' }}>
             <h5>Dev mode</h5>
             <Button
                 leftMargin={contentStatus.options.metaMenu}
@@ -36,9 +38,10 @@ const DebugPanel = () => {
 }
 
 const PublishingControls = () => {
+    console.log('contentStatus :>> ', contentStatus);
     return (
         <>
-            <Show when={contentStatus.approvalStatus === ''}>
+            <Show when={contentStatus.approvalStatus === '' || contentStatus.approvalStatus === 'rejected'}>
                 <Show when={contentStatus.options.userHasPublicationRights}>
                     <PublishButton />
                 </Show>
@@ -75,7 +78,7 @@ const PublishingControls = () => {
                 </Show>
             </Show>
             
-            <Show when={contentStatus.approvalStatus === 'approved'}>
+            <Show when={contentStatus.approvalStatus === 'approved' || contentStatus.approvalStatus === 'approvedAndPublished'}>
                 <Show when={contentStatus.options.userHasPublicationRights}>
                     <PublishButton />
                 </Show>

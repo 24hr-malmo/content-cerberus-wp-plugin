@@ -95,6 +95,7 @@ const MetaBox = ({options}) => {
                 wp.domReady(pageChangeListener);
             }
         }
+        console.log('unsavedMenuDisplayLocations() :>> ', unsavedMenuDisplayLocations());
     });
 
     // Dont run this if its an older version of wp or not running gutenberg
@@ -353,6 +354,7 @@ const MetaBox = ({options}) => {
         for (let locationElement of displayLocations) {
             const input = locationElement.querySelector('input');
             input.addEventListener('change', () => {
+                console.log('changing :>> ');
                 setUnsavedMenuDisplayLocations(true);
                 enableMenuSaveButton();
             });
@@ -476,11 +478,6 @@ const MetaBox = ({options}) => {
         }
     })
 
-    createEffect(() => {
-        if (isPost) {
-            setContentStatus({publishing: publishing()})
-        }
-    })
 
     const changesNotSavedToDraft = () => {
         return unsavedPageChanges() || unsavedMenuChanges() || unsavedExternalChange();
@@ -488,7 +485,7 @@ const MetaBox = ({options}) => {
         
     const publishingControls = () => {
         if (isPost && options.requireApproval) {
-            return <PublishingControls />
+            return <PublishingControls status={status} />
         }
 
         return (
