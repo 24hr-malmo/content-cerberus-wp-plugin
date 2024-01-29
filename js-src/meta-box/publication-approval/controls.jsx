@@ -4,9 +4,7 @@ import Button from '../../components/button/button.jsx';
 import PublishButton from './publish-button.jsx';
 import AdminControls from './admin-controls.jsx';
 
-const debugging = true;
-
-console.log('contentStatus :>> ', contentStatus);
+const debugging = false;
 
 const DebugPanel = () => {
     return (
@@ -38,7 +36,6 @@ const DebugPanel = () => {
 }
 
 const PublishingControls = () => {
-    console.log('contentStatus :>> ', contentStatus);
     return (
         <>
             <Show when={contentStatus.approvalStatus === '' || contentStatus.approvalStatus === 'rejected'}>
