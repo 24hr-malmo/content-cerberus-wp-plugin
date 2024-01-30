@@ -8,20 +8,19 @@ const PublishButton = () => {
             leftMargin={contentStatus.options.metaMenu}
             loading={contentStatus.publishing}
             onClick={(e) => contentStatus.publish(e)}
-            disabled={contentStatus.changesNotSavedToDraft}
+            disabled={contentStatus.changesNotSavedToDraft || contentStatus.syncStatus.live?.synced}
         >
-            { contentStatus.changesNotSavedToDraft 
-                ? contentStatus.syncStatus.live?.exists 
+            {contentStatus.changesNotSavedToDraft
+                ? contentStatus.syncStatus.live?.exists
                     ? 'Save draft before updating on live'
                     : 'Save draft before publishing to live'
                 : contentStatus.syncStatus.live?.exists
-                    ? contentStatus.syncStatus.live?.synced
-                        ? 'Updated on live site'
-                        : 'Update on live site'
-                    : 'Publish to live site'
-            }
+                ? contentStatus.syncStatus.live?.synced
+                    ? 'Updated on live site'
+                    : 'Update on live site'
+                : 'Publish to live site'}
         </Button>
-    )
+    );
 }
 
 export default PublishButton;

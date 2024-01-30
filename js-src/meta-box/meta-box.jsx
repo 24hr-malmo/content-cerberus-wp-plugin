@@ -483,7 +483,7 @@ const MetaBox = ({options}) => {
         
     const publishingControls = () => {
         if (isPost && options.requireApproval) {
-            return <PublishingControls status={status} />
+            return <PublishingControls />
         }
 
         return (
@@ -509,11 +509,13 @@ const MetaBox = ({options}) => {
     }
 
     return (
-        <StyledContainer horizontal={options.metaMenu} box={options.optionsMeta}>
-
+        <StyledContainer
+            horizontal={options.metaMenu}
+            box={options.optionsMeta}
+        >
             <Show when={checking()}>
                 <StyledChecking horizontal={options.metaMenu}>
-                    <Loading size={ options.metaMenu ? 'small' : 'large' } />
+                    <Loading size={options.metaMenu ? 'small' : 'large'} />
                     <StyledStatusText>Checking content in draft and live</StyledStatusText>
                 </StyledChecking>
             </Show>
@@ -524,18 +526,23 @@ const MetaBox = ({options}) => {
                         <StyledStatusText>Content must be saved before publishing</StyledStatusText>
                     </StyledChecking>
                 </Show>
-                
+
                 <Show when={!unsavedMenuDisplayLocations() && status.draft?.exists}>
                     <Show when={isPost && options.requireApproval}>
-                        <ApprovalStatus/>
+                        <ApprovalStatus />
                     </Show>
                     <Show when={!options.requireApproval}>
                         <StyledStatusText horizontal={options.metaMenu}>Publish content</StyledStatusText>
                     </Show>
 
+                    {/* Always show controls */}
+                    {publishingControls()}
+
                     <Show when={!status.live?.exists}>
-                        { publishingControls() }
-                        <Button leftMargin={options.metaMenu} disabled={true}> 
+                        <Button
+                            leftMargin={options.metaMenu}
+                            disabled={true}
+                        >
                             Content not published
                         </Button>
                         <Show when={isPost}>
@@ -544,13 +551,18 @@ const MetaBox = ({options}) => {
                     </Show>
 
                     <Show when={status.live?.exists}>
-                        { publishUpdateButtons() }
+                        {/* {publishUpdateButtons()} */}
                         {/* The button below is disabled when some external source has indicated that a change has been made. This is to avoid unpublishing wrong content. */}
-                        <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={unsavedExternalChange()}>
+                        <Button
+                            leftMargin={options.metaMenu}
+                            loading={unpublishing()}
+                            onClick={(e) => unpublish(e)}
+                            disabled={unsavedExternalChange()}
+                        >
                             Unpublish
                         </Button>
                         <Show when={isPost}>
-                            <WithdrawlWarning/>
+                            <WithdrawlWarning />
                         </Show>
                     </Show>
                 </Show>
@@ -571,15 +583,19 @@ const MetaBox = ({options}) => {
             </Show>
 
             <Show when={options.enableTestContent}>
-                <Button leftMargin={options.metaMenu} loading={unpublishing()} onClick={ (e) => unpublish(e) } disabled={!status.test?.synced}>
-                    { status.test && status.test.synced ? 'Unpublish from test target' : 'Publish to test target' }
+                <Button
+                    leftMargin={options.metaMenu}
+                    loading={unpublishing()}
+                    onClick={(e) => unpublish(e)}
+                    disabled={!status.test?.synced}
+                >
+                    {status.test && status.test.synced ? 'Unpublish from test target' : 'Publish to test target'}
                 </Button>
             </Show>
 
             <Show when={contentStatus.errorMessage}>
                 <StyledError>{contentStatus.errorMessage}</StyledError>
             </Show>
-
         </StyledContainer>
     );
 
