@@ -493,20 +493,20 @@ const MetaBox = ({options}) => {
         )
     }
 
-    const publishUpdateButtons = () => {
-        if (isPost && !options.optionsMeta && options.requireApproval) {
-            return <PublishingUpdateControls/>
-        };
+    // const publishUpdateButtons = () => {
+    //     if (isPost && !options.optionsMeta && options.requireApproval) {
+    //         return <PublishingUpdateControls/>
+    //     };
 
-        return (
-            <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || changesNotSavedToDraft()}>
-                { changesNotSavedToDraft() ? 
-                    'Save draft before updating on live' 
-                    : status.live?.synced ? 'Updated on live site' : 'Update on live site'
-                }
-            </Button>
-        );
-    }
+    //     return (
+    //         <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e) } disabled={status.live?.synced || changesNotSavedToDraft()}>
+    //             { changesNotSavedToDraft() ? 
+    //                 'Save draft before updating on live' 
+    //                 : status.live?.synced ? 'Updated on live site' : 'Update on live site'
+    //             }
+    //         </Button>
+    //     );
+    // }
 
     return (
         <StyledContainer

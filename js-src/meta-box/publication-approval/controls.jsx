@@ -1,10 +1,10 @@
-import { Show, createEffect } from "solid-js";
+import { Show } from "solid-js";
 import { contentStatus, updatePublicationApproval, withdrawPublicationRequest } from './store.jsx';
 import Button from '../../components/button/button.jsx';
 import PublishButton from './publish-button.jsx';
 import AdminControls from './admin-controls.jsx';
 
-const debugging = true;
+const debugging = false;
 
 const DebugPanel = () => {
     return (
