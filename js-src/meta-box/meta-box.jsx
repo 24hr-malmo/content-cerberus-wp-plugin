@@ -423,7 +423,8 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setPublishing(true);
-        if (options.requireApproval === true && (contentStatus?.approvalStatus === 'pending' || contentStatus?.approvalStatus === 'approved')) {
+        
+        if (options.requireApproval === true) {
             await updatePublicationApproval('approvedAndPublished');
         }       
 
