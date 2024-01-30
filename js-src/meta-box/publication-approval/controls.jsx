@@ -9,7 +9,7 @@ const debugging = false;
 const DebugPanel = () => {
     return (
         <div style={{ background: 'lightgray', padding: '0.5rem', margin: '0.5rem' }}>
-            <h5>Dev mode</h5>
+            <h5 style={{'text-align': 'center'}}>Debug Panel</h5>
             <Button
                 leftMargin={contentStatus.options.metaMenu}
                 onClick={(e) => updatePublicationApproval('approved')}
@@ -36,67 +36,58 @@ const DebugPanel = () => {
 }
 
 const PublishingControls = () => {
+
     return (
         <>
-            <Show when={contentStatus.approvalStatus === '' || contentStatus.approvalStatus === 'rejected'}>
-                <Show when={contentStatus.options.userHasPublicationRights}>
-                    <PublishButton />
-                </Show>
-                <Show when={!contentStatus.options.userHasPublicationRights}>
-                    <Button 
-                        leftMargin={contentStatus.options.metaMenu}
-                        onClick={ (e) => updatePublicationApproval('pending')}
-                        disabled={contentStatus.changesNotSavedToDraft}
-                    >
-                        { contentStatus.changesNotSavedToDraft 
-                            ? 'Save draft before publishing request'
-                            : 'Request approval to publish'
-                        }
-                    </Button>
-                </Show>
-            </Show>
-
             <Show when={debugging}>
                 <DebugPanel />
             </Show>
 
-            <Show when={contentStatus.approvalStatus === 'pending'}>
-                <Show when={contentStatus.options.userHasPublicationRights}>
+            <Show when={contentStatus.options.userHasPublicationRights}>
+                <Show
+                    fallback={<PublishButton />}
+                    when={contentStatus.approvalStatus === 'pending'}
+                >
                     <AdminControls />
                 </Show>
-                <Show when={!contentStatus.options.userHasPublicationRights}>
-                    <Button 
+            </Show>
+
+            <Show when={!contentStatus.options.userHasPublicationRights}>
+                <Show
+                    when={
+                        contentStatus.approvalStatus === '' ||
+                        contentStatus.approvalStatus === 'rejected' ||
+                        contentStatus.approvalStatus === 'approvedAndPublished'
+                    }
+                >
+                    <Button
                         leftMargin={contentStatus.options.metaMenu}
-                        onClick={ (e) => withdrawPublicationRequest()}
+                        onClick={(e) => updatePublicationApproval('pending')}
+                        disabled={contentStatus.changesNotSavedToDraft}
+                    >
+                        {contentStatus.changesNotSavedToDraft ? 'Save draft before publishing request' : 'Request approval to publish'}
+                    </Button>
+                </Show>
+
+                <Show when={contentStatus.approvalStatus === 'pending'}>
+                    <Button
+                        leftMargin={contentStatus.options.metaMenu}
+                        onClick={(e) => withdrawPublicationRequest()}
                         disabled={false}
                     >
                         Withdraw publication request
                     </Button>
                 </Show>
-            </Show>
-            
-            <Show when={contentStatus.approvalStatus === 'approved' || contentStatus.approvalStatus === 'approvedAndPublished'}>
-                <Show when={contentStatus.options.userHasPublicationRights}>
-                    <PublishButton />
-                </Show>
-                <Show when={!contentStatus.options.userHasPublicationRights}>
-                    <Button 
+
+                <Show when={contentStatus.approvalStatus === 'approved'}>
+                    <Button
                         leftMargin={contentStatus.options.metaMenu}
                         loading={contentStatus.publishing}
-                        onClick={ (e) => contentStatus.publish(e)}
-                        disabled={ contentStatus.changesNotSavedToDraft}
+                        onClick={(e) => contentStatus.publish(e)}
+                        disabled={contentStatus.changesNotSavedToDraft}
                     >
-                        { contentStatus.changesNotSavedToDraft 
-                            ? 'Discard unapproved changes to publish'
-                            : 'Publish to live site'
-                        }
+                        {contentStatus.changesNotSavedToDraft ? 'Discard unapproved changes to publish' : 'Publish to live site'}
                     </Button>
-                </Show>
-            </Show>
-
-            <Show when={contentStatus.approvalStatus === 'rejected'}>
-                <Show when={contentStatus.options.userHasPublicationRights}>
-                    <PublishButton />
                 </Show>
             </Show>
         </>
