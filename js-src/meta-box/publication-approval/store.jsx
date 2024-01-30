@@ -150,7 +150,6 @@ const notifyEditor = async () => {
 export const withdrawPublicationRequest = async () => {
     contentStatus.setChecking(true);
     const result = await deletePublicationRequest();
-
     if (result.err) {
         setContentStatus({ errorMessage: 'Something went wrong withdrawing publication request' });
         console.log('Err deleting request', result.err);

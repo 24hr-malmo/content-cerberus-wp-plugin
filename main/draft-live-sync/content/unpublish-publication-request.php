@@ -34,7 +34,8 @@ trait UnpublishPublicationRequestTrait {
         GRAPHQL;
 
         $target = 'publication-requests';
-        $externalId ='publication-request-' . $id;
+        $externalId = 'publication-request-' . $id . '-site-id-' . $this->get_site_id();
+
         $key = '';
 
         $variables = array(
