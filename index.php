@@ -2,10 +2,10 @@
 
 
 /*
-Plugin Name: Cerberus Content Next Lolcal
+Plugin Name: Cerberus Content Next
 Plugin URI: http://24hr.se
 Description: Saves content to a Draft Content Service and gives the possibility to push the content to live
-Version: 1.1.10
+Version: 1.1.11
 Author: Dr Tapia <camilo.tapia@24hr.se>
  */
 
