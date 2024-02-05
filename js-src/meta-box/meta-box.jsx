@@ -423,8 +423,9 @@ const MetaBox = ({options}) => {
         e.stopPropagation();
 
         setPublishing(true);
-        
-        if (options.requireApproval === true) {
+
+        // We check if approvalStatus is '' because we dont want to touch the status on Site settings etc.
+        if (options.requireApproval === true && contentStatus.approvalStatus !== '') {
             await updatePublicationApproval('approvedAndPublished');
         }       
 
