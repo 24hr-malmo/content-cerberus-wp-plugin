@@ -37,6 +37,31 @@ function makeId(length) {
     return result;
 }
 
+// Test cases for sanitizeDomain()
+// console.log(sanitizeDomain("https://www.test.com")); // Should return 'test.com'
+// console.log(sanitizeDomain("http://test.com/path/to/page")); // Should return 'test.com'
+// console.log(sanitizeDomain("www.test.com/anotherpath")); // Should return 'test.com'
+// console.log(sanitizeDomain("test.com")); // Should return 'test.com'
+// console.log(sanitizeDomain("This is not a domain")); // Should return null
+// console.log(sanitizeDomain("www.test.fdsfd.dfs.sdf.sdfcom/another/path")); // Should return 'test.fdsfd.dfs.sdf.sdfcom'
+function sanitizeDomain(domain) {
+    const domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/\n]+)/; // Regular expression to match the domain name or URL
+    const match = domain.match(domainRegex);
+    // Check if we found a match
+    if (match) {
+        const potentialDomain = match[1]; // Domain part
+        // Validate the extracted part as a domain name (optional)
+        // This checks if the potential domain consists of characters allowed in domain names
+        if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(potentialDomain)) {
+            return potentialDomain; // Return domain name
+        } else {
+            return null; // Not a valid domain
+        }
+    } else {
+        return null; // Not URL or domain
+    }
+}
+
 const DomainSettings = ({options}) => {
 
     const [state, setState] = createStore({list: []});
@@ -54,13 +79,20 @@ const DomainSettings = ({options}) => {
 
     const upsert = async (id = makeId(20)) => {
         try {
+            const sanitizedDomain = sanitizeDomain(domain());
+
+            if (sanitizedDomain === null) {
+                setErrorMessage('Invalid domain. Please enter a valid domain without http(s):// or path.');
+                return;
+            }
+
             setErrorMessage('');
             if (saving()) {
                 return;
             }
             setSaving(true);
             await wpAjax(`${options.api}/upsert-domain-setting.php`, {
-                domain: domain(),
+                domain: sanitizedDomain,
                 target: target(),
                 id,
                 cloudfrontDistributionId: cloudfrontDistributionId(),
