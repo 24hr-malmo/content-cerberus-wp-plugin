@@ -340,7 +340,21 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $use_custom_smtp_for_publication_approval = get_option('dls_use_custom_smtp_for_publication_approval') == 'true' ? 'true' : 'false';
             
-            $user_has_publication_rights = is_super_admin() ? 'true' : 'false';
+
+            function has_admin_role() {
+                if (is_user_logged_in()) {
+                    $current_user = wp_get_current_user();
+                    if (in_array('administrator', $current_user->roles)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+
+            $user_has_publication_rights = is_super_admin() || has_admin_role() ? 'true' : 'false';
             $user = wp_get_current_user();
             $user_name = $user->user_nicename;
 
