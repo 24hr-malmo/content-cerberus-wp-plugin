@@ -655,8 +655,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 });
             }
             
+            // this should exist.
             if (!is_super_admin() && get_option( 'dls_settings_require_publication_approval')) {
-                add_menu_page('Publication requests', 'Publication requests', 'manage_options', 'publication-requests-dashboard', function () {
+                add_menu_page('Publication requests', 'Publication requests', 'edit_others_posts', 'publication-requests-dashboard', function () {
                     $user = wp_get_current_user();
 
                     print '<script id="dls-data" type="application/json">{ 
