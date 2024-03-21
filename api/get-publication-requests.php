@@ -39,30 +39,11 @@ if(class_exists( 'DraftLiveSync' )){
 
         $result = graphql_query($draft_live_sync->content_host, $query, $variables);
 
-        // Loop through the resources array and filter out the posts that don't exist
-        $filteredResources = [];
-        foreach ($result['data']['resources'] as $request) {
-            $id = $request['content']['post_id'];
-            $type = $request['content']['type'];
-            $externalId = $type . '-' . $id;
+        $resources = new stdClass();
+        $resources->data = new stdClass();
+        $resources->data->resources = array_values($result['data']['resources']);
 
-            $post = $draft_live_sync->get_resource_from_content('', 'draft', $externalId);
-
-            if ($post) {
-                error_log('Including publication request: ' . $id);
-                $filteredResources[] = $request;
-            } else {
-                error_log('Deleting dangling publication request: ' . $id);
-                $result = $draft_live_sync->unpublishPublicationRequest($id);
-            }
-        }
-
-        // Create a new object with the filtered resources
-        $filteredResult = new stdClass();
-        $filteredResult->data = new stdClass();
-        $filteredResult->data->resources = $filteredResources;
-
-        echo json_encode($filteredResult);
+        echo json_encode($resources);
 
     } catch (Exception $e) {
         error_log('-- Error getting all publication requests --' . json_encode($e));
