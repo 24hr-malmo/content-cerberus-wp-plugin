@@ -13,6 +13,10 @@ function graphql_query(string $endpoint, string $query, array $variables = [], $
             $headers[] = "Authorization: Bearer $token";
         }
 
+        $secure_fetch_token = getenv("SECURE_FETCH_TOKEN");
+        $headers[] = "x-secure-fetch: $secure_fetch_token";
+
+
         if (false === $data = @file_get_contents($endpoint, false, stream_context_create([
             'http' => [
                 'method' => 'POST',
