@@ -654,13 +654,22 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             }
 
             $original_host = get_site_url();
+            $other_protocol = '';
+
+            if (strpos($original_host, 'https://') !== false) {
+                $other_protocol = str_replace('https://', 'http://', $original_host);
+            } else if (strpos($original_host, 'http://') !== false) {
+                $other_protocol = str_replace('http://', 'https://', $original_host);
+            }
 
             // We always use the wordpress host too
             array_push($replace_host_list, $original_host);
             array_push($replace_host_list, addcslashes($original_host, '/'));
 
-            // Remove localhost links
-            array_push($replace_host_list, addcslashes($original_host, '/'));
+            if ($other_protocol !== '') {
+                array_push($replace_host_list, $other_protocol);
+                array_push($replace_host_list, addcslashes($other_protocol, '/'));
+            }
 
             // Get the list of replacable hosts from the settings
             $extra_hosts = $this->settings_page->get_replace_hosts();
