@@ -35,7 +35,10 @@ const DebugPanel = () => {
     );
 }
 
-const PublishingControls = () => {
+const PublishingControls = ({ noContentFound }) => {
+    if (noContentFound) {
+        return null;
+    }
 
     return (
         <>

@@ -125,11 +125,16 @@ const MetaBox = ({options}) => {
 
                     const getNewPermalink = () => {
                         if (coreEditor.getCurrentPost().status !== 'auto-draft') {
+                            const permalink = getPermalink();
+                            
                             payload = {
-                                permalink: getPermalink()
+                                permalink,
                             }
+
+                            setContentStatus('options', (options) => ({...options, permalink}) )
                             setUnsavedPageChanges(false);
                             setNoContentFound(false);
+
                             check();
                             getLinkToPreview().style.display = 'flex';
                             return;
@@ -271,9 +276,6 @@ const MetaBox = ({options}) => {
                 live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
                 state: 'loaded',
             });
-
-            console.log('status: ', status);
-            
 
             setNoContentFound(false);
 
@@ -485,7 +487,7 @@ const MetaBox = ({options}) => {
         
     const publishingControls = () => {
         if (isPost && options.requireApproval) {
-            return <PublishingControls />
+            return <PublishingControls noContentFound={noContentFound()} />
         }
 
         return (
