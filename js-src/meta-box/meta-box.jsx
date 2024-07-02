@@ -15,6 +15,7 @@ import ApprovalStatus from './publication-approval/status.jsx';
 import PublishingControls from './publication-approval/controls.jsx'
 import WithdrawlWarning from './publication-approval/withdrawl-warning.jsx';
 import PublishingUpdateControls from './publication-approval/update-controls.jsx';
+import PublishButton from './publication-approval/publish-button.jsx';
 
 const MetaBox = ({options}) => {
 
@@ -43,14 +44,12 @@ const MetaBox = ({options}) => {
             return;
         }
         
-        if (options.requireApproval) {
-            setContentStatus({ 
-                options: options,
-                setChecking: setChecking,
-                syncStatus: status,
-                publish: (e) => publish(e),
-            });
-        }
+        setContentStatus({ 
+            options: options,
+            setChecking: setChecking,
+            syncStatus: status,
+            publish: (e) => publish(e),
+        });
 
         const addPreviewButton = () => {
             const previewTarget = '_new';
@@ -486,15 +485,19 @@ const MetaBox = ({options}) => {
     };    
         
     const publishingControls = () => {
-        if (isPost && options.requireApproval) {
+        if (!isPost) {
+            return (
+                <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ changesNotSavedToDraft() }>
+                    { changesNotSavedToDraft() ? 'Save draft before publishing to live' : 'Publish to live site 1' }
+                </Button>
+            );
+        }
+
+        if (options.requireApproval) {
             return <PublishingControls noContentFound={noContentFound()} />
         }
 
-        return (
-            <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ changesNotSavedToDraft() }>
-                { changesNotSavedToDraft() ? 'Save draft before publishing to live' : 'Publish to live site' }
-            </Button>
-        )
+        return <PublishButton />
     }
 
     // const publishUpdateButtons = () => {
