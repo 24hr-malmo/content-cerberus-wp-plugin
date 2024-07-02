@@ -488,7 +488,7 @@ const MetaBox = ({options}) => {
         if (!isPost) {
             return (
                 <Button leftMargin={options.metaMenu} loading={publishing()} onClick={ (e) => publish(e)} disabled={ changesNotSavedToDraft() }>
-                    { changesNotSavedToDraft() ? 'Save draft before publishing to live' : 'Publish to live site 1' }
+                    { changesNotSavedToDraft() ? 'Save draft before publishing to live' : 'Publish to live site' }
                 </Button>
             );
         }
