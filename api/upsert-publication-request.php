@@ -48,7 +48,7 @@
             'siteId' => 'publication-requests',
             'userInfo' => strval($user->ID),
             'resource' => array(
-                'key' => $permalink,
+                'key' => $requestExternalId,
                 'externalId' => $requestExternalId,
                 'type' => 'publication-request',
                 'content' => array(
