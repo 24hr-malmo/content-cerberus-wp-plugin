@@ -13,7 +13,7 @@ if(class_exists( 'DraftLiveSync' )){
 
     $draft_live_sync = new DraftLiveSync($dir, 'ajax-version', $content_host, $api_token, true);
     
-    $externalId = 'publication-request-' . $_POST['postId'] . '-site-id-' . $draft_live_sync->get_site_id();
+    $externalId = 'publication-request-' . $_POST['postId'] . '-' . $draft_live_sync->get_site_id();
 
     $query = <<<'GRAPHQL'
         query getResource(

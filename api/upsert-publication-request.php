@@ -41,21 +41,24 @@
         }
 
         $siteName = $current_blog_details->blogname;
-        $requestExternalId = 'publication-request-' . $post->payload->id . '-site-id-' . $draft_live_sync->get_site_id();
+        
+        $siteId = $draft_live_sync->get_site_id();
+        $id = $post->payload->id ?? 'NO-ID';
+        $requestExternalId = 'publication-request-' . $id . '-' . $siteId;
 
         $variables = array(
             'target' => 'publication-requests',
             'siteId' => 'publication-requests',
             'userInfo' => strval($user->ID),
             'resource' => array(
-                'key' => $requestExternalId,
+                'key' => $permalink . '-' . $siteId,
                 'externalId' => $requestExternalId,
                 'type' => 'publication-request',
                 'content' => array(
                     'from_user_id' => strval($user->ID),
                     'from_user_name' => strval($user->user_nicename),
                     'from_user_email' => strval($user->user_email),
-                    'from_site_id' => $draft_live_sync->get_site_id(),
+                    'from_site_id' => $siteId,
                     'from_site_name' => $siteName,
                     'post_title' => $post->payload->post_title,
                     'post_id' => $post->payload->id,

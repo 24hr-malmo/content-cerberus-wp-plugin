@@ -82,14 +82,14 @@ const PublicationRequestItem = (props) => {
 
     return (
         <StyledPublicationRequestItem key={props.item.content.post_id}>
-            <StyledType onClick={logData}>{props.item.content.type}</StyledType>
+            <StyledType onClick={logData}>{props.item.content.type || 'N/A'}</StyledType>
             <StyledText>
 
                  <StyledTitle 
                     href={getItemLink()}
-                    target="_blank"
+                    target="_blank" 
                 >
-                    {props.item.content.post_title}
+                    {props.item.content.post_title || '(no title)'}
                 </StyledTitle>
 
                 <Show when={props.type === 'admin'}>

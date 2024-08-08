@@ -65,10 +65,16 @@ const PublishingControls = ({ noContentFound }) => {
                 >
                     <Button
                         leftMargin={contentStatus.options.metaMenu}
+                        loading={contentStatus.publishing}
                         onClick={(e) => updatePublicationApproval('pending')}
-                        disabled={contentStatus.changesNotSavedToDraft}
+                        disabled={contentStatus.changesNotSavedToDraft || contentStatus.syncStatus.live?.synced}
                     >
-                        {contentStatus.changesNotSavedToDraft ? 'Save draft before publishing request' : 'Request approval to publish'}
+                        {contentStatus.changesNotSavedToDraft 
+                            ? 'Save draft before requesting publication approval' 
+                            : contentStatus.syncStatus.live?.synced 
+                                ? 'Updated on live site' 
+                                : 'Request approval to publish'
+                        }
                     </Button>
                 </Show>
 

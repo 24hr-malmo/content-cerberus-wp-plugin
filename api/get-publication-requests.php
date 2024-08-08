@@ -17,10 +17,12 @@ if(class_exists( 'DraftLiveSync' )){
         query resources(
             $siteId: String! 
             $target: String!
+            $limit: Int
         ) {
             resources (
                 siteId: $siteId
                 target: $target
+                limit: $limit
             ) {
                 key
                 externalId
@@ -33,6 +35,7 @@ if(class_exists( 'DraftLiveSync' )){
     $variables = array(
         'siteId' => 'publication-requests',
         'target' => 'publication-requests',
+        'limit' => 2000 // TODO: temporary fix for getting all publication requests, needs to be solved with pagination
     );
 
     try {
