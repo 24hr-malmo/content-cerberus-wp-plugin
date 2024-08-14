@@ -44,7 +44,7 @@
         
         $siteId = $draft_live_sync->get_site_id();
         $id = $post->payload->id ?? 'NO-ID';
-        $requestExternalId = 'publication-request-' . $id . '-' . $siteId;
+        $requestExternalId = 'publication-request-' . $id . '-site-id-' . $siteId;
 
         $variables = array(
             'target' => 'publication-requests',
