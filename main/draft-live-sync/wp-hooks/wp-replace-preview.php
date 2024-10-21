@@ -51,7 +51,11 @@ trait WpReplacePreview {
                             linkToPreview.classList.add('components-button');
                             linkToPreview.classList.add('is-secondary');
                             linkToPreview.innerHTML = 'Preview';
-                            document.querySelector('.edit-post-header__settings').prepend(linkToPreview);
+                            const editPost = document.querySelector('.edit-post-header__settings');
+                            if (!editPost) {
+                                return;
+                            }
+                            editPost.prepend(linkToPreview);
                             linkToPreview.addEventListener('click', function(event) {
                                 if (wp.data.select('core/editor').isEditedPostDirty()) {
                                     event.preventDefault();

@@ -83,6 +83,9 @@ const MetaBox = ({options}) => {
             if (payload?.detail?.hasChange) {
                 if (!saveContentButton) {
                     saveContentButton = document.querySelector('.editor-post-publish-button');
+
+                    if (!saveContentButton) return;
+
                     saveContentButton.addEventListener('click', () => {
                         setUnsavedExternalChange(false);
                         saveContentButton.setAttribute('disabled', true);
@@ -102,6 +105,10 @@ const MetaBox = ({options}) => {
         const unsubscribe = wp.data.subscribe( _.debounce( ()=> {
             if (!saveContentButton) {
                 saveContentButton = document.querySelector('.editor-post-publish-button');
+            }
+
+            if (!saveContentButton) {
+                return;
             }
 
             const hasUnsavedChanges = coreEditor.isEditedPostDirty();
