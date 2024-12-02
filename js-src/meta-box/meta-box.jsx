@@ -164,6 +164,10 @@ const MetaBox = ({options}) => {
                 if (!saveContentButton) {
                     // Add listener to save button, so that when it's clicked we can disable it
                     saveContentButton = document.querySelector('.editor-post-publish-button');
+
+                    // This only works on pages with the gutenberg editor, i.e. a post type that has the setting: 'supports' => array('editor') - other pages will not have the button
+                    if (!saveContentButton) return;
+
                     saveContentButton.addEventListener('click', () => {
                         setUnsavedExternalChange(false);
                         saveContentButton.setAttribute('disabled', true);
@@ -430,15 +434,17 @@ const MetaBox = ({options}) => {
             await updatePublicationApproval('approvedAndPublished');
         }       
 
-        const result = await wpAjaxAction('publish_to_live', payload);
-        if (result.data) {
+        try {
+            await wpAjaxAction('publish_to_live', payload);
             check(false);
-        } else {
-            setStatus({ state: 'error' });
+        } catch (err) {
+            console.log('Publishing err', err);
+            setStatus({ state: 'error' }); // This is not used in the UI...
+            setContentStatus({errorMessage: 'An error occurred, please reload the page and try again. Error: ' + err});
         }
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
-
 
         emitDomEvent({
             action: 'publish_to_live_done'
@@ -574,7 +580,13 @@ const MetaBox = ({options}) => {
                     </Show>
                 </Show>
 
-                <Show when={options.metaMenu}>
+                <Show when={
+                    options.metaMenu && (
+                        !menuCreated() ||
+                        (!unsavedMenuDisplayLocations() && !status.draft?.exists && menuCreated())
+                        || unsavedMenuDisplayLocations()
+                    )
+                }>
                     <StyledChecking horizontal={options.metaMenu}>
                         <Show when={!menuCreated()}>
                             <StyledStatusText>Enter a 'Menu Name' above to create a new menu</StyledStatusText>

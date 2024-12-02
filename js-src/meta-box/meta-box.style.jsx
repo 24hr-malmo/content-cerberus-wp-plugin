@@ -7,6 +7,7 @@ export const StyledContainer = styled('div')`
 
     ${p => p.horizontal ? `
         display: flex;   
+        flex-wrap: wrap;
         align-items: center;
         border-bottom: 1px dotted grey;
         padding: 0 10px 8px 10px;
@@ -29,6 +30,9 @@ export const StyledContainer = styled('div')`
 `;
 
 export const StyledError = styled('div')`
+    display: block;
+    flex-basis: 100%;
+    text-align: right;
     color: red;
     padding-top: 0.4rem;
 `;
