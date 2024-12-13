@@ -42,6 +42,7 @@ trait UpsertTrait {
                 'host' => 'wordpress',
                 'tags' => isset($content->payload->tags) ? $content->payload->tags : [],
                 'date' => $content->payload->date,
+                'meta' => isset($content->payload->meta) ? $content->payload->meta : null
             ),
         );
 
