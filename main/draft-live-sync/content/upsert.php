@@ -21,6 +21,10 @@ trait UpsertTrait {
             return;
         }
 
+        // Extract dls_meta_data from payload
+        $dlsMetaData = isset($content->payload->dls_meta_data) ? $content->payload->dls_meta_data : null;
+        unset($content->payload->dls_meta_data);
+
         $user = new stdclass();
 
         // In case we load this with short init?
@@ -42,7 +46,7 @@ trait UpsertTrait {
                 'host' => 'wordpress',
                 'tags' => isset($content->payload->tags) ? $content->payload->tags : [],
                 'date' => $content->payload->date,
-                'meta' => isset($content->payload->meta) ? $content->payload->meta : null
+                'meta' => $dlsMetaData,
             ),
         );
 

@@ -25,6 +25,10 @@ trait CheckSyncTrait {
             return;
         }
 
+        // Extract dls_meta_data from payload
+        $dlsMetaData = isset($content->payload->dls_meta_data) ? $content->payload->dls_meta_data : null;
+        unset($content->payload->dls_meta_data);
+
         $query = <<<'GRAPHQL'
             query resourceStatus(
                 $siteId: String!
@@ -58,6 +62,7 @@ trait CheckSyncTrait {
                 'content' => $content->payload,
                 'host' => 'wordpress',
                 'tags' => isset($content->payload->tags) ? $content->payload->tags : [],
+                'meta' => $dlsMetaData,
             ),
         );
 
