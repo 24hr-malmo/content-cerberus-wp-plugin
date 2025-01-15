@@ -338,6 +338,9 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $require_publication_approval = get_option('dls_settings_require_publication_approval');
             $enable_publication_approval = $require_publication_approval == 'true' ? 'true' : 'false';
 
+            // Temporarily disable publication approval for products
+            $enable_publication_approval = $post->post_type === 'product' ? 'false' : $enable_publication_approval;
+
             $use_custom_smtp_for_publication_approval = get_option('dls_use_custom_smtp_for_publication_approval') == 'true' ? 'true' : 'false';
             
 
