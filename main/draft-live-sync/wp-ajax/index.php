@@ -6,6 +6,8 @@ require_once('ajax-publish-to-live.php');
 require_once('ajax-unpublish-from-live.php');
 require_once('ajax-get-all-resources.php');
 require_once('ajax-reset-tree.php');
+require_once('ajax-get-resources-from-content.php');
+require_once('ajax-get-all-wpml-resources.php');
 
 trait AjaxTrait {
 
@@ -15,5 +17,6 @@ trait AjaxTrait {
     use AjaxUnpublishFromLiveTrait;
     use AjaxGetAllResourcesTrait;
     use AjaxResetTreeTrait;
-
+    use AjaxGetResourcesFromContentTrait;
+    use AjaxGetAllWpmlResourcesTrait;
 }

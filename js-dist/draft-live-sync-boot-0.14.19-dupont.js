@@ -1565,6 +1565,9 @@
         }), createComponent(StyledLink, {
           href: "#sync-live",
           children: "Sync Live"
+        }), createComponent(StyledLink, {
+          href: "#overview",
+          children: "Overview"
         })];
       }
 

@@ -113,6 +113,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 add_action( 'wp_ajax_get_diff', array( &$this, 'ajax_get_diff') );
                 add_action( 'wp_ajax_reset_tree', array( &$this, 'ajax_reset_tree') );
                 add_action( 'wp_ajax_get_all_resources', array( &$this, 'ajax_get_all_resources') );
+                add_action( 'wp_ajax_get_resources_from_content', array( &$this, 'ajax_get_resources_from_content') );
+                add_action( 'wp_ajax_get_all_wpml_resources', array( &$this, 'ajax_get_all_wpml_resources') );
                 add_filter( 'admin_menu', array( &$this, 'add_admin_pages'), 10, 2 );
                 add_action( 'parse_request', array( &$this, 'parse_requests'));
                 add_filter( 'gettext', array( &$this, 'change_publish_button'), 10, 2 );
