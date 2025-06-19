@@ -23,6 +23,13 @@
         $cloudfront_distribution_id = $_POST['cloudfrontDistributionId'];
         $id = $_POST['id'];
 
+        // $_POST['doNotIndex'] is string, meaning it can be 'true' or 'false'.
+        // We need to convert it to a boolean.
+        $do_not_index = false;
+        if (isset($_POST['doNotIndex']) && $_POST['doNotIndex'] === 'true') {
+            $do_not_index = true;
+        }
+
         $domain_settings = $draft_live_sync->get_domain_settings(false);
 
         $ok = true;
@@ -60,6 +67,7 @@
                     'domain' => $domain,
                     'cloudfrontDistributionId' => $cloudfront_distribution_id,
                     'wp-domain' => get_site_url(),
+                    'doNotIndex' => $do_not_index,
                 ),
                 'host' => 'wordpress',
             ),

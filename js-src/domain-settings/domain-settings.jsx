@@ -16,6 +16,8 @@ import {
     StyledTable,
     StyledTDActions,
     StyledError,
+    StyledCheckboxContainer,
+    StyledSaveButton,
 } from './domain-settings.styled.jsx';
 import { wpAjax } from '../utilities/wp-action.js';
 
@@ -74,6 +76,11 @@ const DomainSettings = ({options}) => {
 
     const getDomainSettings = async () => {
         const result = await wpAjax(`${options.api}/get-domain-settings.php`);
+        /**
+         * Sort the result before setting the state.
+         * We sort on the key.
+         */
+        result.sort((a, b) => a.key.localeCompare(b.key));
         setState('list', result);
     };
 
@@ -148,6 +155,28 @@ const DomainSettings = ({options}) => {
         getDomainSettings();
     });
 
+    // Function to update the doNotIndex property of an item at a specific index.
+    const updateDoNotIndexing = (index, checked) => {
+        setState('list', index, 'content', 'doNotIndex', checked);
+    };
+
+    // Function to upsert the current version of the state (store) to the backend.
+    const upsertState = async (externalId, content) => {
+        const listEntry = state.list.find((item) => item.externalId === externalId);
+
+        if (listEntry) {
+            await wpAjax(`${options.api}/upsert-domain-setting.php`, {
+                domain: listEntry.content.domain,
+                target: listEntry.content.target,
+                id: listEntry.externalId,
+                cloudfrontDistributionId: listEntry.content.cloudfrontDistributionId,
+                doNotIndex: content.doNotIndex,
+            });
+
+            await getDomainSettings();
+        }
+    };
+
     return (
         <StyledContainer>
             <Heading1>Domain Settings</Heading1>
@@ -179,18 +208,53 @@ const DomainSettings = ({options}) => {
                     <th>Distribution ID</th>
                     <th>Target</th>
                     <th>SiteId</th>
-                    <th></th>
+                    <th>Delete</th>
+                    <th>Do not index</th>
+                    <th>Save</th>
                 </tr>
                </thead>
                <tbody>
                      <For each={state.list}>{
-                        (item) => (
+                        (item, i) => (
                             <tr>
                                 <td>{item.content.domain}</td>
                                 <td>{item.content.cloudfrontDistributionId}</td>
                                 <td>{item.content.target}</td>
                                 <td>{item.content.siteId}</td>
                                 <StyledTDActions><StyledRemoveButton onClick={() => deleteEntry(item.externalId)}>delete</StyledRemoveButton></StyledTDActions>
+                                <td>
+                                    <StyledCheckboxContainer>
+                                        <input type="checkbox" checked={item.content.doNotIndex} onChange={(e) => {
+                                            /**
+                                             * We need to update the state (createStore) with the new value. It should be placed in the content object of the item.
+                                             *
+                                             * Item in the list example:
+                                             *
+                                             * {
+                                                    "key": "fd.se",
+                                                    "externalId": "RgXsMBVmV0lZ4h4gHYeu",
+                                                    "content": {
+                                                        "target": "draft",
+                                                        "siteId": "5hoTwdjPbM",
+                                                        "siteName": "Spresense",
+                                                        "domain": "fd.se",
+                                                        "cloudfrontDistributionId": "",
+                                                        "wp-domain": "http://spresense.wp.dupont.sony.local",
+                                                        "executionSummary": {
+                                                            "contentUsingTags": false
+                                                        }
+                                                    }
+                                                }
+                                             */
+                                            const checked = e.target.checked;
+                                            updateDoNotIndexing(i(), checked);
+                                        }}/>
+                                    </StyledCheckboxContainer>
+                                </td>
+                                <StyledTDActions><StyledSaveButton onClick={() => {
+                                    upsertState(item.externalId, item.content);
+                                }}>save</StyledSaveButton></StyledTDActions>
+
                             </tr>
                         )
                     }

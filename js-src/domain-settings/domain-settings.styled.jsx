@@ -86,6 +86,20 @@ export const StyledError = styled('div')`
 `;
 
 export const StyledRemoveButton = styled('div')`
+    background-color: red;
+    font-size: 10px;
+    color: white;
+    padding: 0px 4px 0px 4px;
+    height: 16px;
+    line-height: 15px;
+    margin: 0 5px 0 0;
+    border-radius: 2px;
+    cursor: pointer;
+    max-width: 30px;
+    text-align: center;
+`;
+
+export const StyledSaveButton = styled('div')`
     background-color: #2271b1;
     font-size: 10px;
     color: white;
@@ -114,7 +128,10 @@ export const StyledTable = styled('table')`
 
 export const StyledTDActions = styled('td')`
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
 `;
 
+export const StyledCheckboxContainer = styled('div')`
+    margin-left: 2rem;
+`;
 
