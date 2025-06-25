@@ -156,8 +156,16 @@ const DomainSettings = ({options}) => {
     });
 
     // Function to update the doNotIndex property of an item at a specific index.
-    const updateDoNotIndexing = (index, checked) => {
+    const updateDoNotIndexing = async (index, checked) => {
+        setSaving(true);
         setState('list', index, 'content', 'doNotIndex', checked);
+
+        const item = state.list[index];
+        await upsertState(item.externalId, {
+            ...item.content,
+            doNotIndex: checked,
+        });
+        setSaving(false);
     };
 
     // Function to upsert the current version of the state (store) to the backend.
@@ -202,19 +210,19 @@ const DomainSettings = ({options}) => {
                 </StyledNewDomainInnerContainer>
             </StyledNewDomainContainer>
             <StyledTable>
-               <thead>
-                <tr>
-                    <th>Domain</th>
-                    <th>Distribution ID</th>
-                    <th>Target</th>
-                    <th>SiteId</th>
-                    <th>Delete</th>
-                    <th>Do not index</th>
-                    <th>Save</th>
-                </tr>
-               </thead>
-               <tbody>
-                     <For each={state.list}>{
+                <thead>
+                    <tr>
+                        <th>Domain</th>
+                        <th>Distribution ID</th>
+                        <th>Target</th>
+                        <th>SiteId</th>
+                        <th>Delete</th>
+                        <th>Do not index</th>
+                        <th>Save</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <For each={state.list}>{
                         (item, i) => (
                             <tr>
                                 <td>{item.content.domain}</td>
@@ -224,7 +232,11 @@ const DomainSettings = ({options}) => {
                                 <StyledTDActions><StyledRemoveButton onClick={() => deleteEntry(item.externalId)}>delete</StyledRemoveButton></StyledTDActions>
                                 <td>
                                     <StyledCheckboxContainer>
-                                        <input type="checkbox" checked={item.content.doNotIndex} onChange={(e) => {
+                                        <input
+                                            type="checkbox"
+                                            checked={item.content.doNotIndex}
+                                            disabled={saving()}
+                                            onChange={(e) => {
                                             /**
                                              * We need to update the state (createStore) with the new value. It should be placed in the content object of the item.
                                              *
@@ -251,10 +263,6 @@ const DomainSettings = ({options}) => {
                                         }}/>
                                     </StyledCheckboxContainer>
                                 </td>
-                                <StyledTDActions><StyledSaveButton onClick={() => {
-                                    upsertState(item.externalId, item.content);
-                                }}>save</StyledSaveButton></StyledTDActions>
-
                             </tr>
                         )
                     }
