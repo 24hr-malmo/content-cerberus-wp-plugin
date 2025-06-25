@@ -218,7 +218,6 @@ const DomainSettings = ({options}) => {
                         <th>SiteId</th>
                         <th>Delete</th>
                         <th>Do not index</th>
-                        <th>Save</th>
                     </tr>
                 </thead>
                 <tbody>
