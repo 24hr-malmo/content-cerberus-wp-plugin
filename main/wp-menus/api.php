@@ -18,7 +18,7 @@ add_action( 'rest_api_init', function() {
 
     }
 
-    function get_wp_menu_content_by_id($id) {
+    function get_wp_menu_content_by_id($id, $language = '') {
 
         global $sitepress;
         global $draft_live_sync;
@@ -29,7 +29,7 @@ add_action( 'rest_api_init', function() {
         $external_id_slug = 'by_id-' . $id;
 
         $generator = new ContentCerberusMenuGenerator();
-        $response = $generator->get_menu($id, $external_id_slug);
+        $response = $generator->get_menu($id, $external_id_slug, $language);
 
         return $draft_live_sync->clean_response($response);
 
