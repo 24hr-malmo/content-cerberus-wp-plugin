@@ -475,8 +475,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $permalink = $this->cleanup_permalink($permalink);
 
-            error_log(" ---- DELETE_POST ---- permalink: $permalink");
-
             $this->unpublish('draft', $post_id);
             $this->unpublish('live', $post_id);
 
@@ -503,10 +501,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 $externalId = 'menus-by_id-' . $term_id;
 
                 $this->unpublish('draft', $externalId, $key);
-            } else {
-                $this->push_to_queue($this->pre_term_url, 'draft', false, 'publish');
             }
-
         }
 
         function ajax_get_diff() {
