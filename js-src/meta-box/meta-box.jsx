@@ -256,6 +256,8 @@ const MetaBox = ({options}) => {
         let currentMenuIsRegisteredToLocation = false;
 
         let locationsSetToOtherMenus = false;
+        let locationsSetToOtherLanguages = false;
+
         for (let locationElement of displayLocations) {
             const input = locationElement.querySelector('input');
             input.addEventListener('change', () => {
@@ -264,27 +266,60 @@ const MetaBox = ({options}) => {
             });
 
             const locationAlreadySet = locationElement.querySelector('.theme-location-set');
+            const isCurrentMenu = input.getAttribute('checked') !== null;
 
-            if (locationAlreadySet) {
-                input.setAttribute('disabled', true);
-                locationElement.style.pointerEvents = 'none';
-                locationElement.style.opacity = 0.5;
-                locationsSetToOtherMenus = true;
+            // Get the location slug from the input's value attribute
+            const locationSlug = input.value;
+
+            // Check if this location is assigned to a menu in a different language
+            const locationLanguages = options.locationLanguages || {};
+            const locationMenuLanguage = locationLanguages[locationSlug] || '';
+            const currentMenuLanguage = options.menuLanguage || '';
+
+            // Only disable if location is assigned to a DIFFERENT menu in the SAME language
+            // If checked=true, this menu IS assigned to this location in this language
+            if (locationAlreadySet && !isCurrentMenu) {
+                // If both menus have no language (non-WPML), or they're in the same language, disable the checkbox
+                const isSameLanguage = (!locationMenuLanguage && !currentMenuLanguage) || (locationMenuLanguage === currentMenuLanguage);
+
+                if (isSameLanguage) {
+                    input.setAttribute('disabled', true);
+                    locationElement.style.pointerEvents = 'none';
+                    locationElement.style.opacity = 0.5;
+                    locationsSetToOtherMenus = true;
+                } else {
+                    // Different language - this is allowed, but provide visual feedback
+                    locationsSetToOtherLanguages = true;
+                }
             }
 
-            if (input.getAttribute('checked')) {
+            if (isCurrentMenu) {
                 currentMenuIsRegisteredToLocation = true;
             }
         }
 
         if (locationsSetToOtherMenus && !isPublished && existsInDraft) {
             const changesDisabledMessageExists = document.querySelector('.changes-disabled-message');
-            const locationsDisabledText = 'Some locations cannot be set because they are already set';
+            const locationsDisabledText = 'Some locations cannot be set because they are already set in this language';
 
             if (changesDisabledMessageExists) {
                 changesDisabledMessageExists.innerHTML = locationsDisabledText;
             } else {
                 changesDisabledInfo.innerHTML = locationsDisabledText;
+                fieldset.prepend(changesDisabledInfo);
+            }
+        } else if (locationsSetToOtherLanguages && !isPublished && existsInDraft) {
+            const changesDisabledMessageExists = document.querySelector('.changes-disabled-message');
+            const locationsInfoText = 'Note: Some locations are set in other languages';
+
+            if (changesDisabledMessageExists) {
+                changesDisabledMessageExists.innerHTML = locationsInfoText;
+                changesDisabledMessageExists.style.color = '#2271b1';
+                changesDisabledMessageExists.style.fontStyle = 'normal';
+            } else {
+                changesDisabledInfo.innerHTML = locationsInfoText;
+                changesDisabledInfo.style.color = '#2271b1';
+                changesDisabledInfo.style.fontStyle = 'normal';
                 fieldset.prepend(changesDisabledInfo);
             }
         }

@@ -286,6 +286,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
             $permalink = str_replace( site_url(), '', $permalink);
 
+            // Extract menu language and location languages from args if available
+            $menu_language = isset($meta_box_object['args']['menu_language']) ? $meta_box_object['args']['menu_language'] : '';
+            $menu_id = isset($meta_box_object['args']['menu_id']) ? $meta_box_object['args']['menu_id'] : ($post ? $post->ID : null);
+            $location_languages = isset($meta_box_object['args']['location_languages']) ? $meta_box_object['args']['location_languages'] : array();
+
             $enable_diff_btn = get_option('dls_settings_enable_diff_viewer');
             $show_diff_button = $enable_diff_btn == 'true' && is_admin() ? 'true' : 'false';
 
@@ -297,7 +302,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $screen = get_current_screen();
             $is_menu_admin = $screen->base === 'nav-menus';
 
-            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
+            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "menuId": "' . $menu_id . '", "menuLanguage": "' . $menu_language . '", "locationLanguages": ' . json_encode($location_languages) . ', "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
             $output .= '<div id="dls-metabox-root"' . ($is_menu_admin ? 'data-type="nav-menu"' : '') . '></div>';
 
             if ($echo) {
@@ -407,22 +412,43 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $is_registered_location = false;
             $menu_location = '';
 
+            // If the wordpress installation has WPML, handle that as well
+            global $sitepress;
+
+            // Build a map of location => language for all assigned menus
+            // This will be used by JavaScript to determine if a location is taken by a menu in the same language
+            $location_languages = array();
+
             foreach( get_nav_menu_locations() as $location => $menu_id ) {
+                error_log('--- checking if '. $post_id . ' == ' . $menu_id);
+
+                // Get the language of this menu if WPML is active
+                $location_menu_language = '';
+                if (isset($sitepress) && $menu_id > 0) {
+                    $location_menu_details = $sitepress->get_element_language_details($menu_id, 'tax_nav_menu');
+                    $location_menu_language = isset($location_menu_details->language_code) ? $location_menu_details->language_code : '';
+                }
+
+                $location_languages[$location] = $location_menu_language;
+
                 if( $post_id == $menu_id ){
                     $is_registered_location = true;
                     $menu_location = $location;
                 }
             }
 
-
-            // If the wordpress installation has WPML, handle that as well
-            global $sitepress;
-
             $menu_permalink = '';
 
+            // Detect the current MENU's actual language (not admin context language)
             $language = '';
-            if (isset($sitepress)) {
-                $language = '/' . $sitepress->get_current_language();
+            $menu_language_code = '';
+            if (isset($sitepress) && $post_id > 0) {
+                $menu_details = $sitepress->get_element_language_details($post_id, 'tax_nav_menu');
+                $menu_language_code = isset($menu_details->language_code) ? $menu_details->language_code : '';
+
+                if ($menu_language_code) {
+                    $language = '/' . $menu_language_code;
+                }
             }
 
             /**
@@ -446,7 +472,10 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
             $custom_param = array(
                 'args' => array(
-                    'api_path' => $permalink
+                    'api_path' => $permalink,
+                    'menu_id' => $post_id,
+                    'menu_language' => $menu_language_code,
+                    'location_languages' => $location_languages
                 )
             );
 
