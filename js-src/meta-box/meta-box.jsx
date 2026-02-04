@@ -1,5 +1,5 @@
 import { createStore } from 'solid-js/store';
-import { createSignal, createEffect, Show } from "solid-js";
+import { createSignal, createEffect, onCleanup, Show } from "solid-js";
 
 import Button from '../components/button/button.jsx';
 import Loading from '../components/loading/loading.jsx';
@@ -19,9 +19,7 @@ const MetaBox = ({options}) => {
     const [ menuCreated, setMenuCreated ] = createSignal(false);
     const [ noContentFound, setNoContentFound ] = createSignal(false);
 
-    // Not sure if it's better to use post_id here, since we are sending it in to the MetaBox options
     const payload = {
-        // post_id: options.postId,
         permalink: options.permalink,
     };
 
@@ -31,7 +29,10 @@ const MetaBox = ({options}) => {
     createEffect(() => {
         if (options.metaMenu) {
             saveMenuButton = document.querySelector('#save_menu_footer');
-            menuChangeListener();
+            const cleanup = menuChangeListener();
+            onCleanup(() => {
+                if (cleanup) cleanup();
+            });
         } else {
             if (wp?.data?.select) {
                 coreEditor = wp.data.select( 'core/editor' );
@@ -79,22 +80,34 @@ const MetaBox = ({options}) => {
 
     createEffect(() => {
         let saveContentButton;
-        document.addEventListener("cerberusListenerEvent", (payload) => {
+        let clickHandler;
+
+        const handleCerberusEvent = (payload) => {
             if (payload?.detail?.hasChange) {
                 if (!saveContentButton) {
                     saveContentButton = document.querySelector('.editor-post-publish-button');
 
                     if (!saveContentButton) return;
 
-                    saveContentButton.addEventListener('click', () => {
+                    clickHandler = () => {
                         setUnsavedExternalChange(false);
                         saveContentButton.setAttribute('disabled', true);
-                    });
+                    };
+                    saveContentButton.addEventListener('click', clickHandler);
                 }
                 if (saveContentButton) {
                     setUnsavedExternalChange(true);
                     saveContentButton.removeAttribute('disabled');
                 }
+            }
+        };
+
+        document.addEventListener("cerberusListenerEvent", handleCerberusEvent);
+
+        onCleanup(() => {
+            document.removeEventListener("cerberusListenerEvent", handleCerberusEvent);
+            if (saveContentButton && clickHandler) {
+                saveContentButton.removeEventListener('click', clickHandler);
             }
         });
     });
@@ -159,6 +172,13 @@ const MetaBox = ({options}) => {
 
         window.addEventListener('blur', blurListener);
         window.addEventListener('focus', focusListener);
+
+        // Return cleanup function
+        return () => {
+            clearInterval(menuChangeDetectingInterval);
+            window.removeEventListener('blur', blurListener);
+            window.removeEventListener('focus', focusListener);
+        };
     }
 
     const enableMenuSaveButton = () => {
@@ -166,11 +186,118 @@ const MetaBox = ({options}) => {
         setUnsavedMenuChanges(true);
     }
 
+    // Helper functions for menuCheck
+    const updateFieldsetState = (fieldset, isDisabled) => {
+        if (isDisabled) {
+            fieldset.style.pointerEvents = 'none';
+            fieldset.style.cursor = 'not-allowed';
+            fieldset.style.opacity = 0.5;
+        } else {
+            fieldset.style.pointerEvents = 'auto';
+            fieldset.style.cursor = 'default';
+            fieldset.style.opacity = 1;
+        }
+    };
+
+    const updateDisabledMessage = (fieldset, message) => {
+        let messageElement = document.querySelector('.changes-disabled-message');
+
+        if (message) {
+            if (messageElement) {
+                messageElement.innerHTML = message;
+            } else {
+                messageElement = document.createElement('i');
+                messageElement.classList.add('changes-disabled-message');
+                messageElement.innerHTML = message;
+                fieldset.prepend(messageElement);
+            }
+        } else {
+            if (messageElement) {
+                messageElement.parentNode.removeChild(messageElement);
+            }
+        }
+    };
+
+    const setupLocationListeners = (displayLocations) => {
+        let currentMenuIsRegisteredToLocation = false;
+        let locationsSetToOtherMenus = false;
+
+        for (let locationElement of displayLocations) {
+            const input = locationElement.querySelector('input');
+
+            // Only add listener once to prevent memory leaks
+            if (!input.dataset.cerberusListenerAdded) {
+                input.addEventListener('change', () => {
+                    setUnsavedMenuDisplayLocations(true);
+                    enableMenuSaveButton();
+                });
+                input.dataset.cerberusListenerAdded = 'true';
+            }
+
+            const locationAlreadySet = locationElement.querySelector('.theme-location-set');
+
+            if (locationAlreadySet) {
+                // Get the location name from the input's name attribute (e.g., "menu-locations[header_menu]")
+                const locationName = input.name.match(/menu-locations\[([^\]]+)\]/)?.[1];
+
+                // Check if this location is taken by a menu in the SAME language
+                const isInSameLanguage = options.locationLanguages &&
+                                        locationName &&
+                                        options.locationLanguages[locationName] === options.currentLanguage;
+
+                // Only disable if location is taken by a menu in the same language
+                if (isInSameLanguage) {
+                    input.setAttribute('disabled', true);
+                    locationElement.style.pointerEvents = 'none';
+                    locationElement.style.opacity = 0.5;
+                    locationsSetToOtherMenus = true;
+                } else {
+                    // Location is taken by a different language - allow assignment
+                    input.removeAttribute('disabled');
+                    locationElement.style.pointerEvents = 'auto';
+                    locationElement.style.opacity = 1;
+                }
+            }
+
+            if (input.getAttribute('checked')) {
+                currentMenuIsRegisteredToLocation = true;
+            }
+        }
+
+        return { currentMenuIsRegisteredToLocation, locationsSetToOtherMenus };
+    };
+
+    const updateDeleteLink = (isDisabled) => {
+        const deleteLink = document.querySelector('.submitdelete.deletion.menu-delete');
+        if (!deleteLink) return;
+
+        let linkReplacement = document.querySelector('.delete-link-replacement');
+
+        if (isDisabled) {
+            deleteLink.style.display = 'none';
+
+            if (!linkReplacement) {
+                linkReplacement = document.createElement('span');
+                linkReplacement.classList.add('delete-link-replacement');
+                linkReplacement.innerHTML = 'To delete a menu it must be unpublished (and unregisterered from all display locations)';
+                linkReplacement.style.color = '#a7aaad';
+                linkReplacement.style.fontSize = '12px';
+                deleteLink.parentNode.prepend(linkReplacement);
+            } else {
+                linkReplacement.style.display = 'inline';
+            }
+        } else {
+            deleteLink.style.display = 'inline';
+            if (linkReplacement) {
+                linkReplacement.style.display = 'none';
+            }
+        }
+    };
+
     const check = async (showChecking = true) => {
 
         if (showChecking) {
             setChecking(true);
-            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         try {
@@ -213,107 +340,36 @@ const MetaBox = ({options}) => {
         const displayLocations = document.querySelectorAll('.menu-theme-locations > .menu-settings-input');
         const fieldset = document.querySelector('.menu-settings-group.menu-theme-locations');
 
-        const changesDisabledInfo = document.createElement('i');
-        changesDisabledInfo.classList.add('changes-disabled-message');
-
         const existsInDraft = status.draft?.exists;
         const isPublished = status.live && status.live.exists;
 
-        if (!existsInDraft || isPublished) {
-            fieldset.style.pointerEvents = 'none';
-            fieldset.style.cursor = 'not-allowed';
-            fieldset.style.opacity = 0.5;
-        } else {
-            fieldset.style.pointerEvents = 'auto';
-            fieldset.style.cursor = 'default';
-            fieldset.style.opacity = 1;
-        }
+        // Update fieldset state (disabled if not in draft or if published)
+        updateFieldsetState(fieldset, !existsInDraft || isPublished);
 
-        const changesDisabledDOM = document.querySelector('.changes-disabled-message');
+        // Update disabled messages based on state
         if (isPublished) {
-            const publishedMessage = 'Menu must be unpublished before toggling location';
-
-            if (changesDisabledDOM) {
-                changesDisabledDOM.innerHTML = publishedMessage;
-            } else {
-                changesDisabledInfo.innerHTML = publishedMessage;
-                fieldset.prepend(changesDisabledInfo);
-            }
+            updateDisabledMessage(fieldset, 'Menu must be unpublished before toggling location');
+        } else if (!existsInDraft) {
+            updateDisabledMessage(fieldset, 'Menu must be created before toggling location');
         } else {
-            const notSavedMessage = 'Menu must be created before toggling location';
-            if (!existsInDraft) {
-                if (changesDisabledDOM) {
-                    changesDisabledDOM.innerHTML = notSavedMessage;
-                } else {
-                    changesDisabledInfo.innerHTML = notSavedMessage;
-                    fieldset.prepend(changesDisabledInfo);
-                }
-            } else {
-                if (changesDisabledDOM) changesDisabledDOM.parentNode.removeChild(changesDisabledDOM);
-            }
+            updateDisabledMessage(fieldset, null); // Clear message
         }
 
-        let currentMenuIsRegisteredToLocation = false;
+        // Setup location input listeners and check states
+        const { currentMenuIsRegisteredToLocation, locationsSetToOtherMenus } = setupLocationListeners(displayLocations);
 
-        let locationsSetToOtherMenus = false;
-        for (let locationElement of displayLocations) {
-            const input = locationElement.querySelector('input');
-            input.addEventListener('change', () => {
-                setUnsavedMenuDisplayLocations(true);
-                enableMenuSaveButton();
-            });
-
-            const locationAlreadySet = locationElement.querySelector('.theme-location-set');
-
-            if (locationAlreadySet) {
-                input.setAttribute('disabled', true);
-                locationElement.style.pointerEvents = 'none';
-                locationElement.style.opacity = 0.5;
-                locationsSetToOtherMenus = true;
-            }
-
-            if (input.getAttribute('checked')) {
-                currentMenuIsRegisteredToLocation = true;
-            }
-        }
-
+        // Show additional message if some locations are already set
         if (locationsSetToOtherMenus && !isPublished && existsInDraft) {
-            const changesDisabledMessageExists = document.querySelector('.changes-disabled-message');
-            const locationsDisabledText = 'Some locations cannot be set because they are already set';
-
-            if (changesDisabledMessageExists) {
-                changesDisabledMessageExists.innerHTML = locationsDisabledText;
-            } else {
-                changesDisabledInfo.innerHTML = locationsDisabledText;
-                fieldset.prepend(changesDisabledInfo);
-            }
+            updateDisabledMessage(fieldset, 'Some locations cannot be set because they are already set');
         }
 
-        if (location.search.includes('menu=0')) return; // Menu has not yet been created and given a unique ID
+        // Early return if menu hasn't been created yet
+        if (location.search.includes('menu=0')) return;
 
         setMenuCreated(true);
-        const deleteLink = document.querySelector('.submitdelete.deletion.menu-delete');
-        let linkReplacement = document.querySelector('.delete-link-replacement');
 
-        if (currentMenuIsRegisteredToLocation || isPublished) {
-            deleteLink.style.display = 'none';
-
-            if (!linkReplacement) {
-                linkReplacement = document.createElement('span');
-                linkReplacement.classList.add('delete-link-replacement');
-                linkReplacement.innerHTML = 'To delete a menu it must be unpublished (and unregisterered from all display locations)';
-                linkReplacement.style.color = '#a7aaad';
-                linkReplacement.style.fontSize = '12px';
-            } else {
-                linkReplacement.style.display = 'inline';
-            }
-
-            deleteLink.parentNode.prepend(linkReplacement);
-
-        } else {
-            deleteLink.style.display = 'inline';
-            if (linkReplacement) linkReplacement.style.display = 'none';
-        }
+        // Update delete link visibility
+        updateDeleteLink(currentMenuIsRegisteredToLocation || isPublished);
     }
 
     const emitDomEvent = (detail = {}) => {
@@ -335,7 +391,6 @@ const MetaBox = ({options}) => {
         } else {
             setStatus({ state: 'error' });
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
         setPublishing(false);
 
         emitDomEvent({
@@ -357,7 +412,6 @@ const MetaBox = ({options}) => {
         } else {
             setStatus({ state: 'error' });
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
         setUnpublishing(false);
 
         emitDomEvent({

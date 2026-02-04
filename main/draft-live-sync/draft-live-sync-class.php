@@ -297,7 +297,24 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $screen = get_current_screen();
             $is_menu_admin = $screen->base === 'nav-menus';
 
-            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . '}</script>';
+            // Build location languages map for language-aware menu location locking
+            $location_languages = array();
+            if ($is_menu_admin) {
+                global $sitepress;
+                $current_lang = isset($sitepress) ? $sitepress->get_current_language() : '';
+
+                foreach (get_nav_menu_locations() as $location => $menu_id) {
+                    if ($menu_id && isset($sitepress)) {
+                        $menu_language_details = $sitepress->get_element_language_details($menu_id, 'tax_nav_menu');
+                        if ($menu_language_details) {
+                            $location_languages[$location] = $menu_language_details->language_code;
+                        }
+                    }
+                }
+            }
+            $location_languages_json = json_encode($location_languages);
+
+            $output = '<script id="dls-data" type="application/json">{ "optionsMeta": ' . ($options_meta ? 'true' : 'false') . ', "api": "' . plugins_url( '../api', dirname(__FILE__) ) . '", "postId": "' . $post_id . '", "permalink": "' . $permalink . '", "enableDiffButton": ' . $show_diff_button . ', "enableTestContent": ' . $show_test_content . ', "locationLanguages": ' . $location_languages_json . ', "currentLanguage": "' . (isset($current_lang) ? $current_lang : '') . '"}</script>';
             $output .= '<div id="dls-metabox-root"' . ($is_menu_admin ? 'data-type="nav-menu"' : '') . '></div>';
 
             if ($echo) {

@@ -82,7 +82,7 @@ if ( !defined( 'ABSPATH' ) ) {
             return $stored_locations;
         }
 
-        return $locations;
+        return array();
     }, 999); // Run after WPML
 
 }
