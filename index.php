@@ -46,5 +46,44 @@ if ( !defined( 'ABSPATH' ) ) {
 
     add_action( 'init', 'draft_live_sync_init_new');
 
+    // Store language-specific menu locations BEFORE WPML converts them
+    add_filter('pre_update_option_theme_mods_rawb', function($value) {
+        global $sitepress;
+
+        if (!isset($sitepress) || !isset($value['nav_menu_locations'])) {
+            return $value;
+        }
+
+        $current_lang = $sitepress->get_current_language();
+        $option_name = "cerberus_nav_menus_{$current_lang}";
+
+        // Store the ORIGINAL menu IDs before WPML converts them
+        update_option($option_name, $value['nav_menu_locations']);
+
+        error_log("Cerberus: Stored menu locations for {$current_lang}: " . print_r($value['nav_menu_locations'], true));
+
+        return $value; // Let WPML continue with its conversion
+    }, 5); // Run before WPML (priority 10)
+
+    // Retrieve language-specific menu locations (overrides WPML's converted values)
+    add_filter('theme_mod_nav_menu_locations', function($locations) {
+        global $sitepress;
+
+        if (!isset($sitepress)) {
+            return $locations;
+        }
+
+        $current_lang = $sitepress->get_current_language();
+        $option_name = "cerberus_nav_menus_{$current_lang}";
+        $stored_locations = get_option($option_name, false);
+
+        if ($stored_locations !== false) {
+            error_log("Cerberus: Retrieved menu locations for {$current_lang}: " . print_r($stored_locations, true));
+            return $stored_locations;
+        }
+
+        return $locations;
+    }, 999); // Run after WPML
+
 }
 
