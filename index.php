@@ -60,8 +60,6 @@ if ( !defined( 'ABSPATH' ) ) {
         // Store the ORIGINAL menu IDs before WPML converts them
         update_option($option_name, $value['nav_menu_locations']);
 
-        error_log("Cerberus: Stored menu locations for {$current_lang}: " . print_r($value['nav_menu_locations'], true));
-
         return $value; // Let WPML continue with its conversion
     }, 5); // Run before WPML (priority 10)
 
@@ -78,7 +76,6 @@ if ( !defined( 'ABSPATH' ) ) {
         $stored_locations = get_option($option_name, false);
 
         if ($stored_locations !== false) {
-            error_log("Cerberus: Retrieved menu locations for {$current_lang}: " . print_r($stored_locations, true));
             return $stored_locations;
         }
 
