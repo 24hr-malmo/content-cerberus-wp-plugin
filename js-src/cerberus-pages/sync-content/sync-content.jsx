@@ -11,14 +11,14 @@ import Item from '../../components/item/item.jsx';
 
 const SyncContent = ({type}) => {
 
-    const [ _, { apiUrl } ] = useContext(AppContext);
+    const [ state, { apiUrl, setAllLanguages } ] = useContext(AppContext);
     const [ items, setItems ] = createStore({ list: [] });
     const [ filteredItems, setFilteredItems ] = createStore({ list: [] });
     const [ checking, setChecking ] = createSignal(false);
     const [ createTreeChecking, setCreateTreeChecking ] = createSignal(false);
 
     createEffect(async () => {
-        const result = await wpAjaxAction('get_all_resources');
+        const result = await wpAjaxAction('get_all_resources', { all_languages: state.allLanguages });
         const parsed = result.list.map((item, index) => {
             return {
                 ...item,
@@ -160,7 +160,17 @@ const SyncContent = ({type}) => {
             />
             <div style="padding-bottom:10px;">
                 <label for="filter">Filter</label>
-                <input type="text" name="filter" onInput={handleFilterItems} />
+                <input type="text" name="filter" onInput={handleFilterItems} disabled={checking()} />
+                <label for="all-languages" style="margin-left:20px;">
+                    <input
+                        type="checkbox"
+                        id="all-languages"
+                        checked={state.allLanguages}
+                        onChange={(e) => setAllLanguages(e.target.checked)}
+                        disabled={checking()}
+                    />
+                    All Languages
+                </label>
             </div>
             <For each={filteredItems.list}>
                 { (item) =>  {

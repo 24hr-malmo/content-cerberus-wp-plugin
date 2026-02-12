@@ -9,6 +9,7 @@ export function AppProvider(props) {
 
     const [state, setState] = createStore({
         path: startPath,
+        allLanguages: true,
     });
 
     window.addEventListener('popstate', (event) => {
@@ -22,6 +23,7 @@ export function AppProvider(props) {
     const store = [
         state, {
             apiUrl: props.values.api,
+            setAllLanguages: (value) => setState({ allLanguages: value }),
         }
     ];
 

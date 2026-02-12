@@ -570,34 +570,85 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
         }
 
         // Constructs a list of urls
-        function add_to_complete_url_list($type = 'post') {
+        function add_to_complete_url_list($type = 'post', $all_languages = false) {
 
             $list = array();
-            $posts = get_posts(
-                array(
 
-                    'numberposts'       => 10000,
-                    'post_type'         => $type,
+            if ($all_languages) {
+                // Get posts from all languages
+                global $sitepress;
 
-                    // Make sure that we only return the current language
-                    'suppress_filters'  => 0,
+                if (isset($sitepress)) {
+                    $active_languages = $sitepress->get_active_languages();
+                    $current_lang = $sitepress->get_current_language();
 
-                )
-            );
+                    foreach ($active_languages as $lang_code => $language) {
+                        // Switch to this language
+                        $sitepress->switch_lang($lang_code);
 
-            foreach ( $posts as $post ) {
+                        $posts = get_posts(
+                            array(
+                                'numberposts'       => 10000,
+                                'post_type'         => $type,
+                                'suppress_filters'  => 0,
+                            )
+                        );
 
-                $permalink = '';
+                        foreach ( $posts as $post ) {
+                            $permalink = get_permalink($post->ID);
+                            $permalink = $this->cleanup_permalink($permalink);
 
-                $permalink = get_permalink($post->ID);
+                            $link_object = new stdclass();
+                            $link_object->permalink = $permalink;
+                            $link_object->type = $type;
 
-                $permalink = $this->cleanup_permalink($permalink);
+                            array_push($list, $link_object);
+                        }
+                    }
 
-                $link_object = new stdclass();
-                $link_object->permalink = $permalink;
-                $link_object->type = $type;
+                    // Switch back to original language
+                    $sitepress->switch_lang($current_lang);
+                } else {
+                    // No WPML, just get all posts
+                    $posts = get_posts(
+                        array(
+                            'numberposts'       => 10000,
+                            'post_type'         => $type,
+                            'suppress_filters'  => 1,
+                        )
+                    );
 
-                array_push($list, $link_object);
+                    foreach ( $posts as $post ) {
+                        $permalink = get_permalink($post->ID);
+                        $permalink = $this->cleanup_permalink($permalink);
+
+                        $link_object = new stdclass();
+                        $link_object->permalink = $permalink;
+                        $link_object->type = $type;
+
+                        array_push($list, $link_object);
+                    }
+                }
+            } else {
+                // Get posts from current language only
+                $posts = get_posts(
+                    array(
+                        'numberposts'       => 10000,
+                        'post_type'         => $type,
+                        'suppress_filters'  => 0,
+                    )
+                );
+
+                foreach ( $posts as $post ) {
+                    $permalink = get_permalink($post->ID);
+                    $permalink = $this->cleanup_permalink($permalink);
+
+                    $link_object = new stdclass();
+                    $link_object->permalink = $permalink;
+                    $link_object->type = $type;
+
+                    array_push($list, $link_object);
+                }
             }
 
             return $list;
@@ -716,11 +767,47 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             return rest_ensure_response(json_decode($cleaned));
         }
 
-        function get_all_resources() {
+        function get_menu_endpoints_all_languages() {
+            global $sitepress;
+            $endpoints = array();
+
+            if (!isset($sitepress)) {
+                return $this->additional_endpoints;
+            }
+
+            $active_languages = $sitepress->get_active_languages();
+
+            foreach ($active_languages as $lang_code => $language) {
+                // Temporarily remove our custom filter to get actual menu locations per language
+                $filter_priority = 999;
+                $filter_function = null;
+
+                // Get the current language's menu locations
+                foreach (get_registered_nav_menus() as $location => $description) {
+                    // Check if this location has a menu in this language
+                    $option_name = "cerberus_nav_menus_{$lang_code}";
+                    $stored_locations = get_option($option_name, false);
+
+                    if ($stored_locations !== false && isset($stored_locations[$location])) {
+                        $permalink = '/wp-json/content/v1/menus/' . $location . '/' . $lang_code;
+                        $endpoints[] = $permalink;
+                    }
+                }
+            }
+
+            return $endpoints;
+        }
+
+        function get_all_resources($all_languages = false) {
 
             $list = array();
 
-            $option_permalinks = $this->additional_endpoints;
+            // For menus, we need to get endpoints from all languages if requested
+            if ($all_languages) {
+                $option_permalinks = $this->get_menu_endpoints_all_languages();
+            } else {
+                $option_permalinks = $this->additional_endpoints;
+            }
 
             foreach ( $option_permalinks as $option_permalink ) {
                 $option = new stdclass();
@@ -733,7 +820,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $post_types = $this->get_enabled_post_types();
 
             foreach ( $post_types as $post_type ) {
-                $list = array_merge($list, $this->add_to_complete_url_list($post_type));
+                $list = array_merge($list, $this->add_to_complete_url_list($post_type, $all_languages));
             }
 
             // $list = array_merge($list, $this->add_tags_to_complete_url_list());

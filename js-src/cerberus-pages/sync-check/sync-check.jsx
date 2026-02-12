@@ -11,12 +11,12 @@ import Item from '../../components/item/item.jsx';
 
 const SyncCheck = () => {
 
-    const [ _, { apiUrl } ] = useContext(AppContext);
+    const [ state, { apiUrl, setAllLanguages } ] = useContext(AppContext);
     const [ items, setItems ] = createStore({ list: [] });
     const [ checking, setChecking ] = createSignal(false);
 
     createEffect(async () => {
-        const result = await wpAjaxAction('get_all_resources');
+        const result = await wpAjaxAction('get_all_resources', { all_languages: state.allLanguages });
         const parsed = result.list.map((item, index) => {
             return {
                 ...item,
@@ -88,6 +88,18 @@ const SyncCheck = () => {
                 description="This is where you can check if all content is in sync"
                 actions={ (<Button loading={checking()} onClick={() => doAll() }>Begin to check</Button>) }
             />
+            <div style="padding-bottom:10px;">
+                <label for="all-languages">
+                    <input
+                        type="checkbox"
+                        id="all-languages"
+                        checked={state.allLanguages}
+                        onChange={(e) => setAllLanguages(e.target.checked)}
+                        disabled={checking()}
+                    />
+                    All Languages
+                </label>
+            </div>
             <For each={items.list}>
                 { (item) =>  {
                     return (<Item
