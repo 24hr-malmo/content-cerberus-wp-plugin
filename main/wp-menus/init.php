@@ -39,19 +39,21 @@ add_action('init', function() {
             }
         }
 
-        $language = '';
-        if (isset($sitepress)) {
-            $language = '/' . $sitepress->get_current_language();
-        }
-
-        $permalink = '/wp-json/content/v1/menus/byId/' . $post_id . $language;
+        // Sync menu entity by ID - NO language suffix (menu entities are language-agnostic)
+        $permalink = '/wp-json/content/v1/menus/byId/' . $post_id;
         $draft_live_sync->upsert('draft', $permalink);
-    
+
         if ($menu_location !== '') {
 
             /**
              * If the menu is associated with a location we must also add it to that location's entry in the database
+             * Location assignments ARE language-specific, so we include the language suffix
              */
+
+            $language = '';
+            if (isset($sitepress)) {
+                $language = '/' . $sitepress->get_current_language();
+            }
 
             $location_permalink = '/wp-json/content/v1/menus/' . $menu_location . $language;
             $draft_live_sync->upsert('draft', $location_permalink);
@@ -59,8 +61,8 @@ add_action('init', function() {
         } else {
 
             foreach( get_registered_nav_menus() as $registered_location => $name) { // Fetches all registered locations - even if they don't have an associated menu
-                
-                if (!$location_menus[ $registered_location ]) { 
+
+                if (!$location_menus[ $registered_location ]) {
                     /**
                      * If we find a registered_location without an associated menu, the content in the registered menu location entry in the DB should be empty.
                      * This may not be the case if the user has recently unset the location for a particular menu.
@@ -68,8 +70,10 @@ add_action('init', function() {
                      * we unpublish the menu from draft in case it's not already empty
                      */
 
+                    $language = '';
                     $languageSuffix = '';
                     if (isset($sitepress)) {
+                        $language = '/' . $sitepress->get_current_language();
                         $languageSuffix = '-' . $sitepress->get_current_language();
                     }
 
