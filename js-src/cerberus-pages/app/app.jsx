@@ -5,6 +5,7 @@ import Navigation from '../navigation/navigation.jsx';
 import SyncContent from '../sync-content/sync-content.jsx';
 import SyncCheck from '../sync-check/sync-check.jsx';
 import Start from '../start/start.jsx';
+import MenusDebug from '../menus-debug/menus-debug.jsx';
 import { Heading1 } from '../../components/heading/heading.jsx';
 import { StyledContainer } from './app.styled.jsx';
 
@@ -20,6 +21,7 @@ const App = () => {
             <Show when={ state.path === 'sync-check' }><SyncCheck/></Show>
             <Show when={ state.path === 'sync-draft' }><SyncContent type="draft"/></Show>
             <Show when={ state.path === 'sync-live' }><SyncContent type="live"/></Show>
+            <Show when={ state.path === 'debug' }><MenusDebug/></Show>
         </StyledContainer>
     );
 

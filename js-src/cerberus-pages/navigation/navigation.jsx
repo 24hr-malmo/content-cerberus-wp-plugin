@@ -12,6 +12,7 @@ const Navigation = () => {
             <StyledLink href="#sync-check">Sync Check</StyledLink>
             <StyledLink href="#sync-draft">Sync Draft</StyledLink>
             <StyledLink href="#sync-live">Sync Live</StyledLink>
+            <StyledLink href="#debug">Menus Debug</StyledLink>
         </Container>
     );
 
