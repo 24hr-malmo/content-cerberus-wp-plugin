@@ -343,6 +343,41 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             return true;
         }
 
+        private function get_location_permalinks_for_menu_byid_permalink($permalink) {
+            /**
+             * Given a byId permalink (e.g. /wp-json/content/v1/menus/byId/42/en),
+             * returns an array of location permalinks for all locations this menu is assigned to.
+             * e.g. [ '/wp-json/content/v1/menus/header_menu/en' ]
+             */
+
+            if (!strpos($permalink, 'menus/byId')) {
+                return array();
+            }
+
+            preg_match('/menus\/byId\/(\d+)/', $permalink, $matches);
+            if (empty($matches[1])) {
+                return array();
+            }
+
+            $menu_id = intval($matches[1]);
+
+            global $sitepress;
+            $language = '';
+            if (isset($sitepress)) {
+                $language = '/' . $sitepress->get_current_language();
+            }
+
+            $location_permalinks = array();
+
+            foreach (get_nav_menu_locations() as $location => $assigned_menu_id) {
+                if ($assigned_menu_id == $menu_id) {
+                    $location_permalinks[] = '/wp-json/content/v1/menus/' . $location . $language;
+                }
+            }
+
+            return $location_permalinks;
+        }
+
         private function get_menu_permalink_from_registered_menu_location_permalink($permalink) {
             /**
              * Any menu that is registered to a location, e.g. header_menu, is stored in 2 places, e.g.:
@@ -422,17 +457,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 }
             }
 
-            // If a registered menu, find the location of it
-            $is_registered_location = false;
-            $menu_location = '';
-
-            foreach( get_nav_menu_locations() as $location => $menu_id ) {
-                if( $post_id == $menu_id ){
-                    $is_registered_location = true;
-                    $menu_location = $location;
-                }
-            }
-
 
             // If the wordpress installation has WPML, handle that as well
             global $sitepress;
@@ -444,22 +468,8 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 $language = '/' . $sitepress->get_current_language();
             }
 
-            /**
-             *
-             * Menus with registered locations need to be stored in two locations.
-             *      - under their location (e.g. menus/header_menu/ja)
-             *      - and according to their unique menu id (e.g. menus/byId/42/ja)
-             *
-             * For all intents and purposes we ignore the unique id key/permalink until in the final step of publishing/unpublishing
-             * the content, where we duplicate the process to make a "copy" on the unique menu id permalink
-             *
-             */
-            if ($is_registered_location) {
-                $menu_permalink = '/wp-json/content/v1/menus/' . $menu_location;
-            } else {
-                $menu_permalink = '/wp-json/content/v1/menus/byId/' . $post_id;
-            }
-
+            
+            $menu_permalink = '/wp-json/content/v1/menus/byId/' . $post_id;
             $permalink = $menu_permalink . $language;
 
             // We want to pass extra arguments just like add_meta_box() would do to the callback publish_status_meta_box_callback
@@ -774,16 +784,12 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             $endpoints = array();
 
             if (!isset($sitepress)) {
-                return $this->additional_endpoints;
+                return array();
             }
 
             $active_languages = $sitepress->get_active_languages();
 
             foreach ($active_languages as $lang_code => $language) {
-                // Temporarily remove our custom filter to get actual menu locations per language
-                $filter_priority = 999;
-                $filter_function = null;
-
                 // Get the current language's menu locations
                 foreach (get_registered_nav_menus() as $location => $description) {
                     // Check if this location has a menu in this language
