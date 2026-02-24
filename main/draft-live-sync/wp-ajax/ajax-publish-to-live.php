@@ -16,10 +16,8 @@ trait AjaxPublishToLiveTrait {
 
         $response = $this->copy('draft', 'live', $permalink);
 
-        if ($this->check_if_registered_menu_location_permalink($permalink)) {
-            // If permalink is a menu with registered location (e.g. header_menu) we need to publish it in two places
-            $contentDuplicatePermalink =  $this->get_menu_permalink_from_registered_menu_location_permalink($permalink);
-            $this->copy('draft', 'live', $contentDuplicatePermalink);
+        foreach ($this->get_location_permalinks_for_menu_byid_permalink($permalink) as $locationPermalink) {
+            $this->copy('draft', 'live', $locationPermalink);
         }
 
         header( "Content-Type: application/json" );

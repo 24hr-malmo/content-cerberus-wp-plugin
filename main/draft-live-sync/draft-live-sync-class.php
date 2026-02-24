@@ -328,21 +328,11 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
 
         }
 
-        private function check_if_registered_menu_location_permalink($permalink) {
-            /**
-             * Checks if permalink belongs to a menu with a registered location, e.g. header_menu (and not just by id)
-             */
-            if (!strpos($permalink, 'menus')) {
-                return false;
-            }
-
-            if (strpos($permalink, 'menus/byId')) {
-                return false;
-            }
-
-            return true;
-        }
-
+        /**
+         * When syncing to draft and we only have permalink to work with, we'd need to check against WP
+         * When syncing to live and we only have permalink to work with, we could try check against draft
+         * but this works as well for now.
+         */
         private function get_location_permalinks_for_menu_byid_permalink($permalink) {
             /**
              * Given a byId permalink (e.g. /wp-json/content/v1/menus/byId/42/en),
@@ -376,42 +366,6 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
             }
 
             return $location_permalinks;
-        }
-
-        private function get_menu_permalink_from_registered_menu_location_permalink($permalink) {
-            /**
-             * Any menu that is registered to a location, e.g. header_menu, is stored in 2 places, e.g.:
-             *      menus/header_menu/en
-             *      menus/byId/42/en
-             *
-             * Received permalink is a registered menu link (e.g. /menus/header_menu/ja).
-             * From this we fetch the contents (the stored menu).
-             * Return the id-based permalink of the menu.
-             *
-             */
-
-            $content = $this->get_content($permalink);
-
-            if ($content->payload == '404' || empty($content->payload)) {
-                error_log('--- check-sync --- Couldn\'t find content with $permalink: ' . $permalink);
-                return false;
-            }
-
-            $registered_menu_ID = $content->payload->menuId;
-            if (!$registered_menu_ID) {
-                return false;
-            }
-
-            global $sitepress;
-            $language = '';
-
-            if (isset($sitepress)) {
-                $language = '/' . $sitepress->get_current_language();
-            }
-
-            $contentDuplicatePermalink = '/wp-json/content/v1/menus/byId/' . $registered_menu_ID . $language;
-
-            return $contentDuplicatePermalink;
         }
 
         public function get_enabled_post_types() {
