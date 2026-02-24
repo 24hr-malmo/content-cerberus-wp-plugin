@@ -69,7 +69,7 @@ add_action('wp_update_nav_menu', function ( $post_id, $data = NULL ) {
 }, 10, 3);
 
 /**
- * Sync changes to location header_menu only. Has a guard to prevent unnecessary operations, since the target hook runs on any theme change.
+ * Sync draft changes to location header_menu only. Has a guard to prevent unnecessary operations, since the target hook runs on any theme change.
  * Normally you have only one wp option for locations. But we've made our custom locations entries that have a language suffix.
  * This is manages sync to draft.
  */
