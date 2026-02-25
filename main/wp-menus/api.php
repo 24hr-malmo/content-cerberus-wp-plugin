@@ -26,10 +26,8 @@ add_action( 'rest_api_init', function() {
             $sitepress->switch_lang( $language, false );
         }
 
-        $external_id_slug = 'by_id-' . $id;
-
         $generator = new ContentCerberusMenuGenerator();
-        $response = $generator->get_menu($id, $external_id_slug, $language);
+        $response = $generator->get_menu($id, CerberusExternalId::from_menu_id($id));
 
         return $draft_live_sync->clean_response($response);
 

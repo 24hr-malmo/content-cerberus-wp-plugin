@@ -50,9 +50,7 @@ trait AjaxGetHeaderMenusDebugTrait {
                     $language_suffix = $lang_code ? '/' . $lang_code : '';
                     $wp_permalink = '/wp-json/content/v1/menus/header_menu' . $language_suffix;
 
-                    // Construct externalId (following pattern from menu-generator.php:31)
-                    $external_id_suffix = $lang_code ? '-' . $lang_code : '';
-                    $external_id = 'menus-header_menu' . $external_id_suffix;
+                    $external_id = CerberusExternalId::from_menu_location('header_menu', $lang_code);
 
                     // Query content service using existing method
                     $draft_result = $this->get_resource_from_content($wp_permalink, 'draft');

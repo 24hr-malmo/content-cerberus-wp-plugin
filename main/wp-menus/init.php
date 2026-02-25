@@ -105,7 +105,7 @@ add_action('update_option_theme_mods_rawb', function($old_value, $new_value) {
     }
     // Null, no lang spec header menu in WP anymore. Unpublish the permalink
     else if ($stored_locations === null) {
-        $externalId = ContentCerberusMenuGenerator::build_external_id($locationKey, $current_lang);
+        $externalId = CerberusExternalId::from_menu_location($locationKey, $current_lang);
         $draft_live_sync->unpublish('draft', $externalId, $location_permalink, );
     }
 }, 999, 2);

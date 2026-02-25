@@ -4,11 +4,7 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
 
     class ContentCerberusMenuGenerator {
 
-        public static function build_external_id($slug, $language = '') {
-            return 'menus-' . $slug . ($language ? '-' . $language : '');
-        }
-
-        public function get_menu($term_id, $external_id_slug, $language = '') {
+        public function get_menu($term_id, $external_id) {
 
             $response = new stdclass();
 
@@ -25,7 +21,7 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
 
             $response->type = 'menu';
             $response->parentId = '0';
-            $response->externalId = self::build_external_id($external_id_slug, $language);
+            $response->externalId = $external_id;
 
             $response = apply_filters('cerberus/menu', $response);
 
@@ -43,7 +39,7 @@ if ( ! class_exists( 'ContentCerberusMenuGenerator' ) ) {
 
             $selected_menu_object = get_term( $registered_locations[$menu_location], 'nav_menu' );
 
-            $response = $this->get_menu($selected_menu_object->term_id, $menu_location, $language);
+            $response = $this->get_menu($selected_menu_object->term_id, CerberusExternalId::from_menu_location($menu_location, $language));
 
             return $response;
 

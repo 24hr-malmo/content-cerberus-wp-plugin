@@ -47,7 +47,7 @@ trait UnpublishTrait {
 
         $variables = array(
             'target' => $target,
-            'externalId' => empty($post_type) ? strval($id) : $post_type . '-' . $id,
+            'externalId' => empty($post_type) ? strval($id) : CerberusExternalId::from_post($post_type, $id),
             'key' => $key,
             'userInfo' => strval($user->ID),
             'siteId' => $this->site_id,

@@ -25,6 +25,7 @@ if ( !defined( 'ABSPATH' ) ) {
 
     include_once 'lib/php-jwt/src/JWT.php';
     require_once 'lib/graphql.php';
+    require_once 'lib/external-id.php';
     require_once 'main/draft-live-sync-wp-cron-fix.php';
     require_once 'main/draft-live-sync-settings.php';
     require_once 'main/draft-live-sync/draft-live-sync-class.php';

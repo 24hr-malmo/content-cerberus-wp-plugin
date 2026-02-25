@@ -112,6 +112,33 @@ const MetaBox = ({options}) => {
         });
     });
 
+    createEffect(() => {
+        if (checking()) {
+            console.log('[MetaBox] Buttons hidden — reason: checking status');
+            return;
+        }
+        if (unsavedMenuDisplayLocations()) {
+            console.log('[MetaBox] Buttons hidden — reason: unsaved display location changes', {
+                unsavedMenuDisplayLocations: unsavedMenuDisplayLocations(),
+            });
+            return;
+        }
+        if (!status.draft?.exists) {
+            console.log('[MetaBox] Buttons hidden — reason: draft does not exist', {
+                draft: status.draft,
+                statusState: status.state,
+            });
+            return;
+        }
+        console.log('[MetaBox] Buttons visible', {
+            draft: status.draft,
+            live: status.live,
+            unsavedPageChanges: unsavedPageChanges(),
+            unsavedMenuChanges: unsavedMenuChanges(),
+            unsavedExternalChange: unsavedExternalChange(),
+        });
+    });
+
     const pageChangeListener = () => {
         let saveContentButton;
 
@@ -306,9 +333,19 @@ const MetaBox = ({options}) => {
                 throw(payload);
             }
 
+            const draftStatus = result.data.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original');
+            const liveStatus = result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft');
+
+            console.log('[MetaBox] check_sync raw resourceStatus:', result.data.resourceStatus);
+            console.log('[MetaBox] check_sync resolved —', {
+                permalink: payload.permalink,
+                draft: draftStatus,
+                live: liveStatus,
+            });
+
             setStatus({
-                draft: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'draft' && itemStatus.comparedTo === '__original'),
-                live: result.data.resourceStatus.find(itemStatus => itemStatus.target === 'live' && itemStatus.comparedTo === 'draft'),
+                draft: draftStatus,
+                live: liveStatus,
                 state: 'loaded',
             });
 

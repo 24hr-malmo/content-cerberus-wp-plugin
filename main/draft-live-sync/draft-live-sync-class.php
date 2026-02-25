@@ -481,7 +481,7 @@ if ( ! class_exists( 'DraftLiveSync' ) ) {
                 }
 
                 $key = '/wp-json/content/v1/menus/byId/' . $term_id . $language;
-                $externalId = 'menus-by_id-' . $term_id;
+                $externalId = CerberusExternalId::from_menu_id($term_id);
 
                 $this->unpublish('draft', $externalId, $key);
             }
