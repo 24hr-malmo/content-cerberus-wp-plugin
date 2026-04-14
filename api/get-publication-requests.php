@@ -15,14 +15,16 @@ if(class_exists( 'DraftLiveSync' )){
 
     $query = <<<'GRAPHQL'
         query resources(
-            $siteId: String! 
+            $siteId: String!
             $target: String!
             $limit: Int
+            $order: ResourceOrder
         ) {
             resources (
                 siteId: $siteId
                 target: $target
                 limit: $limit
+                order: $order
             ) {
                 key
                 externalId
@@ -35,7 +37,8 @@ if(class_exists( 'DraftLiveSync' )){
     $variables = array(
         'siteId' => 'publication-requests',
         'target' => 'publication-requests',
-        'limit' => 2000 // TODO: temporary fix for getting all publication requests, needs to be solved with pagination
+        'limit' => 2000,
+        'order' => 'DESC',
     );
 
     try {
