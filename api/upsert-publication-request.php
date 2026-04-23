@@ -46,6 +46,35 @@
         $id = $post->payload->id ?? 'NO-ID';
         $requestExternalId = 'publication-request-' . $id . '-site-id-' . $siteId;
 
+        // When a non-pending status is set (e.g. admin approving/rejecting),
+        // preserve the original requester's info instead of overwriting with the current user.
+        $fromUserId = strval($user->ID);
+        $fromUserName = strval($user->user_nicename);
+        $fromUserEmail = strval($user->user_email);
+
+        if ($approvalStatus !== 'pending') {
+            $existingQuery = <<<'GRAPHQL'
+                query getResource($siteId: String!, $target: String!, $externalId: String!) {
+                    resource(siteId: $siteId, target: $target, externalId: $externalId) {
+                        content
+                    }
+                }
+            GRAPHQL;
+
+            $existingResult = graphql_query($draft_live_sync->content_host, $existingQuery, array(
+                'siteId' => 'publication-requests',
+                'target' => 'publication-requests',
+                'externalId' => $requestExternalId,
+            ));
+
+            $existingContent = $existingResult['data']['resource']['content'] ?? null;
+            if ($existingContent) {
+                $fromUserId = $existingContent['from_user_id'] ?? $fromUserId;
+                $fromUserName = $existingContent['from_user_name'] ?? $fromUserName;
+                $fromUserEmail = $existingContent['from_user_email'] ?? $fromUserEmail;
+            }
+        }
+
         $variables = array(
             'target' => 'publication-requests',
             'siteId' => 'publication-requests',
@@ -55,9 +84,9 @@
                 'externalId' => $requestExternalId,
                 'type' => 'publication-request',
                 'content' => array(
-                    'from_user_id' => strval($user->ID),
-                    'from_user_name' => strval($user->user_nicename),
-                    'from_user_email' => strval($user->user_email),
+                    'from_user_id' => $fromUserId,
+                    'from_user_name' => $fromUserName,
+                    'from_user_email' => $fromUserEmail,
                     'from_site_id' => $siteId,
                     'from_site_name' => $siteName,
                     'post_title' => $post->payload->post_title,

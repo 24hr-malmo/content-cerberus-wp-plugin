@@ -120,7 +120,7 @@ export const updatePublicationApproval = async (status = '') => {
 
     contentStatus.setChecking(false);
 
-    if (status === 'approved' || status === 'rejected' || 'approvedAndPublished') {
+    if (status === 'approved' || status === 'rejected') {
         notifyEditor();
     }
 }
