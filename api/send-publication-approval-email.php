@@ -6,16 +6,23 @@
         error_log('-- publication-approval - Creating email');
         try {
             $approvalStatus = $data['approvalStatus'] ?? false;
+            // Map internal status keys to human-readable wording for the email.
+            $statusLabels = array(
+                'approved' => 'approved',
+                'rejected' => 'rejected',
+                'approvedAndPublished' => 'approved and published',
+            );
+            $approvalStatusLabel = $statusLabels[$approvalStatus] ?? $approvalStatus;
             $postTitle = $data['postTitle'] ?? false;
             $admin = $data['admin'] ?? false;
             $rejectionReason = ($approvalStatus === 'rejected' && $data['rejectionReason']) ? $data['rejectionReason'] : false;
             $siteTitle = $data['siteTitle'] ?? false;
             $postUrl = $data['postUrl'] ?? false;
         
-            $subject = "Publication " .$approvalStatus. " for \"" .$postTitle. "\"";
-        
+            $subject = "Publication " .$approvalStatusLabel. " for \"" .$postTitle. "\"";
+
             $message = "<p>Hello, this is an automated message" .($siteTitle ? " from " .$siteTitle : ""). ",</p>\n\n";
-            $message .= "<p>Your request to publish post \"" .$postTitle. "\" was " .$approvalStatus. " by " .$admin. ".</p>\n\n";
+            $message .= "<p>Your request to publish post \"" .$postTitle. "\" was " .$approvalStatusLabel. " by " .$admin. ".</p>\n\n";
             $message .= $rejectionReason ? "<p>Reason for rejection: " .$rejectionReason. "</p>\n\n" : "";
             $message .= "<p><a href='" .$postUrl. "'>View it here.</a></p>\n\n";
 
