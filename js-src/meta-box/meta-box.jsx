@@ -62,7 +62,6 @@ const MetaBox = ({options}) => {
 
             linkToPreview.innerHTML = 'Preview';
             setLinkToPreview(linkToPreview);
-            document.querySelector('.edit-post-header__settings').prepend(linkToPreview);
             linkToPreview.addEventListener('click', function(event) {
                 const previewLink = wp.data.select('core/editor').getEditedPostPreviewLink();
                 if (wp.data.select('core/editor').isEditedPostDirty()) {
@@ -78,10 +77,22 @@ const MetaBox = ({options}) => {
                     window.open( previewLink, previewTarget );
                 }
             });
+
+            // The editor header renders after this meta box, so wait for it.
+            // WP 6.5+ uses .editor-header__settings, older WP .edit-post-header__settings.
+            let tries = 0;
+            const insert = () => {
+                const header = document.querySelector('.editor-header__settings, .edit-post-header__settings');
+                if (header) {
+                    header.prepend(linkToPreview);
+                } else if (tries++ < 100) {
+                    setTimeout(insert, 100);
+                }
+            };
+            insert();
         }
-        // A temp fix, if we dont use a timeout .edit-post-header__settings is undefined.
-        // And this whole button doesnt really belong in this meta-box.
-        setTimeout(addPreviewButton, 700);
+        // This whole button doesnt really belong in this meta-box.
+        addPreviewButton();
     })
 
     createEffect(() => {
